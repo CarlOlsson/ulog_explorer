@@ -69,7 +69,11 @@ class Window(QtGui.QMainWindow):
         pg.setConfigOption('foreground', 'k')
         self.graph_widget = pg.GraphicsLayoutWidget()
 
-        self.main_graph = self.graph_widget.addPlot(row=0, col=0)
+        self.secondary_graph = self.graph_widget.addPlot(row=0, col=0)
+        self.secondary_graph.setAspectLocked(lock=True, ratio=1)
+        self.secondary_graph.showGrid(True, True, 0.5)
+
+        self.main_graph = self.graph_widget.addPlot(row=0, col=1)
         self.main_graph.showGrid(True, True, 0.5)
         self.main_graph.keyPressEvent = self.keyPressed
 
@@ -95,6 +99,9 @@ class Window(QtGui.QMainWindow):
         ROI_action = QtGui.QAction('show/hide ROI', self.main_graph)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.main_graph.scene().contextMenu.append(ROI_action)
+        secondary_graph_action = QtGui.QAction('show/hide secondary graph', self.main_graph)
+        secondary_graph_action.triggered.connect(self.callback_toggle_secondary_graph)
+        self.main_graph.scene().contextMenu.append(secondary_graph_action)
 
         self.graph_layout.addWidget(self.graph_widget)
 
@@ -133,17 +140,24 @@ class Window(QtGui.QMainWindow):
                                            labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
         self.marker_line.hide()
         self.main_graph.addItem(self.marker_line, ignoreBounds=True)
-        self.marker_line.sigDragged.connect(self.update_marker_line_label)
+        self.marker_line.sigDragged.connect(self.update_marker_line_status)
 
+        # Create ROI
         self.ROI_region = pg.LinearRegionItem()
         self.ROI_region.hide()
         self.main_graph.addItem(self.ROI_region, ignoreBounds=True)
+
+        # Create arrow for the vehicle position in the trajectory analysis
+        self.arrow = pg.ArrowItem(Angle=0, tipAngle=30, baseAngle=20, headLen=40, tailLen=None, brush='g')
+        self.arrow.setPos(0, 0)
+        self.arrow.hide()
+        self.secondary_graph.addItem(self.arrow)
 
         pg.setConfigOptions(antialias=True)
 
         self.update_frontend()
 
-    def update_marker_line_label(self):
+    def update_marker_line_status(self):
         marker_line_label = ''
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
         for elem in self.backend.curve_list:
@@ -152,11 +166,27 @@ class Window(QtGui.QMainWindow):
 
         self.marker_line.label.textItem.setPlainText(marker_line_label)
 
+        if self.backend.show_marker_line:
+            idx_vehicle_local_position = np.argmax(self.backend.df_dict['vehicle_local_position_0'].index > self.marker_line.value()) - 1
+            pos_x = self.backend.df_dict['vehicle_local_position_0']['x'].values[idx_vehicle_local_position]
+            pos_y = self.backend.df_dict['vehicle_local_position_0']['y'].values[idx_vehicle_local_position]
+            idx_vehicle_attitude = np.argmax(self.backend.df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
+            yaw = self.backend.df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
+            self.arrow.setPos(pos_y, pos_x)
+
     def callback_open_logfile(self):
         self.fronted_cleanup()
         self.open_logfile(self.backend.path_to_logfile)
+        self.set_marker_line_in_middle()
         self.update_frontend()
         self.main_graph.autoRange()
+
+    def callback_toggle_secondary_graph(self):
+        self.backend.show_secondary_graph = not self.backend.show_secondary_graph
+        # Initialize the marker line if it was not already displayed
+        if self.backend.show_secondary_graph and not self.backend.show_marker_line:
+            self.callback_toggle_marker_line()
+        self.update_frontend()
 
     def callback_toggle_marker(self):
         if self.backend.symbol == None:
@@ -188,12 +218,15 @@ class Window(QtGui.QMainWindow):
 
     def callback_toggle_marker_line(self):
         self.backend.show_marker_line = not self.backend.show_marker_line
+        self.set_marker_line_in_middle()
+        self.update_frontend()
+
+    def set_marker_line_in_middle(self):
         # Calculate midpoint along x axis on current graph
         rect = self.main_graph.viewRange()
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
         self.marker_line.setValue(midpoint)
-        self.update_frontend()
 
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
@@ -379,11 +412,13 @@ class Window(QtGui.QMainWindow):
         else:
             self.fronted_cleanup()
 
-        # Display marker line
+        # Display marker line and arrow
         if self.backend.show_marker_line:
             self.marker_line.show()
+            self.arrow.show()
         else:
             self.marker_line.hide()
+            self.arrow.hide()
 
         # Display ROI
         if self.backend.show_ROI:
@@ -403,13 +438,22 @@ class Window(QtGui.QMainWindow):
         self.setWindowTitle('ulog_explorer: ' + self.backend.path_to_logfile)
 
         # Update label of marker line
-        self.update_marker_line_label()
+        self.update_marker_line_status()
 
         # Display title
         if self.backend.show_title:
             self.main_graph.setTitle(self.backend.path_to_logfile)
         else:
             self.main_graph.setTitle(None)
+
+        # Update secondary graph
+        if self.backend.show_secondary_graph:
+            self.secondary_graph.clearPlots()
+            self.secondary_graph.show()
+            pen = pg.mkPen(width=self.backend.linewidth, color='b')
+            curve = self.secondary_graph.plot(self.backend.df_dict['vehicle_local_position_0']['y'].values, self.backend.df_dict['vehicle_local_position_0']['x'].values, name='trajectory', pen=pen)
+        else:
+            self.secondary_graph.hide()
 
 
 app = QtGui.QApplication(sys.argv)

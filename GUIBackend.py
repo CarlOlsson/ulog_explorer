@@ -33,6 +33,8 @@ class GUIBackend():
         self.show_marker_line = False
         # True if the ROI is currently displayed
         self.show_ROI = False
+        # True if the secondary graph currently is displayed
+        self.show_secondary_graph = False
 
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),
