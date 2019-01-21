@@ -102,6 +102,9 @@ class Window(QtGui.QMainWindow):
         secondary_graph_action = QtGui.QAction('show/hide secondary graph', self.main_graph)
         secondary_graph_action.triggered.connect(self.callback_toggle_secondary_graph)
         self.main_graph.scene().contextMenu.append(secondary_graph_action)
+        rescale_curves_action = QtGui.QAction('toggle rescaled curves', self.main_graph)
+        rescale_curves_action.triggered.connect(self.callback_toggle_rescale_curves)
+        self.main_graph.scene().contextMenu.append(rescale_curves_action)
 
         self.graph_layout.addWidget(self.graph_widget)
 
@@ -158,6 +161,7 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def update_marker_line_status(self):
+        # TODO: check -1 index here
         marker_line_label = ''
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
         for elem in self.backend.curve_list:
@@ -186,6 +190,11 @@ class Window(QtGui.QMainWindow):
         # Initialize the marker line if it was not already displayed
         if self.backend.show_secondary_graph and not self.backend.show_marker_line:
             self.callback_toggle_marker_line()
+        self.update_frontend()
+
+    def callback_toggle_rescale_curves(self):
+        self.backend.rescale_curves = not self.backend.rescale_curves
+        self.backend.auto_range = True
         self.update_frontend()
 
     def callback_toggle_marker(self):
@@ -289,6 +298,10 @@ class Window(QtGui.QMainWindow):
         elif event.key() == QtCore.Qt.Key_A:
             self.callback_toggle_ROI()
 
+        # Ctrl + R: Rescale curves
+        elif event.key() == QtCore.Qt.Key_R:
+            self.callback_toggle_rescale_curves()
+
         # Ctrl + P: Print value of selected fields at line
         elif event.key() == QtCore.Qt.Key_P:
             if self.backend.show_marker_line:
@@ -380,7 +393,12 @@ class Window(QtGui.QMainWindow):
         for elem in self.backend.curve_list:
             color_brush = QtGui.QColor(elem.color[0], elem.color[1], elem.color[2])
             pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
-            curve = self.main_graph.plot(self.backend.df_dict[elem.selected_topic].index, self.backend.df_dict[elem.selected_topic][elem.selected_field].values, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
+            time = self.backend.df_dict[elem.selected_topic].index
+            y_value = self.backend.df_dict[elem.selected_topic][elem.selected_field].values
+            if self.backend.rescale_curves:
+                y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
+
+            curve = self.main_graph.plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
 
             # Add the newly selected field to the list of all currently selected fields
             new_list_item = QtGui.QListWidgetItem(elem.selected_topic_and_field)
@@ -427,12 +445,12 @@ class Window(QtGui.QMainWindow):
             self.ROI_region.hide()
 
         # Autorange if previously no field was selected
-        if len(self.backend.curve_list) > 0 and self.no_curve_displayed:
+        if len(self.backend.curve_list) > 0 and self.backend.auto_range:
             self.main_graph.autoRange()
-            self.no_curve_displayed = False
+            self.backend.auto_range = False
 
         elif len(self.backend.curve_list) == 0:
-            self.no_curve_displayed = True
+            self.backend.auto_range = True
 
         # Update the window title
         self.setWindowTitle('ulog_explorer: ' + self.backend.path_to_logfile)

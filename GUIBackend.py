@@ -19,8 +19,8 @@ class GUIBackend():
         self.show_legend = False
         # The path to the currently opened logfile
         self.path_to_logfile = ''
-        # True if no curve is displayed, used for autorange logic
-        self.no_curve_displayed = True
+        # True if auto range should be done next frontend update
+        self.auto_range = True
         # True if the title is currently displayed
         self.show_title = False
         # True if the transition lines are currently displayed
@@ -35,6 +35,8 @@ class GUIBackend():
         self.show_ROI = False
         # True if the secondary graph currently is displayed
         self.show_secondary_graph = False
+        # True if the displayed curves are rescaled to [0,1]
+        self.rescale_curves = False
 
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),
