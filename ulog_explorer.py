@@ -444,7 +444,7 @@ class Window(QtGui.QMainWindow):
         else:
             self.ROI_region.hide()
 
-        # Autorange if previously no field was selected
+        # Autorange
         if len(self.backend.curve_list) > 0 and self.backend.auto_range:
             self.main_graph.autoRange()
             self.backend.auto_range = False
