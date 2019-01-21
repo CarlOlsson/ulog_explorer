@@ -156,6 +156,9 @@ class Window(QtGui.QMainWindow):
         self.arrow.hide()
         self.secondary_graph.addItem(self.arrow)
 
+        # Initiate the legend
+        self.legend = self.main_graph.addLegend()
+
         pg.setConfigOptions(antialias=True)
 
         self.update_frontend()
@@ -382,14 +385,14 @@ class Window(QtGui.QMainWindow):
         self.selected_fields_list_widget.clear()
         self.selected_fields_list_widget.clearSelection()
         self.topic_tree_widget.clearSelection()
+        self.legend.close()
 
         # Set all topic colors to white in the tree
         for topic_index in range(self.topic_tree_widget.topLevelItemCount()):
             self.topic_tree_widget.topLevelItem(topic_index).setBackground(0, QtGui.QBrush(QtCore.Qt.white))
 
         if self.backend.show_legend:
-            self.main_graph.addLegend()
-            self.backend.show_legend = False
+            self.legend = self.main_graph.addLegend()
         for elem in self.backend.curve_list:
             color_brush = QtGui.QColor(elem.color[0], elem.color[1], elem.color[2])
             pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
