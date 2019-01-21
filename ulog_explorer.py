@@ -99,7 +99,7 @@ class Window(QtGui.QMainWindow):
         ROI_action = QtGui.QAction('show/hide ROI', self.main_graph)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.main_graph.scene().contextMenu.append(ROI_action)
-        secondary_graph_action = QtGui.QAction('show/hide secondary graph', self.main_graph)
+        secondary_graph_action = QtGui.QAction('show/hide trajectory graph', self.main_graph)
         secondary_graph_action.triggered.connect(self.callback_toggle_secondary_graph)
         self.main_graph.scene().contextMenu.append(secondary_graph_action)
         rescale_curves_action = QtGui.QAction('toggle rescaled curves', self.main_graph)
