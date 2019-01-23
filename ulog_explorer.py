@@ -305,6 +305,18 @@ class Window(QtGui.QMainWindow):
         elif event.key() == QtCore.Qt.Key_R:
             self.callback_toggle_rescale_curves()
 
+        # Ctrl + Left_arrow: Move marker line to the left
+        elif event.key() == QtCore.Qt.Key_Left:
+            if self.backend.show_marker_line:
+                self.marker_line.setValue(self.marker_line.value() - 1)
+                self.update_marker_line_status()
+
+        # Ctrl + Right_arrow: Move marker line to the right
+        elif event.key() == QtCore.Qt.Key_Right:
+            if self.backend.show_marker_line:
+                self.marker_line.setValue(self.marker_line.value() + 1)
+                self.update_marker_line_status()
+
         # Ctrl + P: Print value of selected fields at line
         elif event.key() == QtCore.Qt.Key_P:
             if self.backend.show_marker_line:
