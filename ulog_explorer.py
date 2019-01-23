@@ -169,7 +169,12 @@ class Window(QtGui.QMainWindow):
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
         for elem in self.backend.curve_list:
             idx = np.argmax(self.backend.df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
-            marker_line_label = marker_line_label + '\n' + elem.selected_topic_and_field + ': ' + str(self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx])
+            value = self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx]
+            value_str = str(value)
+            if elem.selected_field[-5:] == 'flags':
+                value_str = value_str + " ({0:b})".format(int(value))
+
+            marker_line_label = marker_line_label + '\n' + elem.selected_topic_and_field + ': ' + value_str
 
         self.marker_line.label.textItem.setPlainText(marker_line_label)
 
