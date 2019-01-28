@@ -78,31 +78,31 @@ class Window(QtGui.QMainWindow):
         self.main_graph.keyPressEvent = self.keyPressed
 
         # Populate the graph context menu
-        toggle_marker_action = QtGui.QAction('show/hide markers', self.main_graph)
+        toggle_marker_action = QtGui.QAction('show/hide markers (M)', self.main_graph)
         toggle_marker_action.triggered.connect(self.callback_toggle_marker)
         self.main_graph.scene().contextMenu.append(toggle_marker_action)
-        toggle_bold_action = QtGui.QAction('toggle bold curves', self.main_graph)
+        toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self.main_graph)
         toggle_bold_action.triggered.connect(self.callback_toggle_bold)
         self.main_graph.scene().contextMenu.append(toggle_bold_action)
-        toggle_title_action = QtGui.QAction('show/hide title', self.main_graph)
+        toggle_title_action = QtGui.QAction('show/hide title (T)', self.main_graph)
         toggle_title_action.triggered.connect(self.callback_toggle_title)
         self.main_graph.scene().contextMenu.append(toggle_title_action)
-        toggle_legend_action = QtGui.QAction('show/hide legend', self.main_graph)
+        toggle_legend_action = QtGui.QAction('show/hide legend (L)', self.main_graph)
         toggle_legend_action.triggered.connect(self.callback_toggle_legend)
         self.main_graph.scene().contextMenu.append(toggle_legend_action)
-        toggle_transition_lines_action = QtGui.QAction('show/hide transition lines', self.main_graph)
+        toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self.main_graph)
         toggle_transition_lines_action.triggered.connect(self.callback_toggle_transition_lines)
         self.main_graph.scene().contextMenu.append(toggle_transition_lines_action)
-        toggle_marker_line_action = QtGui.QAction('show/hide marker line', self.main_graph)
+        toggle_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.main_graph)
         toggle_marker_line_action.triggered.connect(self.callback_toggle_marker_line)
         self.main_graph.scene().contextMenu.append(toggle_marker_line_action)
-        ROI_action = QtGui.QAction('show/hide ROI', self.main_graph)
+        ROI_action = QtGui.QAction('show/hide ROI (A)', self.main_graph)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.main_graph.scene().contextMenu.append(ROI_action)
-        secondary_graph_action = QtGui.QAction('show/hide trajectory graph', self.main_graph)
+        secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self.main_graph)
         secondary_graph_action.triggered.connect(self.callback_toggle_secondary_graph)
         self.main_graph.scene().contextMenu.append(secondary_graph_action)
-        rescale_curves_action = QtGui.QAction('toggle rescaled curves', self.main_graph)
+        rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self.main_graph)
         rescale_curves_action.triggered.connect(self.callback_toggle_rescale_curves)
         self.main_graph.scene().contextMenu.append(rescale_curves_action)
 
@@ -274,6 +274,10 @@ class Window(QtGui.QMainWindow):
         # Ctrl + L: Show legend
         elif event.key() == QtCore.Qt.Key_L:
             self.callback_toggle_legend()
+
+        # Ctrl + Q: Toggle trajectory analysis
+        elif event.key() == QtCore.Qt.Key_Q:
+            self.callback_toggle_secondary_graph()
 
         # Ctrl + C: Clear plot
         elif event.key() == QtCore.Qt.Key_C:
