@@ -169,6 +169,73 @@ class GUIBackend():
         self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0')
         self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', '_d')
 
+        # Add lat_m, lon_m to vehicle_gps_position
+        try:
+            self.add_lat_lon_m('vehicle_gps_position_0', 'lat', 'lon', 1e7)
+        except Exception as ex:
+            print(ex)
+
+        try:
+            self.add_lat_lon_m('vehicle_gps_position_1', 'lat', 'lon', 1e7)
+        except Exception as ex:
+            print(ex)
+
+        # Add lat_m, lon_m to position_setpoint_triplet_0
+        try:
+            self.add_lat_lon_m('position_setpoint_triplet_0', 'current.lat', 'current.lon')
+        except Exception as ex:
+            print(ex)
+
+    def add_lat_lon_m(self, topic_str, lat_str, lon_str, div=1):
+        lat = np.deg2rad(self.df_dict[topic_str][lat_str].values / div)
+        lon = np.deg2rad(self.df_dict[topic_str][lon_str].values / div)
+
+        anchor_lat = lat[0]
+        anchor_lon = lon[0]
+
+        # try to get the anchor position from the dataset
+        try:
+            local_pos_data = self.df_dict['vehicle_local_position_0']
+            indices = np.nonzero(local_pos_data['ref_timestamp'])
+            if len(indices[0]) > 0:
+                anchor_lat = np.deg2rad(local_pos_data['ref_lat'].values[indices[0][0]])
+                anchor_lon = np.deg2rad(local_pos_data['ref_lon'].values[indices[0][0]])
+        except:
+            pass
+
+        lat_m, lon_m = self.map_projection(lat, lon, anchor_lat, anchor_lon)
+        self.df_dict[topic_str][lat_str + '_m*'] = lat_m
+        self.df_dict[topic_str][lon_str + '_m*'] = lon_m
+
+    # Function from flight_review (https://github.com/PX4/flight_review/)
+    def map_projection(self, lat, lon, anchor_lat, anchor_lon):
+        """ convert lat, lon in [rad] to x, y in [m] with an anchor position """
+        sin_lat = np.sin(lat)
+        cos_lat = np.cos(lat)
+        cos_d_lon = np.cos(lon - anchor_lon)
+        sin_anchor_lat = np.sin(anchor_lat)
+        cos_anchor_lat = np.cos(anchor_lat)
+
+        arg = sin_anchor_lat * sin_lat + cos_anchor_lat * cos_lat * cos_d_lon
+        arg[arg > 1] = 1
+        arg[arg < -1] = -1
+
+        np.set_printoptions(threshold=np.nan)
+        c = np.arccos(arg)
+        k = np.copy(lat)
+        for i in range(len(lat)):
+            if np.abs(c[i]) < np.finfo(float).eps:
+                k[i] = 1
+            else:
+                k[i] = c[i] / np.sin(c[i])
+
+        CONSTANTS_RADIUS_OF_EARTH = 6371000
+        x = k * (cos_anchor_lat * sin_lat - sin_anchor_lat * cos_lat * cos_d_lon) * \
+            CONSTANTS_RADIUS_OF_EARTH
+        y = k * cos_lat * np.sin(lon - anchor_lon) * CONSTANTS_RADIUS_OF_EARTH
+
+        return x, y
+
     def add_yaw_pitch_roll(self, topic_str, field_name_suffix=''):
         try:
             q0 = self.df_dict[topic_str]['q' + field_name_suffix + '[0]']

@@ -198,6 +198,7 @@ class Window(QtGui.QMainWindow):
         # Initialize the marker line if it was not already displayed
         if self.backend.show_secondary_graph and not self.backend.show_marker_line:
             self.callback_toggle_marker_line()
+
         self.update_frontend()
 
     def callback_toggle_rescale_curves(self):
@@ -488,8 +489,34 @@ class Window(QtGui.QMainWindow):
         if self.backend.show_secondary_graph:
             self.secondary_graph.clearPlots()
             self.secondary_graph.show()
-            pen = pg.mkPen(width=self.backend.linewidth, color='b')
-            curve = self.secondary_graph.plot(self.backend.df_dict['vehicle_local_position_0']['y'].values, self.backend.df_dict['vehicle_local_position_0']['x'].values, name='trajectory', pen=pen)
+
+            # Plot estimated position
+            try:
+                north_estimated = self.backend.df_dict['vehicle_local_position_0']['x'].values
+                east_estimated = self.backend.df_dict['vehicle_local_position_0']['y'].values
+                pen = pg.mkPen(width=self.backend.linewidth, color='b')
+                curve = self.secondary_graph.plot(east_estimated, north_estimated, name='trajectory', pen=pen)
+            except:
+                pass
+
+            # Plot measured GPS position
+            try:
+                north_measured = self.backend.df_dict['vehicle_gps_position_0']['lat_m*'].values
+                east_gps_measured = self.backend.df_dict['vehicle_gps_position_0']['lon_m*'].values
+                pen = pg.mkPen(width=self.backend.linewidth, color='r')
+                curve = self.secondary_graph.plot(east_gps_measured, north_measured, name='trajectory', pen=pen)
+            except:
+                pass
+
+            # Plot mission setpoints
+            try:
+                north_setpoint = self.backend.df_dict['position_setpoint_triplet_0']['current.lat_m*'].values
+                east_setpoint = self.backend.df_dict['position_setpoint_triplet_0']['current.lon_m*'].values
+                pen = pg.mkPen(width=self.backend.linewidth, color='g')
+                curve = self.secondary_graph.plot(east_setpoint, north_setpoint, name='trajectory', pen=pen, symbol='o')
+            except:
+                pass
+
         else:
             self.secondary_graph.hide()
 
