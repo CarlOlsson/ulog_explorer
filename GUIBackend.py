@@ -156,11 +156,14 @@ class GUIBackend():
         except Exception as ex:
             print(ex)
 
-        # Add mag_declination_from_states to estimator_status
+        # Add mag_declination_from_states, mag_inclination_from_states and mag_strength_from_states to estimator_status
         try:
             topic_str = 'estimator_status_0'
             self.df_dict[topic_str]['mag_declination_from_states*'] = np.arctan2(self.df_dict[topic_str]['states[17]'], self.df_dict[topic_str]['states[16]'])
             self.df_dict[topic_str]['mag_declination_from_states* [deg]'] = np.rad2deg(self.df_dict[topic_str]['mag_declination_from_states*'])
+            self.df_dict[topic_str]['mag_strength_from_states*'] = (self.df_dict[topic_str]['states[16]'] ** 2 + self.df_dict[topic_str]['states[17]'] ** 2 + self.df_dict[topic_str]['states[18]'] ** 2) ** 0.5
+            self.df_dict[topic_str]['mag_inclination_from_states*'] = np.arcsin(self.df_dict[topic_str]['states[18]'] / np.maximum(self.df_dict[topic_str]['mag_strength_from_states*'], np.finfo(np.float32).eps))
+            self.df_dict[topic_str]['mag_inclination_from_states* [deg]'] = np.rad2deg(self.df_dict[topic_str]['mag_inclination_from_states*'])
         except Exception as ex:
             print(ex)
 
