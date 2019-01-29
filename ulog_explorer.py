@@ -315,6 +315,78 @@ class Window(QtGui.QMainWindow):
         elif event.key() == QtCore.Qt.Key_R:
             self.callback_toggle_rescale_curves()
 
+        # Ctrl + 0: Show quaternion covariances
+        elif event.key() == QtCore.Qt.Key_0:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[0]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[1]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[2]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[3]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 1: Show velocity covariances
+        elif event.key() == QtCore.Qt.Key_1:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[4]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[5]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[6]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 2: Show position covariances
+        elif event.key() == QtCore.Qt.Key_2:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[7]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[8]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[9]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 3: Show delta angle bias covariances
+        elif event.key() == QtCore.Qt.Key_3:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[10]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[11]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[12]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 4: Show delta velocity bias covariances
+        elif event.key() == QtCore.Qt.Key_4:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[13]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[14]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[15]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 5: Show earth magnetic field state covariances
+        elif event.key() == QtCore.Qt.Key_5:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[16]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[17]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[18]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 6: Show body magnetic field state covariances
+        elif event.key() == QtCore.Qt.Key_6:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[19]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[20]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[21]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
+        # Ctrl + 7: Show wind state covariances
+        elif event.key() == QtCore.Qt.Key_7:
+            self.backend.clear_curve_list()
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[22]')
+            self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[23]')
+            self.update_frontend()
+            self.main_graph.autoRange()
+
         # Ctrl + Left_arrow: Move marker line to the left
         elif event.key() == QtCore.Qt.Key_Left:
             if self.backend.show_marker_line:
