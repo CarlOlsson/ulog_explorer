@@ -1,10 +1,6 @@
 # Module: GUIBackend.py
 
-from pyulog import *
-import collections
-import pandas as pd
-import numpy as np
-import transforms3d.euler as tfe
+from GraphData import *
 
 
 class GUIBackend():
@@ -17,26 +13,18 @@ class GUIBackend():
         self.linewidth = 1
         # True if the legend is currently displayed
         self.show_legend = False
-        # The path to the currently opened logfile
-        self.path_to_logfile = ''
         # True if auto range should be done next frontend update
         self.auto_range = True
         # True if the title is currently displayed
         self.show_title = False
         # True if the transition lines are currently displayed
         self.show_transition_lines = False
-        # List with timestamps for forward transitions
-        self.forward_transition_lines = []
-        # List with timestamps for backward transitions
-        self.back_transition_lines = []
-        # True if the marker line is currently displayed
-        self.show_marker_line = False
         # True if the ROI is currently displayed
         self.show_ROI = False
-        # True if the secondary graph currently is displayed
-        self.show_secondary_graph = False
         # True if the displayed curves are rescaled to [0,1]
         self.rescale_curves = False
+        # Currently display mode of the secondary graph
+        self.secondary_graph_mode = '2D'
 
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),
@@ -52,7 +40,14 @@ class GUIBackend():
 
         self.color_dict = collections.OrderedDict(color_tuples)
 
-    # Returns true if the selected topic and field is already in the list
+        self.graph_data = [GraphData() for _ in [0, 1]]
+
+    def load_ulog_to_graph_data(self, logfile_str, graph_id=0):
+        self.graph_data[graph_id].ulog_to_df(logfile_str)
+        self.graph_data[graph_id].add_all_fields_to_df()
+        self.graph_data[graph_id].get_transition_timestamps()
+
+        # Returns true if the selected topic and field is already in the list
     def contains(self, selected_topic, selected_field):
         selected_topic_and_field = get_name_combined(selected_topic, selected_field)
         for elem in self.curve_list:
@@ -86,201 +81,6 @@ class GUIBackend():
         self.curve_list = []
         for key, value in self.color_dict.items():
             self.color_dict[key][0] = False
-
-    # Convert a pyulog.core.ULog object to a dictionary of dataframes
-    def ulog_to_df(self, logfile_str):
-        ulog_dict = {}
-        for elem in sorted(ULog(logfile_str).data_list, key=lambda d: d.name + str(d.multi_id)):
-            topic_name = elem.name + "_" + str(elem.multi_id)
-            column_names = set(elem.data.keys())
-            df = pd.DataFrame(index=elem.data['timestamp'] / 1e6)
-            for name in column_names - {'timestamp'}:
-                df[name] = elem.data[name]
-
-            ulog_dict[topic_name] = df
-
-        self.df_dict = ulog_dict
-
-    # Add fields to df_dict. * is added to the names to represent that it was calculated in postprocessing and not logged
-    def add_all_fields_to_df(self):
-        # Add norm of magnetometer measurement to sensor_combined
-        try:
-            topic_str = 'sensor_combined_0'
-            self.df_dict[topic_str]['magnetometer_ga_norm*'] = np.sqrt(self.df_dict[topic_str]['magnetometer_ga[0]']**2 + self.df_dict[topic_str]['magnetometer_ga[1]']**2 + self.df_dict[topic_str]['magnetometer_ga[2]']**2)
-        except Exception as ex:
-            print(ex)
-
-        # Add norm of accelerometer measurement to sensor_combined
-        try:
-            topic_str = 'sensor_combined_0'
-            self.df_dict[topic_str]['accelerometer_m_s2_norm*'] = np.sqrt(self.df_dict[topic_str]['accelerometer_m_s2[0]']**2 + self.df_dict[topic_str]['accelerometer_m_s2[1]']**2 + self.df_dict[topic_str]['accelerometer_m_s2[2]']**2)
-        except Exception as ex:
-            print(ex)
-
-        # Add windspeed magnitude and direction to wind_estimate
-        try:
-            topic_str = 'wind_estimate_0'
-            self.df_dict[topic_str]['windspeed_magnitude*'] = np.sqrt(self.df_dict[topic_str]['windspeed_north']**2 + self.df_dict[topic_str]['windspeed_east']**2)
-            self.df_dict[topic_str]['windspeed_direction*'] = np.arctan2(self.df_dict[topic_str]['variance_north'], self.df_dict[topic_str]['variance_east'])
-            self.df_dict[topic_str]['windspeed_direction* [deg]'] = np.rad2deg(self.df_dict[topic_str]['windspeed_direction*'])
-        except Exception as ex:
-            print(ex)
-
-        # Add vxy and vxyz to vehicle_local_position
-        try:
-            topic_str = 'vehicle_local_position_0'
-            self.df_dict[topic_str]['vxy*'] = np.sqrt(self.df_dict[topic_str]['vx']**2 + self.df_dict[topic_str]['vy']**2)
-            self.df_dict[topic_str]['vxyz*'] = np.sqrt(self.df_dict[topic_str]['vx']**2 + self.df_dict[topic_str]['vy']**2 + self.df_dict[topic_str]['vz']**2)
-        except Exception as ex:
-            print(ex)
-
-        # Add vel_ne and vel_ned to vehicle_global_position
-        try:
-            topic_str = 'vehicle_global_position_0'
-            self.df_dict[topic_str]['vel_ne*'] = np.sqrt(self.df_dict[topic_str]['vel_n']**2 + self.df_dict[topic_str]['vel_e']**2)
-            self.df_dict[topic_str]['vel_ned*'] = np.sqrt(self.df_dict[topic_str]['vel_n']**2 + self.df_dict[topic_str]['vel_e']**2 + self.df_dict[topic_str]['vel_d']**2)
-        except Exception as ex:
-            print(ex)
-
-        # Add vel_ne_m_s to vehicle_gps_position_0
-        try:
-            topic_str = 'vehicle_gps_position_0'
-            self.df_dict[topic_str]['vel_ne_m_s*'] = np.sqrt(self.df_dict[topic_str]['vel_n_m_s']**2 + self.df_dict[topic_str]['vel_e_m_s']**2)
-        except Exception as ex:
-            print(ex)
-
-        # Add vel_ne_m_s to vehicle_gps_position_1
-        try:
-            topic_str = 'vehicle_gps_position_1'
-            self.df_dict[topic_str]['vel_ne_m_s*'] = np.sqrt(self.df_dict[topic_str]['vel_n_m_s']**2 + self.df_dict[topic_str]['vel_e_m_s']**2)
-        except Exception as ex:
-            print(ex)
-
-        # Add mag_declination_from_states, mag_inclination_from_states and mag_strength_from_states to estimator_status
-        try:
-            topic_str = 'estimator_status_0'
-            self.df_dict[topic_str]['mag_declination_from_states*'] = np.arctan2(self.df_dict[topic_str]['states[17]'], self.df_dict[topic_str]['states[16]'])
-            self.df_dict[topic_str]['mag_declination_from_states* [deg]'] = np.rad2deg(self.df_dict[topic_str]['mag_declination_from_states*'])
-            self.df_dict[topic_str]['mag_strength_from_states*'] = (self.df_dict[topic_str]['states[16]'] ** 2 + self.df_dict[topic_str]['states[17]'] ** 2 + self.df_dict[topic_str]['states[18]'] ** 2) ** 0.5
-            self.df_dict[topic_str]['mag_inclination_from_states*'] = np.arcsin(self.df_dict[topic_str]['states[18]'] / np.maximum(self.df_dict[topic_str]['mag_strength_from_states*'], np.finfo(np.float32).eps))
-            self.df_dict[topic_str]['mag_inclination_from_states* [deg]'] = np.rad2deg(self.df_dict[topic_str]['mag_inclination_from_states*'])
-        except Exception as ex:
-            print(ex)
-
-        # Add yaw, pitch, roll
-        self.add_yaw_pitch_roll('vehicle_attitude_0')
-        self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0')
-        self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', '_d')
-
-        # Add lat_m, lon_m to vehicle_gps_position
-        try:
-            self.add_lat_lon_m('vehicle_gps_position_0', 'lat', 'lon', 1e7)
-        except Exception as ex:
-            print(ex)
-
-        try:
-            self.add_lat_lon_m('vehicle_gps_position_1', 'lat', 'lon', 1e7)
-        except Exception as ex:
-            print(ex)
-
-        # Add lat_m, lon_m to position_setpoint_triplet_0
-        try:
-            self.add_lat_lon_m('position_setpoint_triplet_0', 'current.lat', 'current.lon')
-        except Exception as ex:
-            print(ex)
-
-    def add_lat_lon_m(self, topic_str, lat_str, lon_str, div=1):
-        lat = np.deg2rad(self.df_dict[topic_str][lat_str].values / div)
-        lon = np.deg2rad(self.df_dict[topic_str][lon_str].values / div)
-
-        anchor_lat = lat[0]
-        anchor_lon = lon[0]
-
-        # try to get the anchor position from the dataset
-        try:
-            local_pos_data = self.df_dict['vehicle_local_position_0']
-            indices = np.nonzero(local_pos_data['ref_timestamp'])
-            if len(indices[0]) > 0:
-                anchor_lat = np.deg2rad(local_pos_data['ref_lat'].values[indices[0][0]])
-                anchor_lon = np.deg2rad(local_pos_data['ref_lon'].values[indices[0][0]])
-        except:
-            pass
-
-        lat_m, lon_m = self.map_projection(lat, lon, anchor_lat, anchor_lon)
-        self.df_dict[topic_str][lat_str + '_m*'] = lat_m
-        self.df_dict[topic_str][lon_str + '_m*'] = lon_m
-
-    # Function from flight_review (https://github.com/PX4/flight_review/)
-    def map_projection(self, lat, lon, anchor_lat, anchor_lon):
-        """ convert lat, lon in [rad] to x, y in [m] with an anchor position """
-        sin_lat = np.sin(lat)
-        cos_lat = np.cos(lat)
-        cos_d_lon = np.cos(lon - anchor_lon)
-        sin_anchor_lat = np.sin(anchor_lat)
-        cos_anchor_lat = np.cos(anchor_lat)
-
-        arg = sin_anchor_lat * sin_lat + cos_anchor_lat * cos_lat * cos_d_lon
-        arg[arg > 1] = 1
-        arg[arg < -1] = -1
-
-        np.set_printoptions(threshold=np.nan)
-        c = np.arccos(arg)
-        k = np.copy(lat)
-        for i in range(len(lat)):
-            if np.abs(c[i]) < np.finfo(float).eps:
-                k[i] = 1
-            else:
-                k[i] = c[i] / np.sin(c[i])
-
-        CONSTANTS_RADIUS_OF_EARTH = 6371000
-        x = k * (cos_anchor_lat * sin_lat - sin_anchor_lat * cos_lat * cos_d_lon) * \
-            CONSTANTS_RADIUS_OF_EARTH
-        y = k * cos_lat * np.sin(lon - anchor_lon) * CONSTANTS_RADIUS_OF_EARTH
-
-        return x, y
-
-    def add_yaw_pitch_roll(self, topic_str, field_name_suffix=''):
-        try:
-            q0 = self.df_dict[topic_str]['q' + field_name_suffix + '[0]']
-            q1 = self.df_dict[topic_str]['q' + field_name_suffix + '[1]']
-            q2 = self.df_dict[topic_str]['q' + field_name_suffix + '[2]']
-            q3 = self.df_dict[topic_str]['q' + field_name_suffix + '[3]']
-
-            yaw, pitch, roll = np.array(
-                [
-                    tfe.quat2euler([q0i, q1i, q2i, q3i], 'szyx')
-                    for q0i, q1i, q2i, q3i in zip(q0, q1, q2, q3)
-                ]
-            ).T
-
-            self.df_dict[topic_str]['yaw321*'] = yaw
-            self.df_dict[topic_str]['pitch321*'] = pitch
-            self.df_dict[topic_str]['roll321*'] = roll
-
-            self.df_dict[topic_str]['yaw312*'] = np.arctan2(-2.0 * (q1 * q2 - q0 * q3), q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3)
-
-            self.df_dict[topic_str]['yaw321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw321*'])
-            self.df_dict[topic_str]['pitch321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['pitch321*'])
-            self.df_dict[topic_str]['roll321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['roll321*'])
-
-            self.df_dict[topic_str]['yaw312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw312*'])
-        except Exception as ex:
-            print(ex)
-
-    def get_transition_timestamps(self):
-        forward_transition_lines = self.df_dict['vehicle_status_0'].index[self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())['in_transition_to_fw']].tolist()
-        forward_transition_lines.pop(0)
-        self.forward_transition_lines = forward_transition_lines
-
-        logical_series = self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())[['in_transition_mode']]
-        logical_series2 = self.df_dict['vehicle_status_0']['is_rotary_wing'] == True
-
-        df_comb = pd.concat([logical_series, logical_series2], axis=1)
-
-        idx = (df_comb['in_transition_mode']) & (df_comb['is_rotary_wing'])
-        back_transition_lines = self.df_dict['vehicle_status_0'].index[idx].tolist()
-        back_transition_lines.pop(0)
-        self.back_transition_lines = back_transition_lines
 
 
 # The variables currently displayed consists of a list of CurveClass items

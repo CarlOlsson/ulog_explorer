@@ -6,6 +6,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
 import argparse
 from pathlib import Path
+import os
 from os.path import expanduser
 from GUIBackend import *
 
@@ -61,61 +62,65 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.itemDoubleClicked.connect(self.callback_topic_tree_doubleClicked)
         self.topic_tree_widget.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
 
-        self.graph_frame = QtGui.QFrame(self)
-        self.graph_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.graph_layout = QtGui.QVBoxLayout(self.graph_frame)
+        self.main_graph_frame = QtGui.QFrame(self)
+        self.main_graph_frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.main_graph_layout = QtGui.QHBoxLayout(self.main_graph_frame)
+
+        self.secondary_graph_frame = QtGui.QFrame(self)
+        self.secondary_graph_frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.secondary_graph_layout = QtGui.QHBoxLayout(self.secondary_graph_frame)
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.graph_widget = pg.GraphicsLayoutWidget()
 
-        self.secondary_graph = self.graph_widget.addPlot(row=0, col=0)
-        self.secondary_graph.setAspectLocked(lock=True, ratio=1)
-        self.secondary_graph.showGrid(True, True, 0.5)
-
-        self.main_graph = self.graph_widget.addPlot(row=0, col=1)
-        self.main_graph.showGrid(True, True, 0.5)
-        self.main_graph.keyPressEvent = self.keyPressed
+        self.graph = [pg.PlotWidget() for _ in [0, 1]]
+        self.graph[0].showGrid(True, True, 0.5)
+        self.graph[1].showGrid(True, True, 0.5)
+        self.graph[0].keyPressEvent = self.keyPressed
 
         # Populate the graph context menu
-        toggle_marker_action = QtGui.QAction('show/hide markers (M)', self.main_graph)
+        toggle_marker_action = QtGui.QAction('show/hide markers (M)', self.graph[0])
         toggle_marker_action.triggered.connect(self.callback_toggle_marker)
-        self.main_graph.scene().contextMenu.append(toggle_marker_action)
-        toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(toggle_marker_action)
+        toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self.graph[0])
         toggle_bold_action.triggered.connect(self.callback_toggle_bold)
-        self.main_graph.scene().contextMenu.append(toggle_bold_action)
-        toggle_title_action = QtGui.QAction('show/hide title (T)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(toggle_bold_action)
+        self.graph[1].scene().contextMenu.append(toggle_bold_action)
+        toggle_title_action = QtGui.QAction('show/hide title (T)', self.graph[0])
         toggle_title_action.triggered.connect(self.callback_toggle_title)
-        self.main_graph.scene().contextMenu.append(toggle_title_action)
-        toggle_legend_action = QtGui.QAction('show/hide legend (L)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(toggle_title_action)
+        self.graph[1].scene().contextMenu.append(toggle_title_action)
+        toggle_legend_action = QtGui.QAction('show/hide legend (L)', self.graph[0])
         toggle_legend_action.triggered.connect(self.callback_toggle_legend)
-        self.main_graph.scene().contextMenu.append(toggle_legend_action)
-        toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(toggle_legend_action)
+        toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self.graph[0])
         toggle_transition_lines_action.triggered.connect(self.callback_toggle_transition_lines)
-        self.main_graph.scene().contextMenu.append(toggle_transition_lines_action)
-        toggle_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(toggle_transition_lines_action)
+        self.graph[1].scene().contextMenu.append(toggle_transition_lines_action)
+        toggle_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
         toggle_marker_line_action.triggered.connect(self.callback_toggle_marker_line)
-        self.main_graph.scene().contextMenu.append(toggle_marker_line_action)
-        ROI_action = QtGui.QAction('show/hide ROI (A)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(toggle_marker_line_action)
+        ROI_action = QtGui.QAction('show/hide ROI (A)', self.graph[0])
         ROI_action.triggered.connect(self.callback_toggle_ROI)
-        self.main_graph.scene().contextMenu.append(ROI_action)
-        secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self.main_graph)
-        secondary_graph_action.triggered.connect(self.callback_toggle_secondary_graph)
-        self.main_graph.scene().contextMenu.append(secondary_graph_action)
-        rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self.main_graph)
+        self.graph[0].scene().contextMenu.append(ROI_action)
+        secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self.graph[0])
+        secondary_graph_action.triggered.connect(self.callback_toggle_2D_trajectory_graph)
+        self.graph[0].scene().contextMenu.append(secondary_graph_action)
+        self.graph[1].scene().contextMenu.append(secondary_graph_action)
+        rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self.graph[0])
         rescale_curves_action.triggered.connect(self.callback_toggle_rescale_curves)
-        self.main_graph.scene().contextMenu.append(rescale_curves_action)
+        self.graph[0].scene().contextMenu.append(rescale_curves_action)
+        self.graph[1].scene().contextMenu.append(rescale_curves_action)
+        open_logfile_action = QtGui.QAction('open main logfile (O)', self.graph[0])
+        open_logfile_action.triggered.connect(self.callback_open_main_logfile)
+        self.graph[0].scene().contextMenu.append(open_logfile_action)
+        open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self.graph[0])
+        open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
+        self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
+        self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
 
-        self.graph_layout.addWidget(self.graph_widget)
-
-        # Load logfile from argument or file dialog
-        if args.f and Path(args.f).is_file() and Path(args.f).suffix == ".ulg":
-            self.backend.path_to_logfile = args.f
-            self.load_logfile_to_tree(self.backend.path_to_logfile)
-        elif args.f and Path(args.f).is_dir():
-            self.open_logfile(args.f)
-        else:
-            self.open_logfile()
+        self.main_graph_layout.addWidget(self.graph[0])
+        self.secondary_graph_layout.addWidget(self.graph[1])
 
         self.tree_layout.addWidget(self.topic_tree_widget)
 
@@ -123,53 +128,55 @@ class Window(QtGui.QMainWindow):
         self.split_vertical_0.addWidget(self.selected_fields_frame)
         self.split_vertical_0.addWidget(self.tree_frame)
 
-        self.split_vertical_1 = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.split_vertical_1.addWidget(self.graph_frame)
-
         self.split_horizontal_0 = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.split_horizontal_0.addWidget(self.split_vertical_1)
-        self.split_horizontal_0.addWidget(self.split_vertical_0)
+        self.split_horizontal_0.addWidget(self.secondary_graph_frame)
+        self.split_horizontal_0.addWidget(self.main_graph_frame)
+        self.split_horizontal_0.setSizes([0, 1])
 
-        self.main_layout.addWidget(self.split_horizontal_0)
+        self.split_vertical_1 = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.split_vertical_1.addWidget(self.split_horizontal_0)
+
+        self.split_horizontal_1 = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.split_horizontal_1.addWidget(self.split_vertical_1)
+        self.split_horizontal_1.addWidget(self.split_vertical_0)
+
+        self.main_layout.addWidget(self.split_horizontal_1)
 
         self.setCentralWidget(self.main_widget)
-
-        # List of vertical lines indicating start and stop of VTOL transitions
-        self.ft_lines_obj = []
-        self.bt_lines_obj = []
 
         # Create marker line
         self.marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
                                            labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
         self.marker_line.hide()
-        self.main_graph.addItem(self.marker_line, ignoreBounds=True)
+        self.graph[0].addItem(self.marker_line, ignoreBounds=True)
         self.marker_line.sigDragged.connect(self.update_marker_line_status)
 
         # Create ROI
         self.ROI_region = pg.LinearRegionItem()
         self.ROI_region.hide()
-        self.main_graph.addItem(self.ROI_region, ignoreBounds=True)
+        self.graph[0].addItem(self.ROI_region, ignoreBounds=True)
 
         # Create arrow for the vehicle position in the trajectory analysis
         self.arrow = pg.ArrowItem(Angle=0, tipAngle=30, baseAngle=20, headLen=40, tailLen=None, brush='g')
         self.arrow.setPos(0, 0)
         self.arrow.hide()
-        self.secondary_graph.addItem(self.arrow)
+        self.graph[1].addItem(self.arrow)
 
         # Initiate the legend
-        self.legend = self.main_graph.addLegend()
+        self.legend = self.graph[0].addLegend()
 
         pg.setConfigOptions(antialias=True)
 
-        self.update_frontend()
+        # Load logfile from argument or file dialog
+        self.callback_open_logfile(args.f)
 
     def update_marker_line_status(self):
         # TODO: check -1 index here
         marker_line_label = ''
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
         for elem in self.backend.curve_list:
-            idx = np.argmax(self.backend.df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
-            value = self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx]
+            idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
+            value = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]
             value_str = str(value)
             if elem.selected_field[-5:] == 'flags':
                 value_str = value_str + " ({0:b})".format(int(value))
@@ -178,28 +185,80 @@ class Window(QtGui.QMainWindow):
 
         self.marker_line.label.textItem.setPlainText(marker_line_label)
 
-        if self.backend.show_marker_line:
-            idx_vehicle_local_position = np.argmax(self.backend.df_dict['vehicle_local_position_0'].index > self.marker_line.value()) - 1
-            pos_x = self.backend.df_dict['vehicle_local_position_0']['x'].values[idx_vehicle_local_position]
-            pos_y = self.backend.df_dict['vehicle_local_position_0']['y'].values[idx_vehicle_local_position]
-            idx_vehicle_attitude = np.argmax(self.backend.df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
-            yaw = self.backend.df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
+        if self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
+            idx_vehicle_local_position = np.argmax(self.backend.graph_data[0].df_dict['vehicle_local_position_0'].index > self.marker_line.value()) - 1
+            pos_x = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['x'].values[idx_vehicle_local_position]
+            pos_y = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['y'].values[idx_vehicle_local_position]
+            idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
+            yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
             self.arrow.setPos(pos_y, pos_x)
 
-    def callback_open_logfile(self):
-        self.fronted_cleanup()
-        self.open_logfile(self.backend.path_to_logfile)
-        self.set_marker_line_in_middle()
-        self.update_frontend()
-        self.main_graph.autoRange()
+    def callback_open_logfile(self, input_path=expanduser('~'), graph_id=0):
+        if Path(input_path).is_file() and Path(input_path).suffix == ".ulg":
+            self.backend.graph_data[graph_id].path_to_logfile = input_path
+            self.fronted_cleanup()
+            self.backend.load_ulog_to_graph_data(self.backend.graph_data[graph_id].path_to_logfile, graph_id)
+            if graph_id == 0:
+                self.load_logfile_to_tree()
+            self.set_marker_line_in_middle(graph_id)
+            self.update_frontend()
+            self.graph[0].autoRange()
+            self.graph[1].autoRange()
 
-    def callback_toggle_secondary_graph(self):
-        self.backend.show_secondary_graph = not self.backend.show_secondary_graph
-        # Initialize the marker line if it was not already displayed
-        if self.backend.show_secondary_graph and not self.backend.show_marker_line:
-            self.callback_toggle_marker_line()
+        else:
+            filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Log File', input_path, 'Log Files (*.ulg)')
+            if isinstance(filename, tuple):
+                filename = filename[0]
+            if filename:
+                try:
+                    self.callback_open_logfile(filename, graph_id)
+                except Exception as ex:
+                    print(ex)
+
+    def load_logfile_to_tree(self):
+        self.topic_tree_widget.clear()
+        # for topic_str, fields_df in self.graph_data[0].df_dict.iteritems(): python2
+        for topic_str, fields_df in sorted(self.backend.graph_data[0].df_dict.items()):
+            current_topic = QtGui.QTreeWidgetItem(self.topic_tree_widget, [topic_str])
+            for field in sorted(list(fields_df)):
+                current_field = QtGui.QTreeWidgetItem(current_topic, [field])
+
+    def callback_open_main_logfile(self):
+        self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
+
+    def callback_open_secondary_logfile(self):
+        self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile), 1)
+        self.backend.secondary_graph_mode = 'secondary_logfile'
+        self.backend.show_title = True
+        rect = self.split_horizontal_0.sizes()
+        if rect[0] == 0:
+            self.split_horizontal_0.setSizes([1, 1])
 
         self.update_frontend()
+        self.graph[1].autoRange()
+
+    def callback_toggle_2D_trajectory_graph(self):
+        rect = self.split_horizontal_0.sizes()
+        if rect[0] > 0:
+            if self.backend.secondary_graph_mode == '2D':
+                self.split_horizontal_0.setSizes([0, 1])
+            else:
+                self.backend.secondary_graph_mode = '2D'
+        else:
+            self.split_horizontal_0.setSizes([1, 1])
+            self.backend.secondary_graph_mode = '2D'
+
+        self.update_frontend()
+        self.graph[1].autoRange()
+
+    def toggle_split_screen(self):
+        rect = self.split_horizontal_0.sizes()
+        if rect[0] == 0:
+            self.split_horizontal_0.setSizes([1, 1])
+            if not self.backend.graph_data[0].show_marker_line:
+                self.callback_toggle_marker_line()
+        else:
+            self.split_horizontal_0.setSizes([0, 1])
 
     def callback_toggle_rescale_curves(self):
         self.backend.rescale_curves = not self.backend.rescale_curves
@@ -235,13 +294,13 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def callback_toggle_marker_line(self):
-        self.backend.show_marker_line = not self.backend.show_marker_line
+        self.backend.graph_data[0].show_marker_line = not self.backend.graph_data[0].show_marker_line
         self.set_marker_line_in_middle()
         self.update_frontend()
 
-    def set_marker_line_in_middle(self):
+    def set_marker_line_in_middle(self, graph_id=0):
         # Calculate midpoint along x axis on current graph
-        rect = self.main_graph.viewRange()
+        rect = self.graph[0].viewRange()
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
         self.marker_line.setValue(midpoint)
@@ -249,7 +308,7 @@ class Window(QtGui.QMainWindow):
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
         # Calculate left and right quartile along x axis on current graph
-        rect = self.main_graph.viewRange()
+        rect = self.graph[0].viewRange()
         left_quartile = (rect[0][1] - rect[0][0]) * 0.25 + rect[0][0]
         right_quartile = (rect[0][1] - rect[0][0]) * 0.75 + rect[0][0]
         # Set the ROI location
@@ -258,18 +317,23 @@ class Window(QtGui.QMainWindow):
 
     def fronted_cleanup(self):
         # Remove the transition lines
-        for elem in self.ft_lines_obj:
-            self.main_graph.removeItem(elem)
-        for elem in self.bt_lines_obj:
-            self.main_graph.removeItem(elem)
+        for idx in range(2):
+            for elem in self.backend.graph_data[idx].ft_lines_obj:
+                self.graph[idx].removeItem(elem)
+            for elem in self.backend.graph_data[idx].bt_lines_obj:
+                self.graph[idx].removeItem(elem)
 
     def keyPressed(self, event):
         # Ctrl + O: Open logfile
         if event.key() == QtCore.Qt.Key_O:
-            self.callback_open_logfile()
+            self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
+        # Ctrl + U: Open secondary logfile
+        if event.key() == QtCore.Qt.Key_U:
+            self.callback_open_secondary_logfile()
+
         # Ctrl + V: Autorange
         if event.key() == QtCore.Qt.Key_V:
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + L: Show legend
         elif event.key() == QtCore.Qt.Key_L:
@@ -277,7 +341,7 @@ class Window(QtGui.QMainWindow):
 
         # Ctrl + Q: Toggle trajectory analysis
         elif event.key() == QtCore.Qt.Key_Q:
-            self.callback_toggle_secondary_graph()
+            self.callback_toggle_2D_trajectory_graph()
 
         # Ctrl + C: Clear plot
         elif event.key() == QtCore.Qt.Key_C:
@@ -323,7 +387,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[2]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[3]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 1: Show velocity covariances
         elif event.key() == QtCore.Qt.Key_1:
@@ -332,7 +396,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[5]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[6]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 2: Show position covariances
         elif event.key() == QtCore.Qt.Key_2:
@@ -341,7 +405,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[8]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[9]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 3: Show delta angle bias covariances
         elif event.key() == QtCore.Qt.Key_3:
@@ -350,7 +414,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[11]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[12]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 4: Show delta velocity bias covariances
         elif event.key() == QtCore.Qt.Key_4:
@@ -359,7 +423,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[14]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[15]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 5: Show earth magnetic field state covariances
         elif event.key() == QtCore.Qt.Key_5:
@@ -368,7 +432,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[17]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[18]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 6: Show body magnetic field state covariances
         elif event.key() == QtCore.Qt.Key_6:
@@ -377,7 +441,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[20]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[21]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + 7: Show wind state covariances
         elif event.key() == QtCore.Qt.Key_7:
@@ -385,61 +449,38 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[22]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[23]')
             self.update_frontend()
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
 
         # Ctrl + Left_arrow: Move marker line to the left
         elif event.key() == QtCore.Qt.Key_Left:
-            if self.backend.show_marker_line:
+            if self.backend.graph_data[0].show_marker_line:
                 self.marker_line.setValue(self.marker_line.value() - 1)
                 self.update_marker_line_status()
 
         # Ctrl + Right_arrow: Move marker line to the right
         elif event.key() == QtCore.Qt.Key_Right:
-            if self.backend.show_marker_line:
+            if self.backend.graph_data[0].show_marker_line:
                 self.marker_line.setValue(self.marker_line.value() + 1)
                 self.update_marker_line_status()
 
         # Ctrl + P: Print value of selected fields at line
         elif event.key() == QtCore.Qt.Key_P:
-            if self.backend.show_marker_line:
+            if self.backend.graph_data[0].show_marker_line:
                 print('t = ' + str(self.marker_line.value()))
                 for elem in self.backend.curve_list:
-                    idx = np.argmax(self.backend.df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
-                    print(elem.selected_topic_and_field + ': ' + str(self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx]))
+                    idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
+                    print(elem.selected_topic_and_field + ': ' + str(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]))
 
             if self.backend.show_ROI:
                 minX, maxX = self.ROI_region.getRegion()
                 for elem in self.backend.curve_list:
-                    idx_min = np.argmax(self.backend.df_dict[elem.selected_topic].index > minX)
-                    idx_max = np.argmax(self.backend.df_dict[elem.selected_topic].index > maxX) - 1
-                    mean = np.mean(self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx_min:idx_max])
-                    delta_y = self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx_max] - self.backend.df_dict[elem.selected_topic][elem.selected_field].values[idx_min]
-                    delta_t = self.backend.df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
+                    idx_min = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > minX)
+                    idx_max = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > maxX) - 1
+                    mean = np.mean(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min:idx_max])
+                    delta_y = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min]
+                    delta_t = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
                     diff = delta_y / delta_t
                     print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
-
-    def open_logfile(self, path_to_dir=expanduser('~')):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Log File', path_to_dir, 'Log Files (*.ulg)')
-        if isinstance(filename, tuple):
-            filename = filename[0]
-        if filename:
-            try:
-                self.backend.path_to_logfile = filename
-                self.load_logfile_to_tree(self.backend.path_to_logfile)
-            except Exception as ex:
-                print(ex)
-
-    def load_logfile_to_tree(self, logfile_str):
-        self.backend.ulog_to_df(logfile_str)
-        self.backend.add_all_fields_to_df()
-        self.backend.get_transition_timestamps()
-
-        self.topic_tree_widget.clear()
-        # for topic_str, fields_df in self.df_dict.iteritems(): python2
-        for topic_str, fields_df in sorted(self.backend.df_dict.items()):
-            current_topic = QtGui.QTreeWidgetItem(self.topic_tree_widget, [topic_str])
-            for field in sorted(list(fields_df)):
-                current_field = QtGui.QTreeWidgetItem(current_topic, [field])
 
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
@@ -475,28 +516,28 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def update_frontend(self):
-        self.main_graph.clearPlots()
+        self.graph[0].clearPlots()
+        self.graph[1].clearPlots()
+        self.graph[1].setAspectLocked(lock=False, ratio=1)
         self.selected_fields_list_widget.clear()
         self.selected_fields_list_widget.clearSelection()
         self.topic_tree_widget.clearSelection()
         self.legend.close()
+        self.marker_line.hide()
+        self.arrow.hide()
+        self.ROI_region.hide()
+        self.graph[0].setTitle(None)
+        self.graph[1].setTitle(None)
+        self.fronted_cleanup()
 
         # Set all topic colors to white in the tree
         for topic_index in range(self.topic_tree_widget.topLevelItemCount()):
             self.topic_tree_widget.topLevelItem(topic_index).setBackground(0, QtGui.QBrush(QtCore.Qt.white))
 
         if self.backend.show_legend:
-            self.legend = self.main_graph.addLegend()
+            self.legend = self.graph[0].addLegend()
         for elem in self.backend.curve_list:
             color_brush = QtGui.QColor(elem.color[0], elem.color[1], elem.color[2])
-            pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
-            time = self.backend.df_dict[elem.selected_topic].index
-            y_value = self.backend.df_dict[elem.selected_topic][elem.selected_field].values
-            if self.backend.rescale_curves:
-                y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
-
-            curve = self.main_graph.plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
-
             # Add the newly selected field to the list of all currently selected fields
             new_list_item = QtGui.QListWidgetItem(elem.selected_topic_and_field)
             new_list_item.setBackground(color_brush)
@@ -511,90 +552,102 @@ class Window(QtGui.QMainWindow):
                     top_level_item.child(field_index).setSelected(True)
                     break
 
+            pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
+            time = self.backend.graph_data[0].df_dict[elem.selected_topic].index
+            y_value = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values
+            if self.backend.rescale_curves:
+                y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
+
+            curve = self.graph[0].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
+
+            if self.backend.secondary_graph_mode == 'secondary_logfile':
+                time = self.backend.graph_data[1].df_dict[elem.selected_topic].index
+                y_value = self.backend.graph_data[1].df_dict[elem.selected_topic][elem.selected_field].values
+                if self.backend.rescale_curves:
+                    y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
+
+                curve = self.graph[1].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
+
         # Display lines at start and stop of forward transition
         if self.backend.show_transition_lines:
-            for elem in self.backend.forward_transition_lines:
-                vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='g'))
-                vLine.show()
-                self.ft_lines_obj.append(vLine)
-                self.main_graph.addItem(vLine, ignoreBounds=True)
+            max_range = range(1)
+            if self.backend.secondary_graph_mode == 'secondary_logfile':
+                max_range = range(2)
+            for idx in max_range:
+                for elem in self.backend.graph_data[idx].forward_transition_lines:
+                    vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='g'))
+                    vLine.show()
+                    self.backend.graph_data[idx].ft_lines_obj.append(vLine)
+                    self.graph[idx].addItem(vLine, ignoreBounds=True)
 
-            for elem in self.backend.back_transition_lines:
-                vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='r'))
-                vLine.show()
-                self.bt_lines_obj.append(vLine)
-                self.main_graph.addItem(vLine, ignoreBounds=True)
-        else:
-            self.fronted_cleanup()
+                for elem in self.backend.graph_data[idx].back_transition_lines:
+                    vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='r'))
+                    vLine.show()
+                    self.backend.graph_data[idx].bt_lines_obj.append(vLine)
+                    self.graph[idx].addItem(vLine, ignoreBounds=True)
 
-        # Display marker line and arrow
-        if self.backend.show_marker_line:
+        # Display marker line
+        if self.backend.graph_data[0].show_marker_line:
             self.marker_line.show()
-            self.arrow.show()
-        else:
-            self.marker_line.hide()
-            self.arrow.hide()
 
-        # Display ROI
+            # Display ROI
         if self.backend.show_ROI:
             self.ROI_region.show()
-        else:
-            self.ROI_region.hide()
 
         # Autorange
         if len(self.backend.curve_list) > 0 and self.backend.auto_range:
-            self.main_graph.autoRange()
+            self.graph[0].autoRange()
+            self.graph[1].autoRange()
             self.backend.auto_range = False
 
         elif len(self.backend.curve_list) == 0:
             self.backend.auto_range = True
 
         # Update the window title
-        self.setWindowTitle('ulog_explorer: ' + self.backend.path_to_logfile)
+        self.setWindowTitle('ulog_explorer: ' + self.backend.graph_data[0].path_to_logfile)
 
         # Update label of marker line
         self.update_marker_line_status()
 
         # Display title
         if self.backend.show_title:
-            self.main_graph.setTitle(self.backend.path_to_logfile)
-        else:
-            self.main_graph.setTitle(None)
+            self.graph[0].setTitle(self.backend.graph_data[0].path_to_logfile)
+            if self.backend.secondary_graph_mode == 'secondary_logfile':
+                self.graph[1].setTitle(self.backend.graph_data[1].path_to_logfile)
+            else:
+                self.graph[1].setTitle(self.backend.graph_data[0].path_to_logfile)
 
-        # Update secondary graph
-        if self.backend.show_secondary_graph:
-            self.secondary_graph.clearPlots()
-            self.secondary_graph.show()
-
+        # Update 2D trajectory graph if enabled
+        if self.backend.secondary_graph_mode == '2D':
+            self.graph[1].setAspectLocked(lock=True, ratio=1)
+            if self.backend.graph_data[0].show_marker_line:
+                self.arrow.show()
             # Plot estimated position
             try:
-                north_estimated = self.backend.df_dict['vehicle_local_position_0']['x'].values
-                east_estimated = self.backend.df_dict['vehicle_local_position_0']['y'].values
+                north_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['x'].values
+                east_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['y'].values
                 pen = pg.mkPen(width=self.backend.linewidth, color='b')
-                curve = self.secondary_graph.plot(east_estimated, north_estimated, name='trajectory', pen=pen)
+                curve = self.graph[1].plot(east_estimated, north_estimated, name='trajectory', pen=pen)
             except:
                 pass
 
             # Plot measured GPS position
             try:
-                north_measured = self.backend.df_dict['vehicle_gps_position_0']['lat_m*'].values
-                east_gps_measured = self.backend.df_dict['vehicle_gps_position_0']['lon_m*'].values
+                north_measured = self.backend.graph_data[0].df_dict['vehicle_gps_position_0']['lat_m*'].values
+                east_gps_measured = self.backend.graph_data[0].df_dict['vehicle_gps_position_0']['lon_m*'].values
                 pen = pg.mkPen(width=self.backend.linewidth, color='r')
-                curve = self.secondary_graph.plot(east_gps_measured, north_measured, name='trajectory', pen=pen)
+                curve = self.graph[1].plot(east_gps_measured, north_measured, name='trajectory', pen=pen)
             except:
                 pass
 
             # Plot mission setpoints
             try:
-                north_setpoint = self.backend.df_dict['position_setpoint_triplet_0']['current.lat_m*'].values
-                east_setpoint = self.backend.df_dict['position_setpoint_triplet_0']['current.lon_m*'].values
+                north_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lat_m*'].values
+                east_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lon_m*'].values
                 pen = pg.mkPen(width=self.backend.linewidth, color='g')
-                curve = self.secondary_graph.plot(east_setpoint, north_setpoint, name='trajectory', pen=pen, symbol='o')
+                curve = self.graph[1].plot(east_setpoint, north_setpoint, name='trajectory', pen=pen, symbol='o')
             except:
                 pass
-
-        else:
-            self.secondary_graph.hide()
 
 
 app = QtGui.QApplication(sys.argv)
