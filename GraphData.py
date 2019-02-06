@@ -116,6 +116,12 @@ class GraphData():
         except Exception as ex:
             print(ex)
 
+        # Add lat_m, lon_m to vehicle_global_position
+        try:
+            self.add_lat_lon_m('vehicle_global_position_0', 'lat', 'lon')
+        except Exception as ex:
+            print(ex)
+
         # Add lat_m, lon_m to position_setpoint_triplet_0
         try:
             self.add_lat_lon_m('position_setpoint_triplet_0', 'current.lat', 'current.lon')
