@@ -515,6 +515,15 @@ class Window(QtGui.QMainWindow):
         self.backend.add_selected_topic_and_field(selected_topic, selected_field)
         self.update_frontend()
 
+    def add_curve(self, graph_id, elem, color_brush):
+        time = self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index
+        y_value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values
+        if self.backend.rescale_curves:
+            y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
+
+        pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
+        curve = self.graph[graph_id].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
+
     def update_frontend(self):
         self.graph[0].clearPlots()
         self.graph[1].clearPlots()
@@ -552,21 +561,10 @@ class Window(QtGui.QMainWindow):
                     top_level_item.child(field_index).setSelected(True)
                     break
 
-            pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
-            time = self.backend.graph_data[0].df_dict[elem.selected_topic].index
-            y_value = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values
-            if self.backend.rescale_curves:
-                y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
-
-            curve = self.graph[0].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
+            self.add_curve(0, elem, color_brush)
 
             if self.backend.secondary_graph_mode == 'secondary_logfile':
-                time = self.backend.graph_data[1].df_dict[elem.selected_topic].index
-                y_value = self.backend.graph_data[1].df_dict[elem.selected_topic][elem.selected_field].values
-                if self.backend.rescale_curves:
-                    y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
-
-                curve = self.graph[1].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
+                self.add_curve(1, elem, color_brush)
 
         # Display lines at start and stop of forward transition
         if self.backend.show_transition_lines:
