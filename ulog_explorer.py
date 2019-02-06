@@ -18,7 +18,7 @@ class Window(QtGui.QMainWindow):
 
         # Parse arguments
         parser = argparse.ArgumentParser(description='Used to analyse uLog files')
-        parser.add_argument("-f")
+        parser.add_argument("input_path", nargs='?', help='Path to directory or .ulg file to open', type=str, default=expanduser('~'))
         args = parser.parse_args()
 
         # Initialize the GUI backend
@@ -168,7 +168,7 @@ class Window(QtGui.QMainWindow):
         pg.setConfigOptions(antialias=True)
 
         # Load logfile from argument or file dialog
-        self.callback_open_logfile(args.f)
+        self.callback_open_logfile(args.input_path)
 
     def update_marker_line_status(self):
         # TODO: check -1 index here

@@ -1,0 +1,4 @@
+when switching logfile and one topic is not present several topics are not plotted
+use pyqtgraph.exit() to exit
+show grey line at parameter change
+build 2d Gui with trajectory. Show marker at marker line timestamp
