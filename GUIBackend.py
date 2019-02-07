@@ -25,6 +25,8 @@ class GUIBackend():
         self.rescale_curves = False
         # Currently display mode of the secondary graph
         self.secondary_graph_mode = '2D'
+        # True if the visible range should be linked together for the main and secondary graphs
+        self.link_xy_range = False
 
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),

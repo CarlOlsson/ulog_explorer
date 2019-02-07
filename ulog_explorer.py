@@ -119,6 +119,9 @@ class Window(QtGui.QMainWindow):
         open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
         self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
         self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
+        link_graph_range_action = QtGui.QAction('link visible range (X)', self.graph[0])
+        link_graph_range_action.triggered.connect(self.callback_link_graph_range)
+        self.graph[0].scene().contextMenu.append(link_graph_range_action)
 
         self.main_graph_layout.addWidget(self.graph[0])
         self.secondary_graph_layout.addWidget(self.graph[1])
@@ -316,6 +319,16 @@ class Window(QtGui.QMainWindow):
         self.ROI_region.setRegion([left_quartile, right_quartile])
         self.update_frontend()
 
+    def callback_link_graph_range(self):
+        self.backend.link_xy_range = not self.backend.link_xy_range
+
+        if self.backend.link_xy_range:
+            self.graph[1].getViewBox().setXLink(self.graph[0])
+            self.graph[1].getViewBox().setYLink(self.graph[0])
+        else:
+            self.graph[1].getViewBox().setXLink(None)
+            self.graph[1].getViewBox().setYLink(None)
+
     def fronted_cleanup(self):
         # Remove the transition lines
         for idx in range(2):
@@ -380,7 +393,11 @@ class Window(QtGui.QMainWindow):
         elif event.key() == QtCore.Qt.Key_R:
             self.callback_toggle_rescale_curves()
 
-        # Ctrl + 0: Show quaternion covariances
+        # Ctrl + K: Link axes
+        elif event.key() == QtCore.Qt.Key_K:
+            self.callback_link_graph_range()
+
+            # Ctrl + 0: Show quaternion covariances
         elif event.key() == QtCore.Qt.Key_0:
             self.backend.clear_curve_list()
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[0]')
