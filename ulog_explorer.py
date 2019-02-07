@@ -119,7 +119,7 @@ class Window(QtGui.QMainWindow):
         open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
         self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
         self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
-        link_graph_range_action = QtGui.QAction('link visible range (X)', self.graph[0])
+        link_graph_range_action = QtGui.QAction('link visible range (K)', self.graph[0])
         link_graph_range_action.triggered.connect(self.callback_link_graph_range)
         self.graph[0].scene().contextMenu.append(link_graph_range_action)
 
