@@ -16,7 +16,7 @@ class GUIBackend():
         # True if auto range should be done next frontend update
         self.auto_range = True
         # True if the title is currently displayed
-        self.show_title = False
+        self.show_title = True
         # True if the transition lines are currently displayed
         self.show_transition_lines = False
         # True if the ROI is currently displayed
