@@ -76,7 +76,8 @@ class Window(QtGui.QMainWindow):
         self.graph = [pg.PlotWidget() for _ in [0, 1]]
         self.graph[0].showGrid(True, True, 0.5)
         self.graph[1].showGrid(True, True, 0.5)
-        self.graph[0].keyPressEvent = self.keyPressed
+        self.graph[0].keyPressEvent = self.keyPressed_main_graph
+        self.graph[1].keyPressEvent = self.keyPressed_secondary_graph
 
         # Populate the graph context menu
         toggle_marker_action = QtGui.QAction('show/hide markers (M)', self.graph[0])
@@ -323,7 +324,7 @@ class Window(QtGui.QMainWindow):
             for elem in self.backend.graph_data[idx].bt_lines_obj:
                 self.graph[idx].removeItem(elem)
 
-    def keyPressed(self, event):
+    def keyPressed_main_graph(self, event):
         # Ctrl + O: Open logfile
         if event.key() == QtCore.Qt.Key_O:
             self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
@@ -482,6 +483,11 @@ class Window(QtGui.QMainWindow):
                     diff = delta_y / delta_t
                     print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
 
+    def keyPressed_secondary_graph(self, event):
+        # Ctrl + V: Autorange
+        if event.key() == QtCore.Qt.Key_V:
+            self.graph[1].autoRange()
+
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
 
@@ -602,7 +608,7 @@ class Window(QtGui.QMainWindow):
             self.backend.auto_range = True
 
         # Update the window title
-        self.setWindowTitle('ulog_explorer: ' + self.backend.graph_data[0].path_to_logfile)
+        self.setWindowTitle('ulog_explorer')
 
         # Update label of marker line
         self.update_marker_line_status()
