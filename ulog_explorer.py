@@ -547,6 +547,12 @@ class Window(QtGui.QMainWindow):
         pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
         curve = self.graph[graph_id].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
 
+        # Add a marker if any of the samples are nan
+        if np.isnan(y_value).any():
+            time_of_nans = time[np.isnan(y_value)]
+            zero_vector = 0 * time_of_nans
+            curve = self.graph[graph_id].plot(time_of_nans, zero_vector, pen=pen, name=elem.selected_topic_and_field, symbol='t', symbolBrush=color_brush, symbolPen=color_brush, symbolSize=20)
+
     def update_frontend(self):
         self.graph[0].clearPlots()
         self.graph[1].clearPlots()
