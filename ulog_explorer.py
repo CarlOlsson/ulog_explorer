@@ -120,7 +120,7 @@ class Window(QtGui.QMainWindow):
         self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
         self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
         link_graph_range_action = QtGui.QAction('link visible range (K)', self.graph[0])
-        link_graph_range_action.triggered.connect(self.callback_link_graph_range)
+        link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
         self.graph[0].scene().contextMenu.append(link_graph_range_action)
 
         self.main_graph_layout.addWidget(self.graph[0])
@@ -242,6 +242,7 @@ class Window(QtGui.QMainWindow):
         self.graph[1].autoRange()
 
     def callback_toggle_2D_trajectory_graph(self):
+        self.unlink_graph_range()
         rect = self.split_horizontal_0.sizes()
         if rect[0] > 0:
             if self.backend.secondary_graph_mode == '2D':
@@ -319,15 +320,19 @@ class Window(QtGui.QMainWindow):
         self.ROI_region.setRegion([left_quartile, right_quartile])
         self.update_frontend()
 
-    def callback_link_graph_range(self):
-        self.backend.link_xy_range = not self.backend.link_xy_range
+    def callback_toggle_link_graph_range(self):
+        if self.backend.secondary_graph_mode == 'secondary_logfile':
+            self.backend.link_xy_range = not self.backend.link_xy_range
 
-        if self.backend.link_xy_range:
-            self.graph[1].getViewBox().setXLink(self.graph[0])
-            self.graph[1].getViewBox().setYLink(self.graph[0])
-        else:
-            self.graph[1].getViewBox().setXLink(None)
-            self.graph[1].getViewBox().setYLink(None)
+            if self.backend.link_xy_range:
+                self.graph[1].getViewBox().setXLink(self.graph[0])
+                self.graph[1].getViewBox().setYLink(self.graph[0])
+            else:
+                self.unlink_graph_range()
+
+    def unlink_graph_range(self):
+        self.graph[1].getViewBox().setXLink(None)
+        self.graph[1].getViewBox().setYLink(None)
 
     def fronted_cleanup(self):
         # Remove the transition lines
@@ -395,7 +400,7 @@ class Window(QtGui.QMainWindow):
 
         # Ctrl + K: Link axes
         elif event.key() == QtCore.Qt.Key_K:
-            self.callback_link_graph_range()
+            self.callback_toggle_link_graph_range()
 
             # Ctrl + 0: Show quaternion covariances
         elif event.key() == QtCore.Qt.Key_0:
