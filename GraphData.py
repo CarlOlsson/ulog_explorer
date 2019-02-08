@@ -206,7 +206,7 @@ class GraphData():
         arg[arg > 1] = 1
         arg[arg < -1] = -1
 
-        np.set_printoptions(threshold=np.nan)
+        # np.set_printoptions(threshold=np.nan)
         c = np.arccos(arg)
         k = np.copy(lat)
         for i in range(len(lat)):
