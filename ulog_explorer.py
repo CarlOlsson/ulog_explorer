@@ -47,6 +47,12 @@ class Window(QtGui.QMainWindow):
         clear_btn_layout.addWidget(self.clear_btn)
         self.selected_fields_and_button_layout.addLayout(clear_btn_layout)
 
+        # Add filter box
+        self.filter_box = QtGui.QLineEdit()
+        self.filter_box.setPlaceholderText('filter by topic name')
+        self.filter_box.textChanged.connect(self.callback_filter_box)
+        self.selected_fields_and_button_layout.addWidget(self.filter_box)
+
         # Create the frame for the data tree used to select topics to plot
         self.tree_frame = QtGui.QFrame(self)
         self.tree_frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -173,6 +179,15 @@ class Window(QtGui.QMainWindow):
 
         # Load logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
+
+    def callback_filter_box(self, filter_str):
+        # Hide all topics
+        for i in range(self.topic_tree_widget.topLevelItemCount()):
+            self.topic_tree_widget.topLevelItem(i).setHidden(True)
+        # Show all topics that match the filter
+        top_level_items_to_show = self.topic_tree_widget.findItems(filter_str, QtCore.Qt.MatchStartsWith)
+        for elem in top_level_items_to_show:
+            elem.setHidden(False)
 
     def update_marker_line_status(self):
         # TODO: check -1 index here
