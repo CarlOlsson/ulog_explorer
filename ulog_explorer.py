@@ -9,6 +9,7 @@ from pathlib import Path
 import os
 from os.path import expanduser
 from GUIBackend import *
+import subprocess
 
 
 class Window(QtGui.QMainWindow):
@@ -130,6 +131,12 @@ class Window(QtGui.QMainWindow):
         link_graph_range_action = QtGui.QAction('link visible range (K)', self.graph[0])
         link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
         self.graph[0].scene().contextMenu.append(link_graph_range_action)
+        ulog_info_action = QtGui.QAction('print ulog info', self.graph[0])
+        ulog_info_action.triggered.connect(self.callback_ulog_info)
+        self.graph[0].scene().contextMenu.append(ulog_info_action)
+        ulog_messages_action = QtGui.QAction('print ulog messages', self.graph[0])
+        ulog_messages_action.triggered.connect(self.callback_ulog_messages)
+        self.graph[0].scene().contextMenu.append(ulog_messages_action)
 
         self.main_graph_layout.addWidget(self.graph[0])
         self.secondary_graph_layout.addWidget(self.graph[1])
@@ -372,6 +379,14 @@ class Window(QtGui.QMainWindow):
     def unlink_graph_range(self):
         self.graph[1].getViewBox().setXLink(None)
         self.graph[1].getViewBox().setYLink(None)
+
+    def callback_ulog_info(self):
+        print("########### ulog_info: " + self.backend.graph_data[0].path_to_logfile + " ###########")
+        subprocess.run(["ulog_info", self.backend.graph_data[0].path_to_logfile])
+
+    def callback_ulog_messages(self):
+        print("########### ulog_messages: " + self.backend.graph_data[0].path_to_logfile + " ###########")
+        subprocess.run(["ulog_messages", self.backend.graph_data[0].path_to_logfile])
 
     def fronted_cleanup(self):
         # Remove the transition lines
