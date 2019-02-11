@@ -10,6 +10,7 @@ import os
 from os.path import expanduser
 from GUIBackend import *
 import subprocess
+from functools import partial
 
 
 class Window(QtGui.QMainWindow):
@@ -87,60 +88,63 @@ class Window(QtGui.QMainWindow):
         self.graph[1].keyPressEvent = self.keyPressed_secondary_graph
 
         # Populate the graph context menu
-        toggle_marker_action = QtGui.QAction('show/hide markers (M)', self.graph[0])
+        toggle_marker_action = QtGui.QAction('show/hide markers (M)', self)
         toggle_marker_action.triggered.connect(self.callback_toggle_marker)
         self.graph[0].scene().contextMenu.append(toggle_marker_action)
-        toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self.graph[0])
+        toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self)
         toggle_bold_action.triggered.connect(self.callback_toggle_bold)
         self.graph[0].scene().contextMenu.append(toggle_bold_action)
         self.graph[1].scene().contextMenu.append(toggle_bold_action)
-        toggle_title_action = QtGui.QAction('show/hide title (T)', self.graph[0])
+        toggle_title_action = QtGui.QAction('show/hide title (T)', self)
         toggle_title_action.triggered.connect(self.callback_toggle_title)
         self.graph[0].scene().contextMenu.append(toggle_title_action)
         self.graph[1].scene().contextMenu.append(toggle_title_action)
-        toggle_legend_action = QtGui.QAction('show/hide legend (L)', self.graph[0])
+        toggle_legend_action = QtGui.QAction('show/hide legend (L)', self)
         toggle_legend_action.triggered.connect(self.callback_toggle_legend)
         self.graph[0].scene().contextMenu.append(toggle_legend_action)
-        toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self.graph[0])
+        toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self)
         toggle_transition_lines_action.triggered.connect(self.callback_toggle_transition_lines)
         self.graph[0].scene().contextMenu.append(toggle_transition_lines_action)
         self.graph[1].scene().contextMenu.append(toggle_transition_lines_action)
-        toggle_main_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
-        toggle_main_marker_line_action.triggered.connect(self.callback_toggle_main_marker_line)
+
+        toggle_main_marker_line_action = QtGui.QAction('show/hide marker line (D)', self)
+        toggle_main_marker_line_action.triggered.connect(partial(self.callback_toggle_marker_line, 0))
         self.graph[0].scene().contextMenu.append(toggle_main_marker_line_action)
-        toggle_secondary_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
-        toggle_secondary_marker_line_action.triggered.connect(self.callback_toggle_secondary_marker_line)
+
+        toggle_secondary_marker_line_action = QtGui.QAction('show/hide marker line (D)', self)
+        toggle_secondary_marker_line_action.triggered.connect(partial(self.callback_toggle_marker_line, 1))
         self.graph[1].scene().contextMenu.append(toggle_secondary_marker_line_action)
-        toggle_changed_parameters_action = QtGui.QAction('show/hide changed parameters', self.graph[0])
+
+        toggle_changed_parameters_action = QtGui.QAction('show/hide changed parameters', self)
         toggle_changed_parameters_action.triggered.connect(self.callback_toggle_changed_parameters)
         self.graph[0].scene().contextMenu.append(toggle_changed_parameters_action)
-        ROI_action = QtGui.QAction('show/hide ROI (A)', self.graph[0])
+        ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.graph[0].scene().contextMenu.append(ROI_action)
-        secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self.graph[0])
+        secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self)
         secondary_graph_action.triggered.connect(self.callback_toggle_2D_trajectory_graph)
         self.graph[0].scene().contextMenu.append(secondary_graph_action)
         self.graph[1].scene().contextMenu.append(secondary_graph_action)
-        rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self.graph[0])
+        rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self)
         rescale_curves_action.triggered.connect(self.callback_toggle_rescale_curves)
         self.graph[0].scene().contextMenu.append(rescale_curves_action)
         self.graph[1].scene().contextMenu.append(rescale_curves_action)
-        open_logfile_action = QtGui.QAction('open main logfile (O)', self.graph[0])
+        open_logfile_action = QtGui.QAction('open main logfile (O)', self)
         open_logfile_action.setShortcut("Ctrl+O")
         open_logfile_action.triggered.connect(self.callback_open_main_logfile)
         self.graph[0].scene().contextMenu.append(open_logfile_action)
-        open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self.graph[0])
+        open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self)
         open_secondary_logfile_action.setShortcut("Ctrl+U")
         open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
         self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
         self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
-        link_graph_range_action = QtGui.QAction('link visible range (K)', self.graph[0])
+        link_graph_range_action = QtGui.QAction('link visible range (K)', self)
         link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
         self.graph[0].scene().contextMenu.append(link_graph_range_action)
-        ulog_info_action = QtGui.QAction('print ulog info', self.graph[0])
+        ulog_info_action = QtGui.QAction('print ulog info', self)
         ulog_info_action.triggered.connect(self.callback_ulog_info)
         self.graph[0].scene().contextMenu.append(ulog_info_action)
-        ulog_messages_action = QtGui.QAction('print ulog messages', self.graph[0])
+        ulog_messages_action = QtGui.QAction('print ulog messages', self)
         ulog_messages_action.triggered.connect(self.callback_ulog_messages)
         self.graph[0].scene().contextMenu.append(ulog_messages_action)
 
@@ -338,7 +342,7 @@ class Window(QtGui.QMainWindow):
         if not self.split_screen_active():
             self.split_horizontal_0.setSizes([1, 1])
             if not self.backend.graph_data[0].show_marker_line:
-                self.callback_toggle_main_marker_line()
+                self.callback_toggle_marker_line(0)
         else:
             self.split_horizontal_0.setSizes([0, 1])
 
@@ -375,14 +379,9 @@ class Window(QtGui.QMainWindow):
         self.backend.show_transition_lines = not self.backend.show_transition_lines
         self.update_frontend()
 
-    def callback_toggle_main_marker_line(self):
-        self.backend.graph_data[0].show_marker_line = not self.backend.graph_data[0].show_marker_line
-        self.set_marker_line_in_middle()
-        self.update_frontend()
-
-    def callback_toggle_secondary_marker_line(self):
-        self.backend.graph_data[1].show_marker_line = not self.backend.graph_data[1].show_marker_line
-        # self.set_marker_line_in_middle()
+    def callback_toggle_marker_line(self, graph_id=0):
+        self.backend.graph_data[graph_id].show_marker_line = not self.backend.graph_data[graph_id].show_marker_line
+        self.set_marker_line_in_middle(graph_id)
         self.update_frontend()
 
     def plot_parameter_changes(self, graph_id=0):
@@ -418,10 +417,10 @@ class Window(QtGui.QMainWindow):
 
     def set_marker_line_in_middle(self, graph_id=0):
         # Calculate midpoint along x axis on current graph
-        rect = self.graph[0].viewRange()
+        rect = self.graph[graph_id].viewRange()
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
-        self.marker_line[0].setValue(midpoint)
+        self.marker_line[graph_id].setValue(midpoint)
 
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
@@ -509,7 +508,7 @@ class Window(QtGui.QMainWindow):
 
         # Ctrl + D: Toggle marker line
         elif event.key() == QtCore.Qt.Key_D:
-            self.callback_toggle_main_marker_line()
+            self.callback_toggle_marker_line()
 
         # Ctrl + A: Toggle ROI
         elif event.key() == QtCore.Qt.Key_A:
@@ -633,7 +632,7 @@ class Window(QtGui.QMainWindow):
 
         # Ctrl + D: Toggle marker line
         elif event.key() == QtCore.Qt.Key_D:
-            self.callback_toggle_secondary_marker_line()
+            self.callback_toggle_marker_line(1)
 
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
