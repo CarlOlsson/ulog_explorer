@@ -219,13 +219,13 @@ class Window(QtGui.QMainWindow):
         for elem in top_level_items_to_show:
             elem.setHidden(False)
 
-    def update_marker_line_status(self, graph_id=0):
+    def update_marker_line_status(self):
         # TODO: check -1 index here
         marker_line_label = ''
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
         for elem in self.backend.curve_list:
-            idx = np.argmax(self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
-            value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values[idx]
+            idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
+            value = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]
             value_str = str(value)
             if elem.selected_field[-5:] == 'flags':
                 value_str = value_str + " ({0:b})".format(int(value))
