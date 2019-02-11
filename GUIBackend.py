@@ -27,6 +27,8 @@ class GUIBackend():
         self.secondary_graph_mode = '2D'
         # True if the visible range should be linked together for the main and secondary graphs
         self.link_xy_range = False
+        # True if the parameter changes are currently displayed
+        self.show_changed_parameters = False
 
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),

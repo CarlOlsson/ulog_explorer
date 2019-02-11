@@ -9,6 +9,8 @@ class GraphData():
     def __init__(self):
         # Dictionary of topic dataframes
         self.df_dict = {}
+        # List of changed parameters
+        self.changed_parameters = []
         # The path to the currently opened logfile
         self.path_to_logfile = ''
         # List with timestamps for forward transitions
@@ -19,11 +21,13 @@ class GraphData():
         self.show_marker_line = False
         self.ft_lines_obj = []
         self.bt_lines_obj = []
+        self.parameter_lines_obj = []
 
     # Convert a pyulog.core.ULog object to a dictionary of dataframes
     def ulog_to_df(self, logfile_str):
         ulog_dict = {}
-        for elem in sorted(ULog(logfile_str).data_list, key=lambda d: d.name + str(d.multi_id)):
+        ulog = ULog(logfile_str)
+        for elem in sorted(ulog.data_list, key=lambda d: d.name + str(d.multi_id)):
             topic_name = elem.name + "_" + str(elem.multi_id)
             column_names = set(elem.data.keys())
             df = pd.DataFrame(index=elem.data['timestamp'] / 1e6)
@@ -33,6 +37,7 @@ class GraphData():
             ulog_dict[topic_name] = df
 
         self.df_dict = ulog_dict
+        self.changed_parameters = ulog.changed_parameters
 
     # Add fields to df_dict. * is added to the names to represent that it was calculated in postprocessing and not logged
     def add_all_fields_to_df(self):
