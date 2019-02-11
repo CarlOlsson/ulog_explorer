@@ -697,7 +697,12 @@ class Window(QtGui.QMainWindow):
                 pass
 
 
-app = QtGui.QApplication(sys.argv)
-GUI = Window()
-GUI.show()
-sys.exit(app.exec_())
+def main():
+    app = QtGui.QApplication(sys.argv)
+    GUI = Window()
+    GUI.show()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
