@@ -747,7 +747,6 @@ class Window(QtGui.QMainWindow):
         # Display marker line
         if self.backend.graph_data[0].show_marker_line:
             self.marker_line[0].show()
-            # Update label of marker line
             self.update_main_marker_line_status()
         if self.backend.graph_data[1].show_marker_line:
             self.marker_line[1].show()
