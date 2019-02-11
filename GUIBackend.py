@@ -51,7 +51,7 @@ class GUIBackend():
 
         # Returns true if the selected topic and field is already in the list
     def contains(self, selected_topic, selected_field):
-        selected_topic_and_field = get_name_combined(selected_topic, selected_field)
+        selected_topic_and_field = CurveClass.get_name_combined(selected_topic, selected_field)
         for elem in self.curve_list:
             if elem.selected_topic_and_field == selected_topic_and_field:
                 return True
@@ -90,16 +90,16 @@ class CurveClass():
     def __init__(self, selected_topic, selected_field, color_key, color):
         self.selected_topic = selected_topic
         self.selected_field = selected_field
-        self.selected_topic_and_field = get_name_combined(selected_topic, selected_field)
+        self.selected_topic_and_field = self.get_name_combined(selected_topic, selected_field)
         self.color_key = color_key
         self.color = color
 
+    @staticmethod
+    def get_name_combined(selected_topic, selected_field):
+        return selected_topic + "->" + selected_field
 
-def get_name_combined(selected_topic, selected_field):
-    return selected_topic + "->" + selected_field
-
-
-def get_name_seperate(selected_topic_and_field):
-    selected_topic = selected_topic_and_field.split('->')[0]
-    selected_field = selected_topic_and_field.split('->')[1]
-    return selected_topic, selected_field
+    @staticmethod
+    def get_name_seperate(selected_topic_and_field):
+        selected_topic = selected_topic_and_field.split('->')[0]
+        selected_field = selected_topic_and_field.split('->')[1]
+        return selected_topic, selected_field

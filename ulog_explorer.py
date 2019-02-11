@@ -119,9 +119,11 @@ class Window(QtGui.QMainWindow):
         self.graph[0].scene().contextMenu.append(rescale_curves_action)
         self.graph[1].scene().contextMenu.append(rescale_curves_action)
         open_logfile_action = QtGui.QAction('open main logfile (O)', self.graph[0])
+        open_logfile_action.setShortcut("Ctrl+O")
         open_logfile_action.triggered.connect(self.callback_open_main_logfile)
         self.graph[0].scene().contextMenu.append(open_logfile_action)
         open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self.graph[0])
+        open_secondary_logfile_action.setShortcut("Ctrl+U")
         open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
         self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
         self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
@@ -150,7 +152,25 @@ class Window(QtGui.QMainWindow):
         self.split_horizontal_1.addWidget(self.split_vertical_1)
         self.split_horizontal_1.addWidget(self.split_vertical_0)
 
+        menu_bar = QtGui.QMenuBar()
+        file_menu = menu_bar.addMenu("&File")
+        file_menu.addAction(open_logfile_action)
+        file_menu.addAction(open_secondary_logfile_action)
+
+        plot_menu = menu_bar.addMenu("&Plot")
+        plot_menu.addAction(toggle_marker_action)
+        plot_menu.addAction(toggle_bold_action)
+        plot_menu.addAction(toggle_title_action)
+        plot_menu.addAction(toggle_legend_action)
+        plot_menu.addAction(toggle_transition_lines_action)
+        plot_menu.addAction(toggle_marker_line_action)
+        plot_menu.addAction(ROI_action)
+        plot_menu.addAction(rescale_curves_action)
+        plot_menu.addAction(secondary_graph_action)
+        plot_menu.addAction(link_graph_range_action)
+
         self.main_layout.addWidget(self.split_horizontal_1)
+        self.main_layout.addWidget(menu_bar)
 
         self.setCentralWidget(self.main_widget)
 
@@ -179,6 +199,10 @@ class Window(QtGui.QMainWindow):
 
         # Load logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
+
+    def close_application(self):
+        print("whooaaaa so custom!!!")
+        sys.exit()
 
     def callback_filter_box(self, filter_str):
         # Hide all topics
@@ -531,7 +555,7 @@ class Window(QtGui.QMainWindow):
     def callback_selected_fields_list_clicked(self, item):
         # Remove the selected field from the tree
         selected_topic_and_field = item.text()
-        selected_topic, selected_field = get_name_seperate(selected_topic_and_field)
+        selected_topic, selected_field = CurveClass.get_name_seperate(selected_topic_and_field)
         self.backend.remove_selected_topic_and_field(selected_topic, selected_field)
         self.update_frontend()
 
@@ -651,7 +675,7 @@ class Window(QtGui.QMainWindow):
             self.backend.auto_range = True
 
         # Update the window title
-        self.setWindowTitle('ulog_explorer')
+        # self.setWindowTitle('ulog_explorer')
 
         # Update label of marker line
         self.update_marker_line_status()
