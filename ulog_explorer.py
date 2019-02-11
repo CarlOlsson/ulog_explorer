@@ -91,17 +91,21 @@ class Window(QtGui.QMainWindow):
         toggle_marker_action = QtGui.QAction('show/hide markers (M)', self)
         toggle_marker_action.triggered.connect(self.callback_toggle_marker)
         self.graph[0].scene().contextMenu.append(toggle_marker_action)
+
         toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self)
         toggle_bold_action.triggered.connect(self.callback_toggle_bold)
         self.graph[0].scene().contextMenu.append(toggle_bold_action)
         self.graph[1].scene().contextMenu.append(toggle_bold_action)
+
         toggle_title_action = QtGui.QAction('show/hide title (T)', self)
         toggle_title_action.triggered.connect(self.callback_toggle_title)
         self.graph[0].scene().contextMenu.append(toggle_title_action)
         self.graph[1].scene().contextMenu.append(toggle_title_action)
+
         toggle_legend_action = QtGui.QAction('show/hide legend (L)', self)
         toggle_legend_action.triggered.connect(self.callback_toggle_legend)
         self.graph[0].scene().contextMenu.append(toggle_legend_action)
+
         toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self)
         toggle_transition_lines_action.triggered.connect(self.callback_toggle_transition_lines)
         self.graph[0].scene().contextMenu.append(toggle_transition_lines_action)
@@ -118,35 +122,44 @@ class Window(QtGui.QMainWindow):
         toggle_changed_parameters_action = QtGui.QAction('show/hide changed parameters', self)
         toggle_changed_parameters_action.triggered.connect(self.callback_toggle_changed_parameters)
         self.graph[0].scene().contextMenu.append(toggle_changed_parameters_action)
+
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.graph[0].scene().contextMenu.append(ROI_action)
+
         secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self)
         secondary_graph_action.triggered.connect(self.callback_toggle_2D_trajectory_graph)
         self.graph[0].scene().contextMenu.append(secondary_graph_action)
         self.graph[1].scene().contextMenu.append(secondary_graph_action)
+
         rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self)
         rescale_curves_action.triggered.connect(self.callback_toggle_rescale_curves)
         self.graph[0].scene().contextMenu.append(rescale_curves_action)
         self.graph[1].scene().contextMenu.append(rescale_curves_action)
+
         open_logfile_action = QtGui.QAction('open main logfile (O)', self)
         open_logfile_action.setShortcut("Ctrl+O")
         open_logfile_action.triggered.connect(self.callback_open_main_logfile)
         self.graph[0].scene().contextMenu.append(open_logfile_action)
+
         open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self)
         open_secondary_logfile_action.setShortcut("Ctrl+U")
         open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
         self.graph[0].scene().contextMenu.append(open_secondary_logfile_action)
         self.graph[1].scene().contextMenu.append(open_secondary_logfile_action)
+
         link_graph_range_action = QtGui.QAction('link visible range (K)', self)
         link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
         self.graph[0].scene().contextMenu.append(link_graph_range_action)
-        ulog_info_action = QtGui.QAction('print ulog info', self)
-        ulog_info_action.triggered.connect(self.callback_ulog_info)
-        self.graph[0].scene().contextMenu.append(ulog_info_action)
-        ulog_messages_action = QtGui.QAction('print ulog messages', self)
-        ulog_messages_action.triggered.connect(self.callback_ulog_messages)
-        self.graph[0].scene().contextMenu.append(ulog_messages_action)
+
+        for graph_id in range(2):
+            ulog_info_action = QtGui.QAction('print ulog info', self)
+            ulog_info_action.triggered.connect(partial(self.callback_ulog_info, graph_id))
+            self.graph[graph_id].scene().contextMenu.append(ulog_info_action)
+
+            ulog_messages_action = QtGui.QAction('print ulog messages', self)
+            ulog_messages_action.triggered.connect(partial(self.callback_ulog_messages, graph_id))
+            self.graph[graph_id].scene().contextMenu.append(ulog_messages_action)
 
         self.main_graph_layout.addWidget(self.graph[0])
         self.secondary_graph_layout.addWidget(self.graph[1])
@@ -446,13 +459,13 @@ class Window(QtGui.QMainWindow):
         self.graph[1].getViewBox().setXLink(None)
         self.graph[1].getViewBox().setYLink(None)
 
-    def callback_ulog_info(self):
-        print("########### ulog_info: " + self.backend.graph_data[0].path_to_logfile + " ###########")
-        subprocess.run(["ulog_info", self.backend.graph_data[0].path_to_logfile])
+    def callback_ulog_info(self, graph_id):
+        print("########### ulog_info: " + self.backend.graph_data[graph_id].path_to_logfile + " ###########")
+        subprocess.run(["ulog_info", self.backend.graph_data[graph_id].path_to_logfile])
 
-    def callback_ulog_messages(self):
-        print("########### ulog_messages: " + self.backend.graph_data[0].path_to_logfile + " ###########")
-        subprocess.run(["ulog_messages", self.backend.graph_data[0].path_to_logfile])
+    def callback_ulog_messages(self, graph_id):
+        print("########### ulog_messages: " + self.backend.graph_data[graph_id].path_to_logfile + " ###########")
+        subprocess.run(["ulog_messages", self.backend.graph_data[graph_id].path_to_logfile])
 
     def fronted_cleanup(self):
         # Remove the transition lines
