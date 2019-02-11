@@ -210,10 +210,6 @@ class Window(QtGui.QMainWindow):
         # Load logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
 
-    def close_application(self):
-        print("whooaaaa so custom!!!")
-        sys.exit()
-
     def callback_filter_box(self, filter_str):
         # Hide all topics
         for i in range(self.topic_tree_widget.topLevelItemCount()):
@@ -223,13 +219,13 @@ class Window(QtGui.QMainWindow):
         for elem in top_level_items_to_show:
             elem.setHidden(False)
 
-    def update_marker_line_status(self):
+    def update_marker_line_status(self, graph_id=0):
         # TODO: check -1 index here
         marker_line_label = ''
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
         for elem in self.backend.curve_list:
-            idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
-            value = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]
+            idx = np.argmax(self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
+            value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values[idx]
             value_str = str(value)
             if elem.selected_field[-5:] == 'flags':
                 value_str = value_str + " ({0:b})".format(int(value))
@@ -239,24 +235,27 @@ class Window(QtGui.QMainWindow):
         self.marker_line.label.textItem.setPlainText(marker_line_label)
 
         if self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
-            # Put arrow at estimated position if it exists, otherwise at the GPS position
-            if 'vehicle_local_position_0' in self.backend.graph_data[0].df_dict:
-                topic_str = 'vehicle_local_position_0'
-                x = 'x'
-                y = 'y'
-            elif 'vehicle_gps_position_0' in self.backend.graph_data[0].df_dict:
-                topic_str = 'vehicle_gps_position_0'
-                x = 'lat_m*'
-                y = 'lon_m*'
-            else:
-                return
+            self.update_2d_arrow_pos()
 
-            idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line.value()) - 1
-            pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
-            pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
-            # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
-            # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
-            self.arrow.setPos(pos_y, pos_x)
+    def update_2d_arrow_pos(self):
+        # Put arrow at estimated position if it exists, otherwise at the GPS position
+        if 'vehicle_local_position_0' in self.backend.graph_data[0].df_dict:
+            topic_str = 'vehicle_local_position_0'
+            x = 'x'
+            y = 'y'
+        elif 'vehicle_gps_position_0' in self.backend.graph_data[0].df_dict:
+            topic_str = 'vehicle_gps_position_0'
+            x = 'lat_m*'
+            y = 'lon_m*'
+        else:
+            return
+
+        idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line.value()) - 1
+        pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
+        pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
+        # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
+        # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
+        self.arrow.setPos(pos_y, pos_x)
 
     def callback_open_logfile(self, input_path=expanduser('~'), graph_id=0):
         if Path(input_path).is_file() and Path(input_path).suffix == ".ulg":
