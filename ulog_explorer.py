@@ -251,9 +251,9 @@ class Window(QtGui.QMainWindow):
             else:
                 return
 
-            idx_vehicle_local_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line.value()) - 1
-            pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_local_position]
-            pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_local_position]
+            idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line.value()) - 1
+            pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
+            pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
             # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
             # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
             self.arrow.setPos(pos_y, pos_x)
