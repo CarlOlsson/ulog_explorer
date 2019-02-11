@@ -283,8 +283,7 @@ class Window(QtGui.QMainWindow):
         self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile), 1)
         self.backend.secondary_graph_mode = 'secondary_logfile'
         self.backend.show_title = True
-        rect = self.split_horizontal_0.sizes()
-        if rect[0] == 0:
+        if not self.split_screen_active():
             self.split_horizontal_0.setSizes([1, 1])
 
         self.update_frontend()
@@ -292,8 +291,7 @@ class Window(QtGui.QMainWindow):
 
     def callback_toggle_2D_trajectory_graph(self):
         self.unlink_graph_range()
-        rect = self.split_horizontal_0.sizes()
-        if rect[0] > 0:
+        if self.split_screen_active():
             if self.backend.secondary_graph_mode == '2D':
                 self.split_horizontal_0.setSizes([0, 1])
             else:
@@ -305,9 +303,12 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
         self.graph[1].autoRange()
 
-    def toggle_split_screen(self):
+    def split_screen_active(self):
         rect = self.split_horizontal_0.sizes()
-        if rect[0] == 0:
+        return rect[0] > 0
+
+    def toggle_split_screen(self):
+        if not self.split_screen_active():
             self.split_horizontal_0.setSizes([1, 1])
             if not self.backend.graph_data[0].show_marker_line:
                 self.callback_toggle_marker_line()
@@ -352,29 +353,36 @@ class Window(QtGui.QMainWindow):
         self.set_marker_line_in_middle()
         self.update_frontend()
 
+    def plot_parameter_changes(self, graph_id=0):
+        last_timestamp = 0
+        last_label = ''
+        for elem in self.backend.graph_data[graph_id].changed_parameters:
+            timestamp = elem[0] / 1e6
+            label = elem[1] + ": " + str(elem[2])
+            if timestamp == last_timestamp:
+                label = label + "\n" + last_label
+                self.backend.graph_data[graph_id].parameter_lines_obj[-1].label.textItem.setPlainText(label)
+            else:
+                parameter_changed_line = pg.InfiniteLine(angle=90, movable=False, pos=timestamp, pen=pg.mkPen(color='k'), label=label,
+                                                         labelOpts={'position': 0.8, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+                parameter_changed_line.show()
+                self.graph[graph_id].addItem(parameter_changed_line, ignoreBounds=True)
+                self.backend.graph_data[graph_id].parameter_lines_obj.append(parameter_changed_line)
+
+            last_timestamp = timestamp
+            last_label = label
+
     def callback_toggle_changed_parameters(self):
         self.backend.show_changed_parameters = not self.backend.show_changed_parameters
         if self.backend.show_changed_parameters:
-            last_timestamp = 0
-            last_label = ''
-            for elem in self.backend.graph_data[0].changed_parameters:
-                timestamp = elem[0] / 1e6
-                label = elem[1] + ": " + str(elem[2])
-                if timestamp == last_timestamp:
-                    label = label + "\n" + last_label
-                    self.backend.graph_data[0].parameter_lines_obj[-1].label.textItem.setPlainText(label)
-                else:
-                    parameter_changed_line = pg.InfiniteLine(angle=90, movable=False, pos=timestamp, pen=pg.mkPen(color='k'), label=label,
-                                                             labelOpts={'position': 0.8, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
-                    parameter_changed_line.show()
-                    self.graph[0].addItem(parameter_changed_line, ignoreBounds=True)
-                    self.backend.graph_data[0].parameter_lines_obj.append(parameter_changed_line)
-
-                last_timestamp = timestamp
-                last_label = label
+            self.plot_parameter_changes()
+            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+                self.plot_parameter_changes(1)
         else:
             for elem in self.backend.graph_data[0].parameter_lines_obj:
                 self.graph[0].removeItem(elem)
+            for elem in self.backend.graph_data[1].parameter_lines_obj:
+                self.graph[1].removeItem(elem)
 
     def set_marker_line_in_middle(self, graph_id=0):
         # Calculate midpoint along x axis on current graph
