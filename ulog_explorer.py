@@ -115,9 +115,9 @@ class Window(QtGui.QMainWindow):
             toggle_changed_parameters_action.triggered.connect(self.callback_toggle_changed_parameters)
             self.graph[graph_id].scene().contextMenu.append(toggle_changed_parameters_action)
 
-            secondary_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self)
-            secondary_graph_action.triggered.connect(self.callback_toggle_2D_trajectory_graph)
-            self.graph[graph_id].scene().contextMenu.append(secondary_graph_action)
+            trajectory_graph_action = QtGui.QAction('show/hide trajectory graph (Q)', self)
+            trajectory_graph_action.triggered.connect(self.callback_toggle_2D_trajectory_graph)
+            self.graph[graph_id].scene().contextMenu.append(trajectory_graph_action)
 
             toggle_transition_lines_action = QtGui.QAction('show/hide transition lines (I)', self)
             toggle_transition_lines_action.triggered.connect(self.callback_toggle_transition_lines)
@@ -185,7 +185,7 @@ class Window(QtGui.QMainWindow):
         plot_menu.addAction(toggle_transition_lines_action)
         plot_menu.addAction(ROI_action)
         plot_menu.addAction(rescale_curves_action)
-        plot_menu.addAction(secondary_graph_action)
+        plot_menu.addAction(trajectory_graph_action)
         plot_menu.addAction(link_graph_range_action)
 
         self.main_layout.addWidget(self.split_horizontal_1)
