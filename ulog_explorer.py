@@ -108,6 +108,9 @@ class Window(QtGui.QMainWindow):
         toggle_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
         toggle_marker_line_action.triggered.connect(self.callback_toggle_marker_line)
         self.graph[0].scene().contextMenu.append(toggle_marker_line_action)
+        toggle_changed_parameters_action = QtGui.QAction('show/hide changed parameters', self.graph[0])
+        toggle_changed_parameters_action.triggered.connect(self.callback_toggle_changed_parameters)
+        self.graph[0].scene().contextMenu.append(toggle_changed_parameters_action)
         ROI_action = QtGui.QAction('show/hide ROI (A)', self.graph[0])
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.graph[0].scene().contextMenu.append(ROI_action)
@@ -348,6 +351,24 @@ class Window(QtGui.QMainWindow):
         self.backend.graph_data[0].show_marker_line = not self.backend.graph_data[0].show_marker_line
         self.set_marker_line_in_middle()
         self.update_frontend()
+
+    def callback_toggle_changed_parameters(self):
+        last_timestamp = 0
+        last_label = ''
+        for elem in self.backend.graph_data[0].changed_parameters:
+            timestamp = elem[0] / 1e6
+            label = elem[1] + ": " + str(elem[2])
+            if timestamp == last_timestamp:
+                label = label + "\n" + last_label
+                self.parameter_changed_line.label.textItem.setPlainText(label)
+            else:
+                self.parameter_changed_line = pg.InfiniteLine(angle=90, movable=False, pos=timestamp, pen=pg.mkPen(color='k'), label=label,
+                                                              labelOpts={'position': 0.8, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+                self.parameter_changed_line.show()
+                self.graph[0].addItem(self.parameter_changed_line, ignoreBounds=True)
+
+            last_timestamp = timestamp
+            last_label = label
 
     def set_marker_line_in_middle(self, graph_id=0):
         # Calculate midpoint along x axis on current graph
