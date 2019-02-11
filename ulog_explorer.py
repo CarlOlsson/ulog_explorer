@@ -239,11 +239,23 @@ class Window(QtGui.QMainWindow):
         self.marker_line.label.textItem.setPlainText(marker_line_label)
 
         if self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
-            idx_vehicle_local_position = np.argmax(self.backend.graph_data[0].df_dict['vehicle_local_position_0'].index > self.marker_line.value()) - 1
-            pos_x = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['x'].values[idx_vehicle_local_position]
-            pos_y = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['y'].values[idx_vehicle_local_position]
-            idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
-            yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
+            # Put arrow at estimated position if it exists, otherwise at the GPS position
+            if 'vehicle_local_position_0' in self.backend.graph_data[0].df_dict:
+                topic_str = 'vehicle_local_position_0'
+                x = 'x'
+                y = 'y'
+            elif 'vehicle_gps_position_0' in self.backend.graph_data[0].df_dict:
+                topic_str = 'vehicle_gps_position_0'
+                x = 'lat_m*'
+                y = 'lon_m*'
+            else:
+                return
+
+            idx_vehicle_local_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line.value()) - 1
+            pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_local_position]
+            pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_local_position]
+            # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
+            # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
             self.arrow.setPos(pos_y, pos_x)
 
     def callback_open_logfile(self, input_path=expanduser('~'), graph_id=0):
