@@ -105,9 +105,12 @@ class Window(QtGui.QMainWindow):
         toggle_transition_lines_action.triggered.connect(self.callback_toggle_transition_lines)
         self.graph[0].scene().contextMenu.append(toggle_transition_lines_action)
         self.graph[1].scene().contextMenu.append(toggle_transition_lines_action)
-        toggle_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
-        toggle_marker_line_action.triggered.connect(self.callback_toggle_marker_line)
-        self.graph[0].scene().contextMenu.append(toggle_marker_line_action)
+        toggle_main_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
+        toggle_main_marker_line_action.triggered.connect(self.callback_toggle_main_marker_line)
+        self.graph[0].scene().contextMenu.append(toggle_main_marker_line_action)
+        toggle_secondary_marker_line_action = QtGui.QAction('show/hide marker line (D)', self.graph[0])
+        toggle_secondary_marker_line_action.triggered.connect(self.callback_toggle_secondary_marker_line)
+        self.graph[1].scene().contextMenu.append(toggle_secondary_marker_line_action)
         toggle_changed_parameters_action = QtGui.QAction('show/hide changed parameters', self.graph[0])
         toggle_changed_parameters_action.triggered.connect(self.callback_toggle_changed_parameters)
         self.graph[0].scene().contextMenu.append(toggle_changed_parameters_action)
@@ -173,7 +176,6 @@ class Window(QtGui.QMainWindow):
         plot_menu.addAction(toggle_title_action)
         plot_menu.addAction(toggle_legend_action)
         plot_menu.addAction(toggle_transition_lines_action)
-        plot_menu.addAction(toggle_marker_line_action)
         plot_menu.addAction(ROI_action)
         plot_menu.addAction(rescale_curves_action)
         plot_menu.addAction(secondary_graph_action)
@@ -184,12 +186,21 @@ class Window(QtGui.QMainWindow):
 
         self.setCentralWidget(self.main_widget)
 
-        # Create marker line
-        self.marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
-                                           labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
-        self.marker_line.hide()
-        self.graph[0].addItem(self.marker_line, ignoreBounds=True)
-        self.marker_line.sigDragged.connect(self.update_marker_line_status)
+        self.marker_line = []
+        main_logfile_marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
+                                                   labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+        main_logfile_marker_line.hide()
+        self.graph[0].addItem(main_logfile_marker_line, ignoreBounds=True)
+        main_logfile_marker_line.sigDragged.connect(self.update_main_marker_line_status)
+
+        secondary_logfile_marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
+                                                        labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+        secondary_logfile_marker_line.hide()
+        self.graph[1].addItem(secondary_logfile_marker_line, ignoreBounds=True)
+        secondary_logfile_marker_line.sigDragged.connect(self.update_secondary_marker_line_status)
+
+        self.marker_line.append(main_logfile_marker_line)
+        self.marker_line.append(secondary_logfile_marker_line)
 
         # Create ROI
         self.ROI_region = pg.LinearRegionItem()
@@ -219,23 +230,28 @@ class Window(QtGui.QMainWindow):
         for elem in top_level_items_to_show:
             elem.setHidden(False)
 
-    def update_marker_line_status(self):
+    def update_main_marker_line_status(self):
+        self.update_marker_line_status()
+        if self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
+            self.update_2d_arrow_pos()
+
+    def update_secondary_marker_line_status(self):
+        self.update_marker_line_status(1)
+
+    def update_marker_line_status(self, graph_id=0):
         # TODO: check -1 index here
         marker_line_label = ''
-        marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line.value())
+        marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line[0].value())
         for elem in self.backend.curve_list:
-            idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
-            value = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]
+            idx = np.argmax(self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index > self.marker_line[graph_id].value()) - 1
+            value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values[idx]
             value_str = str(value)
             if elem.selected_field[-5:] == 'flags':
                 value_str = value_str + " ({0:b})".format(int(value))
 
             marker_line_label = marker_line_label + '\n' + elem.selected_topic_and_field + ': ' + value_str
 
-        self.marker_line.label.textItem.setPlainText(marker_line_label)
-
-        if self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
-            self.update_2d_arrow_pos()
+        self.marker_line[graph_id].label.textItem.setPlainText(marker_line_label)
 
     def update_2d_arrow_pos(self):
         # Put arrow at estimated position if it exists, otherwise at the GPS position
@@ -250,10 +266,10 @@ class Window(QtGui.QMainWindow):
         else:
             return
 
-        idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line.value()) - 1
+        idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line[0].value()) - 1
         pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
         pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
-        # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line.value()) - 1
+        # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line[0].value()) - 1
         # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
         self.arrow.setPos(pos_y, pos_x)
 
@@ -322,7 +338,7 @@ class Window(QtGui.QMainWindow):
         if not self.split_screen_active():
             self.split_horizontal_0.setSizes([1, 1])
             if not self.backend.graph_data[0].show_marker_line:
-                self.callback_toggle_marker_line()
+                self.callback_toggle_main_marker_line()
         else:
             self.split_horizontal_0.setSizes([0, 1])
 
@@ -359,9 +375,14 @@ class Window(QtGui.QMainWindow):
         self.backend.show_transition_lines = not self.backend.show_transition_lines
         self.update_frontend()
 
-    def callback_toggle_marker_line(self):
+    def callback_toggle_main_marker_line(self):
         self.backend.graph_data[0].show_marker_line = not self.backend.graph_data[0].show_marker_line
         self.set_marker_line_in_middle()
+        self.update_frontend()
+
+    def callback_toggle_secondary_marker_line(self):
+        self.backend.graph_data[1].show_marker_line = not self.backend.graph_data[1].show_marker_line
+        # self.set_marker_line_in_middle()
         self.update_frontend()
 
     def plot_parameter_changes(self, graph_id=0):
@@ -400,7 +421,7 @@ class Window(QtGui.QMainWindow):
         rect = self.graph[0].viewRange()
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
-        self.marker_line.setValue(midpoint)
+        self.marker_line[0].setValue(midpoint)
 
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
@@ -488,7 +509,7 @@ class Window(QtGui.QMainWindow):
 
         # Ctrl + D: Toggle marker line
         elif event.key() == QtCore.Qt.Key_D:
-            self.callback_toggle_marker_line()
+            self.callback_toggle_main_marker_line()
 
         # Ctrl + A: Toggle ROI
         elif event.key() == QtCore.Qt.Key_A:
@@ -577,21 +598,21 @@ class Window(QtGui.QMainWindow):
         # Ctrl + Left_arrow: Move marker line to the left
         elif event.key() == QtCore.Qt.Key_Left:
             if self.backend.graph_data[0].show_marker_line:
-                self.marker_line.setValue(self.marker_line.value() - 1)
-                self.update_marker_line_status()
+                self.marker_line[0].setValue(self.marker_line[0].value() - 1)
+                self.update_main_marker_line_status()
 
         # Ctrl + Right_arrow: Move marker line to the right
         elif event.key() == QtCore.Qt.Key_Right:
             if self.backend.graph_data[0].show_marker_line:
-                self.marker_line.setValue(self.marker_line.value() + 1)
-                self.update_marker_line_status()
+                self.marker_line[0].setValue(self.marker_line[0].value() + 1)
+                self.update_main_marker_line_status()
 
         # Ctrl + P: Print value of selected fields at line
         elif event.key() == QtCore.Qt.Key_P:
             if self.backend.graph_data[0].show_marker_line:
-                print('t = ' + str(self.marker_line.value()))
+                print('t = ' + str(self.marker_line[0].value()))
                 for elem in self.backend.curve_list:
-                    idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line.value()) - 1
+                    idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line[0].value()) - 1
                     print(elem.selected_topic_and_field + ': ' + str(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]))
 
             if self.backend.show_ROI:
@@ -609,6 +630,10 @@ class Window(QtGui.QMainWindow):
         # Ctrl + V: Autorange
         if event.key() == QtCore.Qt.Key_V:
             self.graph[1].autoRange()
+
+        # Ctrl + D: Toggle marker line
+        elif event.key() == QtCore.Qt.Key_D:
+            self.callback_toggle_secondary_marker_line()
 
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
@@ -666,7 +691,8 @@ class Window(QtGui.QMainWindow):
         self.selected_fields_list_widget.clearSelection()
         self.topic_tree_widget.clearSelection()
         self.legend.close()
-        self.marker_line.hide()
+        self.marker_line[0].hide()
+        self.marker_line[1].hide()
         self.arrow.hide()
         self.ROI_region.hide()
         self.graph[0].setTitle(None)
@@ -720,7 +746,12 @@ class Window(QtGui.QMainWindow):
 
         # Display marker line
         if self.backend.graph_data[0].show_marker_line:
-            self.marker_line.show()
+            self.marker_line[0].show()
+            # Update label of marker line
+            self.update_main_marker_line_status()
+        if self.backend.graph_data[1].show_marker_line:
+            self.marker_line[1].show()
+            self.update_secondary_marker_line_status()
 
             # Display ROI
         if self.backend.show_ROI:
@@ -737,9 +768,6 @@ class Window(QtGui.QMainWindow):
 
         # Update the window title
         # self.setWindowTitle('ulog_explorer')
-
-        # Update label of marker line
-        self.update_marker_line_status()
 
         # Display title
         if self.backend.show_title:
