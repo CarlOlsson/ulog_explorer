@@ -402,15 +402,7 @@ class Window(QtGui.QMainWindow):
 
     def callback_toggle_changed_parameters(self):
         self.backend.show_changed_parameters = not self.backend.show_changed_parameters
-        if self.backend.show_changed_parameters:
-            self.plot_parameter_changes()
-            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
-                self.plot_parameter_changes(1)
-        else:
-            for elem in self.backend.graph_data[0].parameter_lines_obj:
-                self.graph[0].removeItem(elem)
-            for elem in self.backend.graph_data[1].parameter_lines_obj:
-                self.graph[1].removeItem(elem)
+        self.update_frontend()
 
     def set_marker_line_in_middle(self, graph_id=0):
         # Calculate midpoint along x axis on current graph
@@ -457,6 +449,9 @@ class Window(QtGui.QMainWindow):
             for elem in self.backend.graph_data[idx].ft_lines_obj:
                 self.graph[idx].removeItem(elem)
             for elem in self.backend.graph_data[idx].bt_lines_obj:
+                self.graph[idx].removeItem(elem)
+            # Remove the parameter changes
+            for elem in self.backend.graph_data[idx].parameter_lines_obj:
                 self.graph[idx].removeItem(elem)
 
     def keyPressed_main_graph(self, event):
@@ -733,7 +728,7 @@ class Window(QtGui.QMainWindow):
         # Display lines at start and stop of forward transition
         if self.backend.show_transition_lines:
             max_range = range(1)
-            if self.backend.secondary_graph_mode == 'secondary_logfile':
+            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
                 max_range = range(2)
             for idx in max_range:
                 for elem in self.backend.graph_data[idx].forward_transition_lines:
@@ -748,7 +743,15 @@ class Window(QtGui.QMainWindow):
                     self.backend.graph_data[idx].bt_lines_obj.append(vLine)
                     self.graph[idx].addItem(vLine, ignoreBounds=True)
 
-        # Display marker line
+        # Display parameter changes
+        if self.backend.show_changed_parameters:
+            max_range = range(1)
+            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+                max_range = range(2)
+            for idx in max_range:
+                self.plot_parameter_changes(idx)
+
+            # Display marker line
         if self.backend.graph_data[0].show_marker_line:
             self.marker_line[0].show()
             self.update_marker_line_status()
