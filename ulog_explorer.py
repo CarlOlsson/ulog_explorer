@@ -272,9 +272,9 @@ class Window(QtGui.QMainWindow):
             if graph_id == 0:
                 self.load_logfile_to_tree()
             self.update_frontend()
-            self.set_marker_line_in_middle(graph_id)
             self.graph[0].autoRange()
             self.graph[1].autoRange()
+            self.set_marker_line_in_middle(graph_id)
 
         else:
             filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Log File', input_path, 'Log Files (*.ulg)')
