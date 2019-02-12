@@ -193,22 +193,6 @@ class Window(QtGui.QMainWindow):
 
         self.setCentralWidget(self.main_widget)
 
-        self.marker_line = []
-        main_logfile_marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
-                                                   labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
-        main_logfile_marker_line.hide()
-        self.graph[0].addItem(main_logfile_marker_line, ignoreBounds=True)
-        main_logfile_marker_line.sigDragged.connect(partial(self.update_marker_line_status, 0))
-
-        secondary_logfile_marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
-                                                        labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
-        secondary_logfile_marker_line.hide()
-        self.graph[1].addItem(secondary_logfile_marker_line, ignoreBounds=True)
-        secondary_logfile_marker_line.sigDragged.connect(partial(self.update_marker_line_status, 1))
-
-        self.marker_line.append(main_logfile_marker_line)
-        self.marker_line.append(secondary_logfile_marker_line)
-
         # Create ROI
         self.ROI_region = pg.LinearRegionItem()
         self.ROI_region.hide()
@@ -239,13 +223,14 @@ class Window(QtGui.QMainWindow):
             elem.setHidden(False)
 
     def update_marker_line_status(self, graph_id=0):
+        self.backend.graph_data[graph_id].marker_line_pos = self.backend.graph_data[graph_id].marker_line_obj.value()
         # TODO: check -1 index here
         marker_line_label = ''
-        marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line[graph_id].value())
+        marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.backend.graph_data[graph_id].marker_line_pos)
         for elem in self.backend.curve_list:
             # Try to add the field to the label. Will fail if not present in secondary logfile
             try:
-                idx = np.argmax(self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index > self.marker_line[graph_id].value()) - 1
+                idx = np.argmax(self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index > self.backend.graph_data[graph_id].marker_line_obj.value()) - 1
                 value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values[idx]
                 value_str = str(value)
                 if elem.selected_field[-5:] == 'flags':
@@ -255,7 +240,7 @@ class Window(QtGui.QMainWindow):
             except:
                 pass
 
-        self.marker_line[graph_id].label.textItem.setPlainText(marker_line_label)
+        self.backend.graph_data[graph_id].marker_line_obj.label.textItem.setPlainText(marker_line_label)
         if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
             self.update_2d_arrow_pos()
 
@@ -272,10 +257,10 @@ class Window(QtGui.QMainWindow):
         else:
             return
 
-        idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.marker_line[0].value()) - 1
+        idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
         pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
         pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
-        # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.marker_line[0].value()) - 1
+        # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
         # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
         self.arrow.setPos(pos_y, pos_x)
 
@@ -414,7 +399,8 @@ class Window(QtGui.QMainWindow):
         rect = self.graph[graph_id].viewRange()
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
-        self.marker_line[graph_id].setValue(midpoint)
+        # self.backend.graph_data[graph_id].marker_line_obj.setValue(midpoint)
+        self.backend.graph_data[graph_id].marker_line_pos = midpoint
 
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
@@ -446,18 +432,21 @@ class Window(QtGui.QMainWindow):
 
     def callback_ulog_messages(self, graph_id):
         print("########### ulog_messages: " + self.backend.graph_data[graph_id].path_to_logfile + " ###########")
-        subprocess.run(["ulog_messages", self.backend.graph_data[graph_id].path_to_logfile])
+        subprocess.run(["ulog_messagse", self.backend.graph_data[graph_id].path_to_logfile])
 
     def fronted_cleanup(self):
         # Remove the transition lines
-        for idx in range(2):
-            for elem in self.backend.graph_data[idx].ft_lines_obj:
-                self.graph[idx].removeItem(elem)
-            for elem in self.backend.graph_data[idx].bt_lines_obj:
-                self.graph[idx].removeItem(elem)
+        for graph_id in range(2):
+            for elem in self.backend.graph_data[graph_id].ft_lines_obj:
+                self.graph[graph_id].removeItem(elem)
+            for elem in self.backend.graph_data[graph_id].bt_lines_obj:
+                self.graph[graph_id].removeItem(elem)
             # Remove the parameter changes
-            for elem in self.backend.graph_data[idx].parameter_lines_obj:
-                self.graph[idx].removeItem(elem)
+            for elem in self.backend.graph_data[graph_id].parameter_lines_obj:
+                self.graph[graph_id].removeItem(elem)
+
+            # Remove marker lines
+            self.graph[graph_id].removeItem(self.backend.graph_data[graph_id].marker_line_obj)
 
     def keyPressed_main_graph(self, event):
         # Ctrl + O: Open logfile
@@ -594,13 +583,13 @@ class Window(QtGui.QMainWindow):
         # Ctrl + Left_arrow: Move marker line to the left
         elif event.key() == QtCore.Qt.Key_Left:
             if self.backend.graph_data[0].show_marker_line:
-                self.marker_line[0].setValue(self.marker_line[0].value() - 1)
+                self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() - 1)
                 self.update_marker_line_status()
 
         # Ctrl + Right_arrow: Move marker line to the right
         elif event.key() == QtCore.Qt.Key_Right:
             if self.backend.graph_data[0].show_marker_line:
-                self.marker_line[0].setValue(self.marker_line[0].value() + 1)
+                self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() + 1)
                 self.update_marker_line_status()
 
         # Ctrl + P: show/hide changed parameters
@@ -610,9 +599,9 @@ class Window(QtGui.QMainWindow):
         # Ctrl + ?: Print value of selected fields at line
         # elif event.key() == QtCore.Qt.Key_?:
         #     if self.backend.graph_data[0].show_marker_line:
-        #         print('t = ' + str(self.marker_line[0].value()))
+        #         print('t = ' + str(self.backend.graph_data[0].marker_line_obj.value()))
         #         for elem in self.backend.curve_list:
-        #             idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.marker_line[0].value()) - 1
+        #             idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
         #             print(elem.selected_topic_and_field + ': ' + str(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]))
 
         #     if self.backend.show_ROI:
@@ -696,8 +685,6 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.clearSelection()
         self.backend.graph_data[0].legend_obj.close()
         self.backend.graph_data[1].legend_obj.close()
-        self.marker_line[0].hide()
-        self.marker_line[1].hide()
         self.arrow.hide()
         self.ROI_region.hide()
         self.graph[0].setTitle(None)
@@ -761,12 +748,16 @@ class Window(QtGui.QMainWindow):
             for idx in max_range:
                 self.plot_parameter_changes(idx)
 
-            # Display marker line
+        # Display marker line
         if self.backend.graph_data[0].show_marker_line:
-            self.marker_line[0].show()
-            self.update_marker_line_status()
+            self.backend.graph_data[0].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[0].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+            self.backend.graph_data[0].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 0))
+            self.graph[0].addItem(self.backend.graph_data[0].marker_line_obj, ignoreBounds=True)
+            self.update_marker_line_status(0)
         if self.backend.graph_data[1].show_marker_line:
-            self.marker_line[1].show()
+            self.backend.graph_data[1].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[1].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+            self.backend.graph_data[1].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 1))
+            self.graph[1].addItem(self.backend.graph_data[1].marker_line_obj, ignoreBounds=True)
             self.update_marker_line_status(1)
 
             # Display ROI
