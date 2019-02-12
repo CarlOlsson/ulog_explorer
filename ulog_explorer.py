@@ -240,7 +240,7 @@ class Window(QtGui.QMainWindow):
     def update_marker_line_status(self, graph_id=0):
         # TODO: check -1 index here
         marker_line_label = ''
-        marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line[0].value())
+        marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.marker_line[graph_id].value())
         for elem in self.backend.curve_list:
             idx = np.argmax(self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index > self.marker_line[graph_id].value()) - 1
             value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values[idx]
