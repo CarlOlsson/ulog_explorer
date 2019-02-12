@@ -723,7 +723,10 @@ class Window(QtGui.QMainWindow):
             self.add_curve(0, elem, color_brush)
 
             if self.backend.secondary_graph_mode == 'secondary_logfile':
-                self.add_curve(1, elem, color_brush)
+                try:
+                    self.add_curve(1, elem, color_brush)
+                except:
+                    pass
 
         # Display lines at start and stop of forward transition
         if self.backend.show_transition_lines:
