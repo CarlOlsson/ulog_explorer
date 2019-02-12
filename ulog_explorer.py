@@ -399,8 +399,8 @@ class Window(QtGui.QMainWindow):
         rect = self.graph[graph_id].viewRange()
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
-        # self.backend.graph_data[graph_id].marker_line_obj.setValue(midpoint)
         self.backend.graph_data[graph_id].marker_line_pos = midpoint
+        # self.backend.graph_data[graph_id].marker_line_obj.setValue(midpoint)
 
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
@@ -435,6 +435,18 @@ class Window(QtGui.QMainWindow):
         subprocess.run(["ulog_messagse", self.backend.graph_data[graph_id].path_to_logfile])
 
     def fronted_cleanup(self):
+        self.graph[0].clearPlots()
+        self.graph[1].clearPlots()
+        self.graph[1].setAspectLocked(lock=False, ratio=1)
+        self.selected_fields_list_widget.clear()
+        self.selected_fields_list_widget.clearSelection()
+        self.topic_tree_widget.clearSelection()
+        self.backend.graph_data[0].legend_obj.close()
+        self.backend.graph_data[1].legend_obj.close()
+        self.arrow.hide()
+        self.ROI_region.hide()
+        self.graph[0].setTitle(None)
+        self.graph[1].setTitle(None)
         # Remove the transition lines
         for graph_id in range(2):
             for elem in self.backend.graph_data[graph_id].ft_lines_obj:
@@ -677,18 +689,6 @@ class Window(QtGui.QMainWindow):
             curve = self.graph[graph_id].plot(time_of_nans, zero_vector, pen=pen, name=elem.selected_topic_and_field, symbol='t', symbolBrush=color_brush, symbolPen=color_brush, symbolSize=20)
 
     def update_frontend(self):
-        self.graph[0].clearPlots()
-        self.graph[1].clearPlots()
-        self.graph[1].setAspectLocked(lock=False, ratio=1)
-        self.selected_fields_list_widget.clear()
-        self.selected_fields_list_widget.clearSelection()
-        self.topic_tree_widget.clearSelection()
-        self.backend.graph_data[0].legend_obj.close()
-        self.backend.graph_data[1].legend_obj.close()
-        self.arrow.hide()
-        self.ROI_region.hide()
-        self.graph[0].setTitle(None)
-        self.graph[1].setTitle(None)
         self.fronted_cleanup()
 
         # Set all topic colors to white in the tree
@@ -754,7 +754,7 @@ class Window(QtGui.QMainWindow):
             self.backend.graph_data[0].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 0))
             self.graph[0].addItem(self.backend.graph_data[0].marker_line_obj, ignoreBounds=True)
             self.update_marker_line_status(0)
-        if self.backend.graph_data[1].show_marker_line:
+        if self.backend.graph_data[1].show_marker_line and self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
             self.backend.graph_data[1].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[1].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
             self.backend.graph_data[1].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 1))
             self.graph[1].addItem(self.backend.graph_data[1].marker_line_obj, ignoreBounds=True)
