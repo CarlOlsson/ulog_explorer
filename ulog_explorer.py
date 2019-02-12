@@ -221,7 +221,8 @@ class Window(QtGui.QMainWindow):
         self.graph[1].addItem(self.arrow)
 
         # Initiate the legend
-        self.legend = self.graph[0].addLegend()
+        self.backend.graph_data[0].legend_obj = self.graph[0].addLegend()
+        self.backend.graph_data[1].legend_obj = self.graph[1].addLegend()
 
         pg.setConfigOptions(antialias=True)
 
@@ -693,7 +694,8 @@ class Window(QtGui.QMainWindow):
         self.selected_fields_list_widget.clear()
         self.selected_fields_list_widget.clearSelection()
         self.topic_tree_widget.clearSelection()
-        self.legend.close()
+        self.backend.graph_data[0].legend_obj.close()
+        self.backend.graph_data[1].legend_obj.close()
         self.marker_line[0].hide()
         self.marker_line[1].hide()
         self.arrow.hide()
@@ -707,7 +709,8 @@ class Window(QtGui.QMainWindow):
             self.topic_tree_widget.topLevelItem(topic_index).setBackground(0, QtGui.QBrush(QtCore.Qt.white))
 
         if self.backend.show_legend:
-            self.legend = self.graph[0].addLegend()
+            self.backend.graph_data[0].legend_obj = self.graph[0].addLegend()
+            self.backend.graph_data[1].legend_obj = self.graph[1].addLegend()
         for elem in self.backend.curve_list:
             color_brush = QtGui.QColor(elem.color[0], elem.color[1], elem.color[2])
             # Add the newly selected field to the list of all currently selected fields
@@ -800,7 +803,7 @@ class Window(QtGui.QMainWindow):
                 north_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['x'].values
                 east_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['y'].values
                 pen = pg.mkPen(width=self.backend.linewidth, color='b')
-                curve = self.graph[1].plot(east_estimated, north_estimated, name='trajectory', pen=pen)
+                curve = self.graph[1].plot(east_estimated, north_estimated, name='vehicle_local_position_0', pen=pen)
             except:
                 pass
 
@@ -809,7 +812,7 @@ class Window(QtGui.QMainWindow):
                 north_measured = self.backend.graph_data[0].df_dict['vehicle_gps_position_0']['lat_m*'].values
                 east_gps_measured = self.backend.graph_data[0].df_dict['vehicle_gps_position_0']['lon_m*'].values
                 pen = pg.mkPen(width=self.backend.linewidth, color='r')
-                curve = self.graph[1].plot(east_gps_measured, north_measured, name='trajectory', pen=pen)
+                curve = self.graph[1].plot(east_gps_measured, north_measured, name='vehicle_gps_position_0', pen=pen)
             except:
                 pass
 
@@ -818,7 +821,7 @@ class Window(QtGui.QMainWindow):
                 north_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lat_m*'].values
                 east_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lon_m*'].values
                 pen = pg.mkPen(width=self.backend.linewidth, color='g')
-                curve = self.graph[1].plot(east_setpoint, north_setpoint, name='trajectory', pen=pen, symbol='o')
+                curve = self.graph[1].plot(east_setpoint, north_setpoint, name='position_setpoint_triplet_0', pen=pen, symbol='o')
             except:
                 pass
 

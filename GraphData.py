@@ -22,6 +22,7 @@ class GraphData():
         self.ft_lines_obj = []
         self.bt_lines_obj = []
         self.parameter_lines_obj = []
+        self.legend_obj = None
 
     # Convert a pyulog.core.ULog object to a dictionary of dataframes
     def ulog_to_df(self, logfile_str):
