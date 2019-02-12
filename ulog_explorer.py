@@ -198,13 +198,13 @@ class Window(QtGui.QMainWindow):
                                                    labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
         main_logfile_marker_line.hide()
         self.graph[0].addItem(main_logfile_marker_line, ignoreBounds=True)
-        main_logfile_marker_line.sigDragged.connect(self.update_main_marker_line_status)
+        main_logfile_marker_line.sigDragged.connect(partial(self.update_marker_line_status, 0))
 
         secondary_logfile_marker_line = pg.InfiniteLine(angle=90, movable=True, pos=300, pen=pg.mkPen(color='b'), label='',
                                                         labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
         secondary_logfile_marker_line.hide()
         self.graph[1].addItem(secondary_logfile_marker_line, ignoreBounds=True)
-        secondary_logfile_marker_line.sigDragged.connect(self.update_secondary_marker_line_status)
+        secondary_logfile_marker_line.sigDragged.connect(partial(self.update_marker_line_status, 1))
 
         self.marker_line.append(main_logfile_marker_line)
         self.marker_line.append(secondary_logfile_marker_line)
@@ -237,14 +237,6 @@ class Window(QtGui.QMainWindow):
         for elem in top_level_items_to_show:
             elem.setHidden(False)
 
-    def update_main_marker_line_status(self):
-        self.update_marker_line_status()
-        if self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
-            self.update_2d_arrow_pos()
-
-    def update_secondary_marker_line_status(self):
-        self.update_marker_line_status(1)
-
     def update_marker_line_status(self, graph_id=0):
         # TODO: check -1 index here
         marker_line_label = ''
@@ -259,6 +251,8 @@ class Window(QtGui.QMainWindow):
             marker_line_label = marker_line_label + '\n' + elem.selected_topic_and_field + ': ' + value_str
 
         self.marker_line[graph_id].label.textItem.setPlainText(marker_line_label)
+        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
+            self.update_2d_arrow_pos()
 
     def update_2d_arrow_pos(self):
         # Put arrow at estimated position if it exists, otherwise at the GPS position
@@ -601,13 +595,13 @@ class Window(QtGui.QMainWindow):
         elif event.key() == QtCore.Qt.Key_Left:
             if self.backend.graph_data[0].show_marker_line:
                 self.marker_line[0].setValue(self.marker_line[0].value() - 1)
-                self.update_main_marker_line_status()
+                self.update_marker_line_status()
 
         # Ctrl + Right_arrow: Move marker line to the right
         elif event.key() == QtCore.Qt.Key_Right:
             if self.backend.graph_data[0].show_marker_line:
                 self.marker_line[0].setValue(self.marker_line[0].value() + 1)
-                self.update_main_marker_line_status()
+                self.update_marker_line_status()
 
         # Ctrl + P: show/hide changed parameters
         elif event.key() == QtCore.Qt.Key_P:
@@ -757,10 +751,10 @@ class Window(QtGui.QMainWindow):
         # Display marker line
         if self.backend.graph_data[0].show_marker_line:
             self.marker_line[0].show()
-            self.update_main_marker_line_status()
+            self.update_marker_line_status()
         if self.backend.graph_data[1].show_marker_line:
             self.marker_line[1].show()
-            self.update_secondary_marker_line_status()
+            self.update_marker_line_status(1)
 
             # Display ROI
         if self.backend.show_ROI:
