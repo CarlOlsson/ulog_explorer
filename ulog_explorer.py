@@ -271,8 +271,8 @@ class Window(QtGui.QMainWindow):
             self.backend.load_ulog_to_graph_data(self.backend.graph_data[graph_id].path_to_logfile, graph_id)
             if graph_id == 0:
                 self.load_logfile_to_tree()
-            self.set_marker_line_in_middle(graph_id)
             self.update_frontend()
+            self.set_marker_line_in_middle(graph_id)
             self.graph[0].autoRange()
             self.graph[1].autoRange()
 
@@ -368,8 +368,8 @@ class Window(QtGui.QMainWindow):
 
     def callback_toggle_marker_line(self, graph_id=0):
         self.backend.graph_data[graph_id].show_marker_line = not self.backend.graph_data[graph_id].show_marker_line
-        self.set_marker_line_in_middle(graph_id)
         self.update_frontend()
+        self.set_marker_line_in_middle(graph_id)
 
     def plot_parameter_changes(self, graph_id=0):
         last_timestamp = 0
@@ -400,7 +400,9 @@ class Window(QtGui.QMainWindow):
         midpoint = (rect[0][1] - rect[0][0]) / 2 + rect[0][0]
         # Set the marker lines location
         self.backend.graph_data[graph_id].marker_line_pos = midpoint
-        # self.backend.graph_data[graph_id].marker_line_obj.setValue(midpoint)
+        if self.backend.graph_data[graph_id].marker_line_obj is not None:
+            self.backend.graph_data[graph_id].marker_line_obj.setValue(midpoint)
+            self.update_marker_line_status(graph_id)
 
     def callback_toggle_ROI(self):
         self.backend.show_ROI = not self.backend.show_ROI
