@@ -678,8 +678,9 @@ class Window(QtGui.QMainWindow):
     def add_curve(self, graph_id, elem, color_brush):
         time = self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index
         y_value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values
-        if self.backend.rescale_curves:
-            y_value = (y_value - np.min(y_value)) / (np.max(y_value) - np.min(y_value))
+        max_y_diff = np.max(y_value) - np.min(y_value)
+        if self.backend.rescale_curves and max_y_diff > 0:
+            y_value = (y_value - np.min(y_value)) / max_y_diff
 
         pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
         curve = self.graph[graph_id].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
