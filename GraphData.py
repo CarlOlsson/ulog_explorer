@@ -136,6 +136,13 @@ class GraphData():
         except Exception as ex:
             print(ex)
 
+        # Add dt to sensor_combined_0
+        try:
+            topic_str = 'sensor_combined_0'
+            self.df_dict[topic_str]['dt*'] = np.insert(np.diff(self.df_dict[topic_str].index)*1e6, 0,0)
+        except Exception as ex:
+            print(ex)
+
         # Add bits of control_mode_flags and gps_check_fail_flags to estimator_flags*
         try:
             control_mode_flags_values = self.df_dict['estimator_status_0']['control_mode_flags'].values
