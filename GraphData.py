@@ -25,6 +25,7 @@ class GraphData():
         self.legend_obj = None
         self.marker_line_obj = None
         self.marker_line_pos = 0
+        self.initial_parameters_dict = {}
 
     # Convert a pyulog.core.ULog object to a dictionary of dataframes
     def ulog_to_df(self, logfile_str):
@@ -41,6 +42,7 @@ class GraphData():
 
         self.df_dict = ulog_dict
         self.changed_parameters = ulog.changed_parameters
+        self.initial_parameters_dict = ulog.initial_parameters
 
     # Add fields to df_dict. * is added to the names to represent that it was calculated in postprocessing and not logged
     def add_all_fields_to_df(self):
