@@ -26,9 +26,12 @@ class GraphData():
         self.marker_line_obj = None
         self.marker_line_pos = 0
         self.initial_parameters_dict = {}
+        self.title = ''
+        self._logfile_str = ''
 
     # Convert a pyulog.core.ULog object to a dictionary of dataframes
     def ulog_to_df(self, logfile_str):
+        self._logfile_str = logfile_str
         ulog_dict = {}
         ulog = ULog(logfile_str)
         for elem in sorted(ulog.data_list, key=lambda d: d.name + str(d.multi_id)):
@@ -43,6 +46,12 @@ class GraphData():
         self.df_dict = ulog_dict
         self.changed_parameters = ulog.changed_parameters
         self.initial_parameters_dict = ulog.initial_parameters
+        self.set_title()
+
+    def set_title(self):
+        self.title = self._logfile_str
+        if 'AIRCRAFT_ID' in self.initial_parameters_dict:
+            self.title = self.title + " ({0})".format(int(self.initial_parameters_dict['AIRCRAFT_ID']))
 
     # Add fields to df_dict. * is added to the names to represent that it was calculated in postprocessing and not logged
     def add_all_fields_to_df(self):
@@ -141,7 +150,7 @@ class GraphData():
         # Add dt to sensor_combined_0
         try:
             topic_str = 'sensor_combined_0'
-            self.df_dict[topic_str]['dt*'] = np.insert(np.diff(self.df_dict[topic_str].index)*1e6, 0,0)
+            self.df_dict[topic_str]['dt*'] = np.insert(np.diff(self.df_dict[topic_str].index) * 1e6, 0, 0)
         except Exception as ex:
             print(ex)
 

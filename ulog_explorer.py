@@ -781,17 +781,11 @@ class Window(QtGui.QMainWindow):
 
         # Display title
         if self.backend.show_title:
-            title0 = self.backend.graph_data[0].path_to_logfile
-            if 'AIRCRAFT_ID' in self.backend.graph_data[0].initial_parameters_dict:
-                title0 = title0 + " ({0})".format(int(self.backend.graph_data[0].initial_parameters_dict['AIRCRAFT_ID']))
-            self.graph[0].setTitle(title0)
+            self.graph[0].setTitle(self.backend.graph_data[0].title)
             if self.backend.secondary_graph_mode == 'secondary_logfile':
-                title1 = self.backend.graph_data[1].path_to_logfile
-                if 'AIRCRAFT_ID' in self.backend.graph_data[1].initial_parameters_dict:
-                    title1 = title1 + " ({0})".format(int(self.backend.graph_data[1].initial_parameters_dict['AIRCRAFT_ID']))
-                self.graph[1].setTitle(title1)
+                self.graph[1].setTitle(self.backend.graph_data[1].title)
             else:
-                self.graph[1].setTitle(title0)
+                self.graph[1].setTitle(self.backend.graph_data[0].title)
 
         # Update 2D trajectory graph if enabled
         if self.backend.secondary_graph_mode == '2D':
