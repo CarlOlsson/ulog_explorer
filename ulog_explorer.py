@@ -189,7 +189,7 @@ class Window(QtGui.QMainWindow):
         plot_menu.addAction(link_graph_range_action)
 
         self.main_layout.addWidget(self.split_horizontal_1)
-        self.main_layout.addWidget(menu_bar)
+        # self.main_layout.addWidget(menu_bar) # Commented out for now
 
         self.setCentralWidget(self.main_widget)
 
