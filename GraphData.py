@@ -60,14 +60,14 @@ class GraphData():
             topic_str = 'sensor_combined_0'
             self.df_dict[topic_str]['magnetometer_ga_norm*'] = np.sqrt(self.df_dict[topic_str]['magnetometer_ga[0]']**2 + self.df_dict[topic_str]['magnetometer_ga[1]']**2 + self.df_dict[topic_str]['magnetometer_ga[2]']**2)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add norm of accelerometer measurement to sensor_combined
         try:
             topic_str = 'sensor_combined_0'
             self.df_dict[topic_str]['accelerometer_m_s2_norm*'] = np.sqrt(self.df_dict[topic_str]['accelerometer_m_s2[0]']**2 + self.df_dict[topic_str]['accelerometer_m_s2[1]']**2 + self.df_dict[topic_str]['accelerometer_m_s2[2]']**2)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add windspeed magnitude and direction to wind_estimate
         try:
@@ -76,7 +76,7 @@ class GraphData():
             self.df_dict[topic_str]['windspeed_direction*'] = np.arctan2(self.df_dict[topic_str]['variance_north'], self.df_dict[topic_str]['variance_east'])
             self.df_dict[topic_str]['windspeed_direction* [deg]'] = np.rad2deg(self.df_dict[topic_str]['windspeed_direction*'])
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add vxy and vxyz to vehicle_local_position
         try:
@@ -84,7 +84,7 @@ class GraphData():
             self.df_dict[topic_str]['vxy*'] = np.sqrt(self.df_dict[topic_str]['vx']**2 + self.df_dict[topic_str]['vy']**2)
             self.df_dict[topic_str]['vxyz*'] = np.sqrt(self.df_dict[topic_str]['vx']**2 + self.df_dict[topic_str]['vy']**2 + self.df_dict[topic_str]['vz']**2)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add vel_ne and vel_ned to vehicle_global_position
         try:
@@ -92,21 +92,21 @@ class GraphData():
             self.df_dict[topic_str]['vel_ne*'] = np.sqrt(self.df_dict[topic_str]['vel_n']**2 + self.df_dict[topic_str]['vel_e']**2)
             self.df_dict[topic_str]['vel_ned*'] = np.sqrt(self.df_dict[topic_str]['vel_n']**2 + self.df_dict[topic_str]['vel_e']**2 + self.df_dict[topic_str]['vel_d']**2)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add vel_ne_m_s to vehicle_gps_position_0
         try:
             topic_str = 'vehicle_gps_position_0'
             self.df_dict[topic_str]['vel_ne_m_s*'] = np.sqrt(self.df_dict[topic_str]['vel_n_m_s']**2 + self.df_dict[topic_str]['vel_e_m_s']**2)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add vel_ne_m_s to vehicle_gps_position_1
         try:
             topic_str = 'vehicle_gps_position_1'
             self.df_dict[topic_str]['vel_ne_m_s*'] = np.sqrt(self.df_dict[topic_str]['vel_n_m_s']**2 + self.df_dict[topic_str]['vel_e_m_s']**2)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add mag_declination_from_states, mag_inclination_from_states and mag_strength_from_states to estimator_status
         try:
@@ -117,7 +117,7 @@ class GraphData():
             self.df_dict[topic_str]['mag_inclination_from_states*'] = np.arcsin(self.df_dict[topic_str]['states[18]'] / np.maximum(self.df_dict[topic_str]['mag_strength_from_states*'], np.finfo(np.float32).eps))
             self.df_dict[topic_str]['mag_inclination_from_states* [deg]'] = np.rad2deg(self.df_dict[topic_str]['mag_inclination_from_states*'])
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add yaw, pitch, roll
         self.add_yaw_pitch_roll('vehicle_attitude_0')
@@ -128,31 +128,31 @@ class GraphData():
         try:
             self.add_lat_lon_m('vehicle_gps_position_0', 'lat', 'lon', 1e7)
         except Exception as ex:
-            print(ex)
+            pass
 
         try:
             self.add_lat_lon_m('vehicle_gps_position_1', 'lat', 'lon', 1e7)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add lat_m, lon_m to vehicle_global_position
         try:
             self.add_lat_lon_m('vehicle_global_position_0', 'lat', 'lon')
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add lat_m, lon_m to position_setpoint_triplet_0
         try:
             self.add_lat_lon_m('position_setpoint_triplet_0', 'current.lat', 'current.lon')
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add dt to sensor_combined_0
         try:
             topic_str = 'sensor_combined_0'
             self.df_dict[topic_str]['dt*'] = np.insert(np.diff(self.df_dict[topic_str].index) * 1e6, 0, 0)
         except Exception as ex:
-            print(ex)
+            pass
 
         # Add bits of control_mode_flags and gps_check_fail_flags to estimator_flags*
         try:
@@ -196,7 +196,7 @@ class GraphData():
             self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_SPD_ERR*'] = ((2 ** 9 & gps_check_fail_flags_values) > 0) * 1  # 9 : maximum allowed vertical velocity discrepancy fail
 
         except Exception as ex:
-            print(ex)
+            pass
 
     def add_lat_lon_m(self, topic_str, lat_str, lon_str, div=1):
         lat = np.deg2rad(self.df_dict[topic_str][lat_str].values / div)
@@ -274,7 +274,7 @@ class GraphData():
 
             self.df_dict[topic_str]['yaw312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw312*'])
         except Exception as ex:
-            print(ex)
+            pass
 
     def get_transition_timestamps(self):
         forward_transition_lines = self.df_dict['vehicle_status_0'].index[self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())['in_transition_to_fw']].tolist()
