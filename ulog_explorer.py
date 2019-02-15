@@ -277,8 +277,7 @@ class Window(QtGui.QMainWindow):
             if graph_id == 0:
                 self.load_logfile_to_tree()
             self.update_frontend()
-            self.graph[0].autoRange()
-            self.graph[1].autoRange()
+            self.graph[graph_id].autoRange()
             self.set_marker_line_in_middle(graph_id)
 
         else:
