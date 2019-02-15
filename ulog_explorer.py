@@ -165,13 +165,13 @@ class Window(QtGui.QMainWindow):
         self.split_vertical_0.addWidget(self.selected_fields_frame)
         self.split_vertical_0.addWidget(self.tree_frame)
 
-        self.split_horizontal_0 = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.split_horizontal_0.addWidget(self.secondary_graph_frame)
-        self.split_horizontal_0.addWidget(self.main_graph_frame)
-        self.split_horizontal_0.setSizes([0, 1])
+        self.split_graph_horizontal = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.split_graph_horizontal.addWidget(self.secondary_graph_frame)
+        self.split_graph_horizontal.addWidget(self.main_graph_frame)
+        self.split_graph_horizontal.setSizes([0, 1])
 
         self.split_vertical_1 = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.split_vertical_1.addWidget(self.split_horizontal_0)
+        self.split_vertical_1.addWidget(self.split_graph_horizontal)
 
         self.split_horizontal_1 = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.split_horizontal_1.addWidget(self.split_vertical_1)
@@ -308,7 +308,7 @@ class Window(QtGui.QMainWindow):
         self.backend.secondary_graph_mode = 'secondary_logfile'
         self.backend.show_title = True
         if not self.split_screen_active():
-            self.split_horizontal_0.setSizes([1, 1])
+            self.split_graph_horizontal.setSizes([1, 1])
 
         self.update_frontend()
         self.graph[1].autoRange()
@@ -317,27 +317,27 @@ class Window(QtGui.QMainWindow):
         self.unlink_graph_range()
         if self.split_screen_active():
             if self.backend.secondary_graph_mode == '2D':
-                self.split_horizontal_0.setSizes([0, 1])
+                self.split_graph_horizontal.setSizes([0, 1])
             else:
                 self.backend.secondary_graph_mode = '2D'
         else:
-            self.split_horizontal_0.setSizes([1, 1])
+            self.split_graph_horizontal.setSizes([1, 1])
             self.backend.secondary_graph_mode = '2D'
 
         self.update_frontend()
         self.graph[1].autoRange()
 
     def split_screen_active(self):
-        rect = self.split_horizontal_0.sizes()
+        rect = self.split_graph_horizontal.sizes()
         return rect[0] > 0
 
     def toggle_split_screen(self):
         if not self.split_screen_active():
-            self.split_horizontal_0.setSizes([1, 1])
+            self.split_graph_horizontal.setSizes([1, 1])
             if not self.backend.graph_data[0].show_marker_line:
                 self.callback_toggle_marker_line(0)
         else:
-            self.split_horizontal_0.setSizes([0, 1])
+            self.split_graph_horizontal.setSizes([0, 1])
 
     def callback_toggle_rescale_curves(self):
         self.backend.rescale_curves = not self.backend.rescale_curves
