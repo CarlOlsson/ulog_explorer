@@ -279,6 +279,7 @@ class Window(QtGui.QMainWindow):
             self.update_frontend()
             self.graph[graph_id].autoRange()
             self.set_marker_line_in_middle(graph_id)
+            return True
 
         else:
             filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Log File', input_path, 'Log Files (*.ulg)')
@@ -286,9 +287,11 @@ class Window(QtGui.QMainWindow):
                 filename = filename[0]
             if filename:
                 try:
-                    self.callback_open_logfile(filename, graph_id)
+                    return self.callback_open_logfile(filename, graph_id)
                 except Exception as ex:
                     print(ex)
+            else:
+                return False
 
     def load_logfile_to_tree(self):
         self.topic_tree_widget.clear()
@@ -304,14 +307,14 @@ class Window(QtGui.QMainWindow):
         else:
             input_path = os.path.dirname(self.backend.graph_data[1].path_to_logfile)
 
-        self.callback_open_logfile(input_path, 1)
-        self.backend.secondary_graph_mode = 'secondary_logfile'
-        self.backend.show_title = True
-        if not self.split_screen_active():
-            self.split_graph_horizontal.setSizes([1, 1])
+        if self.callback_open_logfile(input_path, 1):
+            self.backend.secondary_graph_mode = 'secondary_logfile'
+            self.backend.show_title = True
+            if not self.split_screen_active():
+                self.split_graph_horizontal.setSizes([1, 1])
 
-        self.update_frontend()
-        self.graph[1].autoRange()
+            self.update_frontend()
+            self.graph[1].autoRange()
 
     def callback_toggle_2D_trajectory_graph(self):
         self.unlink_graph_range()
