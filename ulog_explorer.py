@@ -95,7 +95,7 @@ class Window(QtGui.QMainWindow):
         # Populate the graph context menu
         open_logfile_action = QtGui.QAction('open main logfile (O)', self)
         open_logfile_action.setShortcut("Ctrl+O")
-        open_logfile_action.triggered.connect(self.callback_open_main_logfile)
+        open_logfile_action.triggered.connect(self.callback_open_logfile)
         self.graph[0].scene().contextMenu.append(open_logfile_action)
 
         for graph_id in range(2):
@@ -299,11 +299,13 @@ class Window(QtGui.QMainWindow):
             for field in sorted(list(fields_df)):
                 current_field = QtGui.QTreeWidgetItem(current_topic, [field])
 
-    def callback_open_main_logfile(self):
-        self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
-
     def callback_open_secondary_logfile(self):
-        self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile), 1)
+        if self.backend.graph_data[1].path_to_logfile is '':
+            input_path = os.path.dirname(self.backend.graph_data[0].path_to_logfile)
+        else:
+            input_path = os.path.dirname(self.backend.graph_data[1].path_to_logfile)
+
+        self.callback_open_logfile(input_path, 1)
         self.backend.secondary_graph_mode = 'secondary_logfile'
         self.backend.show_title = True
         if not self.split_screen_active():
@@ -471,6 +473,7 @@ class Window(QtGui.QMainWindow):
         # Ctrl + O: Open logfile
         if event.key() == QtCore.Qt.Key_O:
             self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
+
         # Ctrl + U: Open secondary logfile
         if event.key() == QtCore.Qt.Key_U:
             self.callback_open_secondary_logfile()
