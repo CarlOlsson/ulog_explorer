@@ -475,62 +475,77 @@ class Window(QtGui.QMainWindow):
         # Ctrl + O: Open logfile
         if event.key() == QtCore.Qt.Key_O:
             self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
+            return
 
         # Ctrl + U: Open secondary logfile
         if event.key() == QtCore.Qt.Key_U:
             self.callback_open_secondary_logfile()
+            return
 
         # Ctrl + V: Autorange
         if event.key() == QtCore.Qt.Key_V:
             self.graph[0].autoRange()
+            return
 
         # Ctrl + L: Show legend
         elif event.key() == QtCore.Qt.Key_L:
             self.callback_toggle_legend()
+            return
 
         # Ctrl + Q: Toggle trajectory analysis
         elif event.key() == QtCore.Qt.Key_Q:
             self.callback_toggle_2D_trajectory_graph()
+            return
 
         # Ctrl + C: Clear plot
         elif event.key() == QtCore.Qt.Key_C:
             self.callback_clear_plot()
+            return
 
         # Ctrl + M: Toggle plot marker
         elif event.key() == QtCore.Qt.Key_M:
             self.callback_toggle_marker()
+            return
 
         # Ctrl + B: Make curves bold
         elif event.key() == QtCore.Qt.Key_B:
             self.callback_toggle_bold()
+            return
 
         # Ctrl + T: Toggle title
         elif event.key() == QtCore.Qt.Key_T:
             self.callback_toggle_title()
+            return
 
         # Ctrl + I: Toggle transition lines
         elif event.key() == QtCore.Qt.Key_I:
             self.callback_toggle_transition_lines()
+            return
 
         # Ctrl + U: Force update frontend
         elif event.key() == QtCore.Qt.Key_U:
             self.update_frontend()
+            return
 
         # Ctrl + D: Toggle marker line
         elif event.key() == QtCore.Qt.Key_D:
             self.callback_toggle_marker_line()
+            return
 
         # Ctrl + A: Toggle ROI
         elif event.key() == QtCore.Qt.Key_A:
             self.callback_toggle_ROI()
+            return
 
         # Ctrl + R: Rescale curves
         elif event.key() == QtCore.Qt.Key_R:
             self.callback_toggle_rescale_curves()
+            return
 
         # Ctrl + K: Link axes
         elif event.key() == QtCore.Qt.Key_K:
             self.callback_toggle_link_graph_range()
+            return
 
             # Ctrl + 0: Show quaternion covariances
         elif event.key() == QtCore.Qt.Key_0:
@@ -541,6 +556,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[3]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 1: Show velocity covariances
         elif event.key() == QtCore.Qt.Key_1:
@@ -550,6 +566,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[6]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 2: Show position covariances
         elif event.key() == QtCore.Qt.Key_2:
@@ -559,6 +576,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[9]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 3: Show delta angle bias covariances
         elif event.key() == QtCore.Qt.Key_3:
@@ -568,6 +586,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[12]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 4: Show delta velocity bias covariances
         elif event.key() == QtCore.Qt.Key_4:
@@ -577,6 +596,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[15]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 5: Show earth magnetic field state covariances
         elif event.key() == QtCore.Qt.Key_5:
@@ -586,6 +606,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[18]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 6: Show body magnetic field state covariances
         elif event.key() == QtCore.Qt.Key_6:
@@ -595,6 +616,7 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[21]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + 7: Show wind state covariances
         elif event.key() == QtCore.Qt.Key_7:
@@ -603,22 +625,26 @@ class Window(QtGui.QMainWindow):
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[23]')
             self.update_frontend()
             self.graph[0].autoRange()
+            return
 
         # Ctrl + Left_arrow: Move marker line to the left
         elif event.key() == QtCore.Qt.Key_Left:
             if self.backend.graph_data[0].show_marker_line:
                 self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() - 1)
                 self.update_marker_line_status()
+            return
 
         # Ctrl + Right_arrow: Move marker line to the right
         elif event.key() == QtCore.Qt.Key_Right:
             if self.backend.graph_data[0].show_marker_line:
                 self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() + 1)
                 self.update_marker_line_status()
+            return
 
         # Ctrl + P: show/hide changed parameters
         elif event.key() == QtCore.Qt.Key_P:
             self.callback_toggle_changed_parameters()
+            return
 
         # Ctrl + ?: Print value of selected fields at line
         # elif event.key() == QtCore.Qt.Key_?:
@@ -780,7 +806,8 @@ class Window(QtGui.QMainWindow):
         # Autorange
         if len(self.backend.curve_list) > 0 and self.backend.auto_range:
             self.graph[0].autoRange()
-            self.graph[1].autoRange()
+            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+                self.graph[1].autoRange()
             self.backend.auto_range = False
 
         elif len(self.backend.curve_list) == 0:
