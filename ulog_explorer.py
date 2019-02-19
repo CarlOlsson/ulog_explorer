@@ -487,6 +487,12 @@ class Window(QtGui.QMainWindow):
             self.graph[0].autoRange()
             return
 
+        # Ctrl + F: Set focus to the filer box
+        if event.key() == QtCore.Qt.Key_F:
+            self.filter_box.selectAll()
+            self.filter_box.setFocus()
+            return
+
         # Ctrl + L: Show legend
         elif event.key() == QtCore.Qt.Key_L:
             self.callback_toggle_legend()
