@@ -53,6 +53,7 @@ class Window(QtGui.QMainWindow):
         self.filter_box = QtGui.QLineEdit()
         self.filter_box.setPlaceholderText('filter by topic name (F)')
         self.filter_box.textChanged.connect(self.callback_filter_box)
+        QtGui.QShortcut(QtCore.Qt.Key_Return, self.filter_box, context=QtCore.Qt.WidgetShortcut, activated=self.callback_filter_enter)
         self.selected_fields_and_button_layout.addWidget(self.filter_box)
 
         # Create the frame for the data tree used to select topics to plot
@@ -69,7 +70,7 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.itemClicked.connect(self.callback_topic_tree_clicked)
         self.topic_tree_widget.itemDoubleClicked.connect(self.callback_topic_tree_doubleClicked)
         self.topic_tree_widget.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
-        shorcut = QtGui.QShortcut(QtCore.Qt.Key_Return, self.topic_tree_widget, context=QtCore.Qt.WidgetShortcut, activated=self.callback_tree_enter)
+        QtGui.QShortcut(QtCore.Qt.Key_Return, self.topic_tree_widget, context=QtCore.Qt.WidgetShortcut, activated=self.callback_tree_enter)
 
         self.main_graph_frame = QtGui.QFrame(self)
         self.main_graph_frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -636,6 +637,9 @@ class Window(QtGui.QMainWindow):
     def callback_clear_plot(self):
         self.backend.clear_curve_list()
         self.update_frontend()
+
+    def callback_filter_enter(self):
+        self.topic_tree_widget.setFocus()
 
     def callback_tree_enter(self):
         selected_topic = self.topic_tree_widget.currentIndex().parent().data()
