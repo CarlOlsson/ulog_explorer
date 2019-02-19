@@ -652,24 +652,19 @@ class Window(QtGui.QMainWindow):
             self.callback_toggle_changed_parameters()
             return
 
-        # Ctrl + ?: Print value of selected fields at line
-        # elif event.key() == QtCore.Qt.Key_?:
-        #     if self.backend.graph_data[0].show_marker_line:
-        #         print('t = ' + str(self.backend.graph_data[0].marker_line_obj.value()))
-        #         for elem in self.backend.curve_list:
-        #             idx = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
-        #             print(elem.selected_topic_and_field + ': ' + str(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx]))
-
-        #     if self.backend.show_ROI:
-        #         minX, maxX = self.ROI_region.getRegion()
-        #         for elem in self.backend.curve_list:
-        #             idx_min = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > minX)
-        #             idx_max = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > maxX) - 1
-        #             mean = np.mean(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min:idx_max])
-        #             delta_y = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min]
-        #             delta_t = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
-        #             diff = delta_y / delta_t
-        #             print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
+        # Ctrl + N: print mean and diff of ROI to console
+        elif event.key() == QtCore.Qt.Key_N:
+            if self.backend.show_ROI:
+                minX, maxX = self.ROI_region.getRegion()
+                print("########################################################")
+                for elem in self.backend.curve_list:
+                    idx_min = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > minX)
+                    idx_max = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > maxX) - 1
+                    mean = np.mean(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min:idx_max])
+                    delta_y = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min]
+                    delta_t = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
+                    diff = delta_y / delta_t
+                    print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
 
     def keyPressed_secondary_graph(self, event):
         # Ctrl + V: Autorange
