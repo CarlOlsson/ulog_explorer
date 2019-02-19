@@ -51,7 +51,7 @@ class Window(QtGui.QMainWindow):
 
         # Add filter box
         self.filter_box = QtGui.QLineEdit()
-        self.filter_box.setPlaceholderText('filter by topic name')
+        self.filter_box.setPlaceholderText('filter by topic name (F)')
         self.filter_box.textChanged.connect(self.callback_filter_box)
         self.selected_fields_and_button_layout.addWidget(self.filter_box)
 
@@ -69,6 +69,7 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.itemClicked.connect(self.callback_topic_tree_clicked)
         self.topic_tree_widget.itemDoubleClicked.connect(self.callback_topic_tree_doubleClicked)
         self.topic_tree_widget.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        shorcut = QtGui.QShortcut(QtCore.Qt.Key_Return, self.topic_tree_widget, context=QtCore.Qt.WidgetShortcut, activated=self.callback_tree_enter)
 
         self.main_graph_frame = QtGui.QFrame(self)
         self.main_graph_frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -152,6 +153,20 @@ class Window(QtGui.QMainWindow):
             link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
             self.graph[graph_id].scene().contextMenu.append(link_graph_range_action)
 
+        QtGui.QShortcut(QtGui.QKeySequence("F"), self, self.set_focus_to_filter)
+        QtGui.QShortcut(QtGui.QKeySequence("C"), self, self.callback_clear_plot)
+        QtGui.QShortcut(QtGui.QKeySequence("L"), self, self.callback_toggle_legend)
+        QtGui.QShortcut(QtGui.QKeySequence("Q"), self, self.callback_toggle_2D_trajectory_graph)
+        QtGui.QShortcut(QtGui.QKeySequence("M"), self, self.callback_toggle_marker)
+        QtGui.QShortcut(QtGui.QKeySequence("B"), self, self.callback_toggle_bold)
+        QtGui.QShortcut(QtGui.QKeySequence("T"), self, self.callback_toggle_title)
+        QtGui.QShortcut(QtGui.QKeySequence("I"), self, self.callback_toggle_transition_lines)
+        QtGui.QShortcut(QtGui.QKeySequence("U"), self, self.callback_open_secondary_logfile)
+        QtGui.QShortcut(QtGui.QKeySequence("A"), self, self.callback_toggle_ROI)
+        QtGui.QShortcut(QtGui.QKeySequence("R"), self, self.callback_toggle_rescale_curves)
+        QtGui.QShortcut(QtGui.QKeySequence("K"), self, self.callback_toggle_link_graph_range)
+        QtGui.QShortcut(QtGui.QKeySequence("P"), self, self.callback_toggle_changed_parameters)
+
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.graph[0].scene().contextMenu.append(ROI_action)
@@ -217,6 +232,10 @@ class Window(QtGui.QMainWindow):
 
         # Load logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
+
+    def set_focus_to_filter(self):
+        self.filter_box.selectAll()
+        self.filter_box.setFocus()
 
     def callback_filter_box(self, filter_str):
         # Hide all topics
@@ -477,60 +496,9 @@ class Window(QtGui.QMainWindow):
             self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
             return
 
-        # Ctrl + U: Open secondary logfile
-        if event.key() == QtCore.Qt.Key_U:
-            self.callback_open_secondary_logfile()
-            return
-
         # Ctrl + V: Autorange
         if event.key() == QtCore.Qt.Key_V:
             self.graph[0].autoRange()
-            return
-
-        # Ctrl + F: Set focus to the filer box
-        if event.key() == QtCore.Qt.Key_F:
-            self.filter_box.selectAll()
-            self.filter_box.setFocus()
-            return
-
-        # Ctrl + L: Show legend
-        elif event.key() == QtCore.Qt.Key_L:
-            self.callback_toggle_legend()
-            return
-
-        # Ctrl + Q: Toggle trajectory analysis
-        elif event.key() == QtCore.Qt.Key_Q:
-            self.callback_toggle_2D_trajectory_graph()
-            return
-
-        # Ctrl + C: Clear plot
-        elif event.key() == QtCore.Qt.Key_C:
-            self.callback_clear_plot()
-            return
-
-        # Ctrl + M: Toggle plot marker
-        elif event.key() == QtCore.Qt.Key_M:
-            self.callback_toggle_marker()
-            return
-
-        # Ctrl + B: Make curves bold
-        elif event.key() == QtCore.Qt.Key_B:
-            self.callback_toggle_bold()
-            return
-
-        # Ctrl + T: Toggle title
-        elif event.key() == QtCore.Qt.Key_T:
-            self.callback_toggle_title()
-            return
-
-        # Ctrl + I: Toggle transition lines
-        elif event.key() == QtCore.Qt.Key_I:
-            self.callback_toggle_transition_lines()
-            return
-
-        # Ctrl + U: Force update frontend
-        elif event.key() == QtCore.Qt.Key_U:
-            self.update_frontend()
             return
 
         # Ctrl + D: Toggle marker line
@@ -538,22 +506,7 @@ class Window(QtGui.QMainWindow):
             self.callback_toggle_marker_line()
             return
 
-        # Ctrl + A: Toggle ROI
-        elif event.key() == QtCore.Qt.Key_A:
-            self.callback_toggle_ROI()
-            return
-
-        # Ctrl + R: Rescale curves
-        elif event.key() == QtCore.Qt.Key_R:
-            self.callback_toggle_rescale_curves()
-            return
-
-        # Ctrl + K: Link axes
-        elif event.key() == QtCore.Qt.Key_K:
-            self.callback_toggle_link_graph_range()
-            return
-
-            # Ctrl + 0: Show quaternion covariances
+        # Ctrl + 0: Show quaternion covariances
         elif event.key() == QtCore.Qt.Key_0:
             self.backend.clear_curve_list()
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[0]')
@@ -647,11 +600,6 @@ class Window(QtGui.QMainWindow):
                 self.update_marker_line_status()
             return
 
-        # Ctrl + P: show/hide changed parameters
-        elif event.key() == QtCore.Qt.Key_P:
-            self.callback_toggle_changed_parameters()
-            return
-
         # Ctrl + N: print mean and diff of ROI to console
         elif event.key() == QtCore.Qt.Key_N:
             if self.backend.show_ROI:
@@ -693,6 +641,11 @@ class Window(QtGui.QMainWindow):
         self.backend.clear_curve_list()
         self.update_frontend()
 
+    def callback_tree_enter(self):
+        selected_topic = self.topic_tree_widget.currentIndex().parent().data()
+        selected_field = self.topic_tree_widget.currentIndex().data()
+        self.toggle_visible_field(selected_topic, selected_field)
+
     def callback_topic_tree_clicked(self, item, col):
         # Do nothing if a topic was pressed
         if item.parent() is None:
@@ -704,12 +657,14 @@ class Window(QtGui.QMainWindow):
         selected_topic = item.parent().text(0)
         selected_field = item.text(0)
 
+        self.toggle_visible_field(selected_topic, selected_field)
+
+    def toggle_visible_field(self, selected_topic, selected_field):
         if self.backend.contains(selected_topic, selected_field):
             self.backend.remove_selected_topic_and_field(selected_topic, selected_field)
-            self.update_frontend()
-            return
+        else:
+            self.backend.add_selected_topic_and_field(selected_topic, selected_field)
 
-        self.backend.add_selected_topic_and_field(selected_topic, selected_field)
         self.update_frontend()
 
     def add_curve(self, graph_id, elem, color_brush):
