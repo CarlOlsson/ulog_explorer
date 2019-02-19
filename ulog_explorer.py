@@ -623,10 +623,6 @@ class Window(QtGui.QMainWindow):
         elif event.key() == QtCore.Qt.Key_D:
             self.callback_toggle_marker_line(1)
 
-        # Ctrl + P: show/hide changed parameters
-        elif event.key() == QtCore.Qt.Key_P:
-            self.callback_toggle_changed_parameters()
-
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
 
