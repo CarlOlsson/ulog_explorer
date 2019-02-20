@@ -167,6 +167,7 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("R"), self, self.callback_toggle_rescale_curves)
         QtGui.QShortcut(QtGui.QKeySequence("K"), self, self.callback_toggle_link_graph_range)
         QtGui.QShortcut(QtGui.QKeySequence("P"), self, self.callback_toggle_changed_parameters)
+        QtGui.QShortcut(QtGui.QKeySequence("V"), self, self.callback_auto_range)
 
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
@@ -491,15 +492,16 @@ class Window(QtGui.QMainWindow):
             # Remove marker lines
             self.graph[graph_id].removeItem(self.backend.graph_data[graph_id].marker_line_obj)
 
+    def callback_auto_range(self):
+        if self.graph[1].hasFocus():
+            self.graph[1].autoRange()
+        else:
+            self.graph[0].autoRange()
+
     def keyPressed_main_graph(self, event):
         # Ctrl + O: Open logfile
         if event.key() == QtCore.Qt.Key_O:
             self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
-            return
-
-        # Ctrl + V: Autorange
-        if event.key() == QtCore.Qt.Key_V:
-            self.graph[0].autoRange()
             return
 
         # Ctrl + D: Toggle marker line
@@ -616,12 +618,8 @@ class Window(QtGui.QMainWindow):
                     print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
 
     def keyPressed_secondary_graph(self, event):
-        # Ctrl + V: Autorange
-        if event.key() == QtCore.Qt.Key_V:
-            self.graph[1].autoRange()
-
         # Ctrl + D: Toggle marker line
-        elif event.key() == QtCore.Qt.Key_D:
+        if event.key() == QtCore.Qt.Key_D:
             self.callback_toggle_marker_line(1)
 
     def callback_topic_tree_doubleClicked(self):
