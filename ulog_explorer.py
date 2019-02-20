@@ -464,7 +464,7 @@ class Window(QtGui.QMainWindow):
 
     def callback_ulog_messages(self, graph_id):
         print("########### ulog_messages: " + self.backend.graph_data[graph_id].path_to_logfile + " ###########")
-        subprocess.run(["ulog_messagse", self.backend.graph_data[graph_id].path_to_logfile])
+        subprocess.run(["ulog_messages", self.backend.graph_data[graph_id].path_to_logfile])
 
     def fronted_cleanup(self):
         self.graph[0].clearPlots()
