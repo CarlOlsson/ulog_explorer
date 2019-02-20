@@ -92,7 +92,6 @@ class Window(QtGui.QMainWindow):
         self.graph[0].showGrid(True, True, 0.5)
         self.graph[1].showGrid(True, True, 0.5)
         self.graph[0].keyPressEvent = self.keyPressed_main_graph
-        self.graph[1].keyPressEvent = self.keyPressed_secondary_graph
 
         # Populate the graph context menu
         open_logfile_action = QtGui.QAction('open main logfile (O)', self)
@@ -130,7 +129,7 @@ class Window(QtGui.QMainWindow):
             self.graph[graph_id].scene().contextMenu.append(toggle_transition_lines_action)
 
             toggle_marker_line_action = QtGui.QAction('show/hide marker line (D)', self)
-            toggle_marker_line_action.triggered.connect(partial(self.callback_toggle_marker_line, graph_id))
+            toggle_marker_line_action.triggered.connect(self.callback_toggle_marker_line)
             self.graph[graph_id].scene().contextMenu.append(toggle_marker_line_action)
 
             toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self)
@@ -168,6 +167,7 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("P"), self, self.callback_toggle_changed_parameters)
         QtGui.QShortcut(QtGui.QKeySequence("V"), self, self.callback_auto_range)
         QtGui.QShortcut(QtGui.QKeySequence("O"), self, lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
+        QtGui.QShortcut(QtGui.QKeySequence("D"), self, self.callback_toggle_marker_line)
 
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
@@ -358,8 +358,6 @@ class Window(QtGui.QMainWindow):
     def toggle_split_screen(self):
         if not self.split_screen_active():
             self.split_graph_horizontal.setSizes([1, 1])
-            if not self.backend.graph_data[0].show_marker_line:
-                self.callback_toggle_marker_line(0)
         else:
             self.split_graph_horizontal.setSizes([0, 1])
 
@@ -396,7 +394,12 @@ class Window(QtGui.QMainWindow):
         self.backend.show_transition_lines = not self.backend.show_transition_lines
         self.update_frontend()
 
-    def callback_toggle_marker_line(self, graph_id=0):
+    def callback_toggle_marker_line(self):
+        if self.graph[1].hasFocus():
+            graph_id = 1
+        else:
+            graph_id = 0
+
         self.backend.graph_data[graph_id].show_marker_line = not self.backend.graph_data[graph_id].show_marker_line
         self.update_frontend()
         self.set_marker_line_in_middle(graph_id)
@@ -499,13 +502,8 @@ class Window(QtGui.QMainWindow):
             self.graph[0].autoRange()
 
     def keyPressed_main_graph(self, event):
-        # Ctrl + D: Toggle marker line
-        if event.key() == QtCore.Qt.Key_D:
-            self.callback_toggle_marker_line()
-            return
-
         # Ctrl + 0: Show quaternion covariances
-        elif event.key() == QtCore.Qt.Key_0:
+        if event.key() == QtCore.Qt.Key_0:
             self.backend.clear_curve_list()
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[0]')
             self.backend.add_selected_topic_and_field('estimator_status_0', 'covariances[1]')
@@ -611,11 +609,6 @@ class Window(QtGui.QMainWindow):
                     delta_t = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
                     diff = delta_y / delta_t
                     print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
-
-    def keyPressed_secondary_graph(self, event):
-        # Ctrl + D: Toggle marker line
-        if event.key() == QtCore.Qt.Key_D:
-            self.callback_toggle_marker_line(1)
 
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
