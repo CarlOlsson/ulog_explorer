@@ -96,7 +96,6 @@ class Window(QtGui.QMainWindow):
 
         # Populate the graph context menu
         open_logfile_action = QtGui.QAction('open main logfile (O)', self)
-        open_logfile_action.setShortcut("Ctrl+O")
         open_logfile_action.triggered.connect(self.callback_open_logfile)
         self.graph[0].scene().contextMenu.append(open_logfile_action)
 
@@ -168,6 +167,7 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("K"), self, self.callback_toggle_link_graph_range)
         QtGui.QShortcut(QtGui.QKeySequence("P"), self, self.callback_toggle_changed_parameters)
         QtGui.QShortcut(QtGui.QKeySequence("V"), self, self.callback_auto_range)
+        QtGui.QShortcut(QtGui.QKeySequence("O"), self, lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
 
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
@@ -499,13 +499,8 @@ class Window(QtGui.QMainWindow):
             self.graph[0].autoRange()
 
     def keyPressed_main_graph(self, event):
-        # Ctrl + O: Open logfile
-        if event.key() == QtCore.Qt.Key_O:
-            self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile))
-            return
-
         # Ctrl + D: Toggle marker line
-        elif event.key() == QtCore.Qt.Key_D:
+        if event.key() == QtCore.Qt.Key_D:
             self.callback_toggle_marker_line()
             return
 
