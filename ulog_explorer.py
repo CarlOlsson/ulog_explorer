@@ -236,7 +236,7 @@ class Window(QtGui.QMainWindow):
         self.callback_open_logfile(args.input_path)
 
     def set_focus_to_filter(self):
-        self.filter_box.selectAll()
+        self.filter_box.clear()
         self.filter_box.setFocus()
 
     def callback_filter_box(self, filter_str):
