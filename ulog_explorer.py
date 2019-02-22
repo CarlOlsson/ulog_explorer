@@ -245,7 +245,7 @@ class Window(QtGui.QMainWindow):
         for i in range(self.topic_tree_widget.topLevelItemCount()):
             self.topic_tree_widget.topLevelItem(i).setHidden(True)
         # Show all topics that match the filter
-        top_level_items_to_show = self.topic_tree_widget.findItems(filter_str, QtCore.Qt.MatchStartsWith)
+        top_level_items_to_show = self.topic_tree_widget.findItems(filter_str, QtCore.Qt.MatchContains)
         for elem in top_level_items_to_show:
             elem.setHidden(False)
 
