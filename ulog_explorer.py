@@ -238,6 +238,7 @@ class Window(QtGui.QMainWindow):
     def set_focus_to_filter(self):
         self.filter_box.clear()
         self.filter_box.setFocus()
+        self.topic_tree_widget.collapseAll()
 
     def callback_filter_box(self, filter_str):
         # Hide all topics
