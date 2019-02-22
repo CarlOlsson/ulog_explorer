@@ -158,42 +158,42 @@ class GraphData():
         try:
             control_mode_flags_values = self.df_dict['estimator_status_0']['control_mode_flags'].values
             topic_str = 'estimator_flags*'
-            self.df_dict[topic_str] = pd.DataFrame(((2 ** 0 & control_mode_flags_values) > 0) * 1, index=self.df_dict['estimator_status_0'].index, columns=['CS_TILT_ALIGN*'])  # 0 - true if the filter tilt alignment is complete
-            self.df_dict[topic_str]['CS_YAW_ALIGN*'] = ((2 ** 1 & control_mode_flags_values) > 0) * 1  # 1 - true if the filter yaw alignment is complete
-            self.df_dict[topic_str]['CS_GPS*'] = ((2 ** 2 & control_mode_flags_values) > 0) * 1  # 2 - true if GPS measurements are being fused
-            self.df_dict[topic_str]['CS_OPT_FLOW*'] = ((2 ** 3 & control_mode_flags_values) > 0) * 1  # 3 - true if optical flow measurements are being fused
-            self.df_dict[topic_str]['CS_MAG_HDG*'] = ((2 ** 4 & control_mode_flags_values) > 0) * 1  # 4 - true if a simple magnetic yaw heading is being fused
-            self.df_dict[topic_str]['CS_MAG_3D*'] = ((2 ** 5 & control_mode_flags_values) > 0) * 1  # 5 - true if 3-axis magnetometer measurement are being fused
-            self.df_dict[topic_str]['CS_MAG_DEC*'] = ((2 ** 6 & control_mode_flags_values) > 0) * 1  # 6 - true if synthetic magnetic declination measurements are being fused
-            self.df_dict[topic_str]['CS_IN_AIR*'] = ((2 ** 7 & control_mode_flags_values) > 0) * 1  # 7 - true when thought to be airborne
-            self.df_dict[topic_str]['CS_WIND*'] = ((2 ** 8 & control_mode_flags_values) > 0) * 1  # 8 - true when wind velocity is being estimated
-            self.df_dict[topic_str]['CS_BARO_HGT*'] = ((2 ** 9 & control_mode_flags_values) > 0) * 1  # 9 - true when baro height is being fused as a primary height reference
-            self.df_dict[topic_str]['CS_RNG_HGT*'] = ((2 ** 10 & control_mode_flags_values) > 0) * 1  # 10 - true when range finder height is being fused as a primary height reference
-            self.df_dict[topic_str]['CS_GPS_HGT*'] = ((2 ** 11 & control_mode_flags_values) > 0) * 1  # 11 - true when GPS height is being fused as a primary height reference
-            self.df_dict[topic_str]['CS_EV_POS*'] = ((2 ** 12 & control_mode_flags_values) > 0) * 1  # 12 - true when local position data from external vision is being fused
-            self.df_dict[topic_str]['CS_EV_YAW*'] = ((2 ** 13 & control_mode_flags_values) > 0) * 1  # 13 - true when yaw data from external vision measurements is being fused
-            self.df_dict[topic_str]['CS_EV_HGT*'] = ((2 ** 14 & control_mode_flags_values) > 0) * 1  # 14 - true when height data from external vision measurements is being fused
-            self.df_dict[topic_str]['CS_BETA*'] = ((2 ** 15 & control_mode_flags_values) > 0) * 1  # 15 - true when synthetic sideslip measurements are being fused
-            self.df_dict[topic_str]['CS_MAG_FIELD*'] = ((2 ** 16 & control_mode_flags_values) > 0) * 1  # 16 - true when only the magnetic field states are updated by the magnetometer
-            self.df_dict[topic_str]['CS_FIXED_WING*'] = ((2 ** 17 & control_mode_flags_values) > 0) * 1  # 17 - true when thought to be operating as a fixed wing vehicle with constrained sideslip
-            self.df_dict[topic_str]['CS_MAG_FAULT*'] = ((2 ** 18 & control_mode_flags_values) > 0) * 1  # 18 - true when the magnetomer has been declared faulty and is no longer being used
-            self.df_dict[topic_str]['CS_ASPD*'] = ((2 ** 19 & control_mode_flags_values) > 0) * 1  # 19 - true when airspeed measurements are being fused
-            self.df_dict[topic_str]['CS_GND_EFFECT*'] = ((2 ** 20 & control_mode_flags_values) > 0) * 1  # 20 - true when when protection from ground effect induced static pressure rise is active
-            self.df_dict[topic_str]['CS_RNG_STUCK*'] = ((2 ** 21 & control_mode_flags_values) > 0) * 1  # 21 - true when a stuck range finder sensor has been detected
-            self.df_dict[topic_str]['CS_GPS_YAW*'] = ((2 ** 22 & control_mode_flags_values) > 0) * 1  # 22 - true when yaw (not ground course) data from a GPS receiver is being fused
-            self.df_dict[topic_str]['CS_MAG_ALIGNED*'] = ((2 ** 23 & control_mode_flags_values) > 0) * 1  # 23 - true when the in-flight mag field alignment has been completed
+            self.df_dict[topic_str] = pd.DataFrame(((2 ** 0 & control_mode_flags_values) > 0) * 1, index=self.df_dict['estimator_status_0'].index, columns=['CS_TILT_ALIGN'])  # 0 - true if the filter tilt alignment is complete
+            self.df_dict[topic_str]['CS_YAW_ALIGN'] = ((2 ** 1 & control_mode_flags_values) > 0) * 1  # 1 - true if the filter yaw alignment is complete
+            self.df_dict[topic_str]['CS_GPS'] = ((2 ** 2 & control_mode_flags_values) > 0) * 1  # 2 - true if GPS measurements are being fused
+            self.df_dict[topic_str]['CS_OPT_FLOW'] = ((2 ** 3 & control_mode_flags_values) > 0) * 1  # 3 - true if optical flow measurements are being fused
+            self.df_dict[topic_str]['CS_MAG_HDG'] = ((2 ** 4 & control_mode_flags_values) > 0) * 1  # 4 - true if a simple magnetic yaw heading is being fused
+            self.df_dict[topic_str]['CS_MAG_3D'] = ((2 ** 5 & control_mode_flags_values) > 0) * 1  # 5 - true if 3-axis magnetometer measurement are being fused
+            self.df_dict[topic_str]['CS_MAG_DEC'] = ((2 ** 6 & control_mode_flags_values) > 0) * 1  # 6 - true if synthetic magnetic declination measurements are being fused
+            self.df_dict[topic_str]['CS_IN_AIR'] = ((2 ** 7 & control_mode_flags_values) > 0) * 1  # 7 - true when thought to be airborne
+            self.df_dict[topic_str]['CS_WIND'] = ((2 ** 8 & control_mode_flags_values) > 0) * 1  # 8 - true when wind velocity is being estimated
+            self.df_dict[topic_str]['CS_BARO_HGT'] = ((2 ** 9 & control_mode_flags_values) > 0) * 1  # 9 - true when baro height is being fused as a primary height reference
+            self.df_dict[topic_str]['CS_RNG_HGT'] = ((2 ** 10 & control_mode_flags_values) > 0) * 1  # 10 - true when range finder height is being fused as a primary height reference
+            self.df_dict[topic_str]['CS_GPS_HGT'] = ((2 ** 11 & control_mode_flags_values) > 0) * 1  # 11 - true when GPS height is being fused as a primary height reference
+            self.df_dict[topic_str]['CS_EV_POS'] = ((2 ** 12 & control_mode_flags_values) > 0) * 1  # 12 - true when local position data from external vision is being fused
+            self.df_dict[topic_str]['CS_EV_YAW'] = ((2 ** 13 & control_mode_flags_values) > 0) * 1  # 13 - true when yaw data from external vision measurements is being fused
+            self.df_dict[topic_str]['CS_EV_HGT'] = ((2 ** 14 & control_mode_flags_values) > 0) * 1  # 14 - true when height data from external vision measurements is being fused
+            self.df_dict[topic_str]['CS_BETA'] = ((2 ** 15 & control_mode_flags_values) > 0) * 1  # 15 - true when synthetic sideslip measurements are being fused
+            self.df_dict[topic_str]['CS_MAG_FIELD'] = ((2 ** 16 & control_mode_flags_values) > 0) * 1  # 16 - true when only the magnetic field states are updated by the magnetometer
+            self.df_dict[topic_str]['CS_FIXED_WING'] = ((2 ** 17 & control_mode_flags_values) > 0) * 1  # 17 - true when thought to be operating as a fixed wing vehicle with constrained sideslip
+            self.df_dict[topic_str]['CS_MAG_FAULT'] = ((2 ** 18 & control_mode_flags_values) > 0) * 1  # 18 - true when the magnetomer has been declared faulty and is no longer being used
+            self.df_dict[topic_str]['CS_ASPD'] = ((2 ** 19 & control_mode_flags_values) > 0) * 1  # 19 - true when airspeed measurements are being fused
+            self.df_dict[topic_str]['CS_GND_EFFECT'] = ((2 ** 20 & control_mode_flags_values) > 0) * 1  # 20 - true when when protection from ground effect induced static pressure rise is active
+            self.df_dict[topic_str]['CS_RNG_STUCK'] = ((2 ** 21 & control_mode_flags_values) > 0) * 1  # 21 - true when a stuck range finder sensor has been detected
+            self.df_dict[topic_str]['CS_GPS_YAW'] = ((2 ** 22 & control_mode_flags_values) > 0) * 1  # 22 - true when yaw (not ground course) data from a GPS receiver is being fused
+            self.df_dict[topic_str]['CS_MAG_ALIGNED'] = ((2 ** 23 & control_mode_flags_values) > 0) * 1  # 23 - true when the in-flight mag field alignment has been completed
 
             gps_check_fail_flags_values = self.df_dict['estimator_status_0']['gps_check_fail_flags'].values
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_GPS_FIX*'] = ((2 ** 0 & gps_check_fail_flags_values) > 0) * 1  # 0 : insufficient fix type (no 3D solution)
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MIN_SAT_COUNT*'] = ((2 ** 1 & gps_check_fail_flags_values) > 0) * 1  # 1 : minimum required sat count fail
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MIN_GDOP*'] = ((2 ** 2 & gps_check_fail_flags_values) > 0) * 1  # 2 : minimum required GDoP fail
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_HORZ_ERR*'] = ((2 ** 3 & gps_check_fail_flags_values) > 0) * 1  # 3 : maximum allowed horizontal position error fail
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_ERR*'] = ((2 ** 4 & gps_check_fail_flags_values) > 0) * 1  # 4 : maximum allowed vertical position error fail
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_SPD_ERR*'] = ((2 ** 5 & gps_check_fail_flags_values) > 0) * 1  # 5 : maximum allowed speed error fail
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_HORZ_DRIFT*'] = ((2 ** 6 & gps_check_fail_flags_values) > 0) * 1  # 6 : maximum allowed horizontal position drift fail - requires stationary vehicle
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_DRIFT*'] = ((2 ** 7 & gps_check_fail_flags_values) > 0) * 1  # 7 : maximum allowed vertical position drift fail - requires stationary vehicle
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_HORZ_SPD_ERR*'] = ((2 ** 8 & gps_check_fail_flags_values) > 0) * 1  # 8 : maximum allowed horizontal speed fail - requires stationary vehicle
-            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_SPD_ERR*'] = ((2 ** 9 & gps_check_fail_flags_values) > 0) * 1  # 9 : maximum allowed vertical velocity discrepancy fail
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_GPS_FIX'] = ((2 ** 0 & gps_check_fail_flags_values) > 0) * 1  # 0 : insufficient fix type (no 3D solution)
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MIN_SAT_COUNT'] = ((2 ** 1 & gps_check_fail_flags_values) > 0) * 1  # 1 : minimum required sat count fail
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MIN_GDOP'] = ((2 ** 2 & gps_check_fail_flags_values) > 0) * 1  # 2 : minimum required GDoP fail
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_HORZ_ERR'] = ((2 ** 3 & gps_check_fail_flags_values) > 0) * 1  # 3 : maximum allowed horizontal position error fail
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_ERR'] = ((2 ** 4 & gps_check_fail_flags_values) > 0) * 1  # 4 : maximum allowed vertical position error fail
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_SPD_ERR'] = ((2 ** 5 & gps_check_fail_flags_values) > 0) * 1  # 5 : maximum allowed speed error fail
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_HORZ_DRIFT'] = ((2 ** 6 & gps_check_fail_flags_values) > 0) * 1  # 6 : maximum allowed horizontal position drift fail - requires stationary vehicle
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_DRIFT'] = ((2 ** 7 & gps_check_fail_flags_values) > 0) * 1  # 7 : maximum allowed vertical position drift fail - requires stationary vehicle
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_HORZ_SPD_ERR'] = ((2 ** 8 & gps_check_fail_flags_values) > 0) * 1  # 8 : maximum allowed horizontal speed fail - requires stationary vehicle
+            self.df_dict[topic_str]['GPS_CHECK_FAIL_MAX_VERT_SPD_ERR'] = ((2 ** 9 & gps_check_fail_flags_values) > 0) * 1  # 9 : maximum allowed vertical velocity discrepancy fail
 
         except Exception as ex:
             pass
