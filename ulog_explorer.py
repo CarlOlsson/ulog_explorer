@@ -169,6 +169,7 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("V"), self, self.callback_auto_range)
         QtGui.QShortcut(QtGui.QKeySequence("O"), self, lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
         QtGui.QShortcut(QtGui.QKeySequence("D"), self, self.callback_toggle_marker_line)
+        QtGui.QShortcut(QtGui.QKeySequence("N"), self, self.callback_print_ROI_info)
 
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
@@ -235,6 +236,19 @@ class Window(QtGui.QMainWindow):
 
         # Load logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
+
+    def callback_print_ROI_info(self):
+        if self.backend.show_ROI:
+            minX, maxX = self.ROI_region.getRegion()
+            print("########################################################")
+            for elem in self.backend.curve_list:
+                idx_min = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > minX)
+                idx_max = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > maxX) - 1
+                mean = np.mean(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min:idx_max])
+                delta_y = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min]
+                delta_t = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
+                diff = delta_y / delta_t
+                print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
 
     def set_focus_to_filter(self):
         self.filter_box.clear()
@@ -597,20 +611,6 @@ class Window(QtGui.QMainWindow):
                 self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() + 1)
                 self.update_marker_line_status()
             return
-
-        # Ctrl + N: print mean and diff of ROI to console
-        elif event.key() == QtCore.Qt.Key_N:
-            if self.backend.show_ROI:
-                minX, maxX = self.ROI_region.getRegion()
-                print("########################################################")
-                for elem in self.backend.curve_list:
-                    idx_min = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > minX)
-                    idx_max = np.argmax(self.backend.graph_data[0].df_dict[elem.selected_topic].index > maxX) - 1
-                    mean = np.mean(self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min:idx_max])
-                    delta_y = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].values[idx_min]
-                    delta_t = self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_max] - self.backend.graph_data[0].df_dict[elem.selected_topic][elem.selected_field].index[idx_min]
-                    diff = delta_y / delta_t
-                    print(elem.selected_topic_and_field + ' mean: ' + str(mean) + ' diff: ' + str(diff))
 
     def callback_topic_tree_doubleClicked(self):
         print("dont double click!")
