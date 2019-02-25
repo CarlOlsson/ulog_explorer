@@ -31,8 +31,8 @@ class GraphData():
 
     # Convert a pyulog.core.ULog object to a dictionary of dataframes
     def ulog_to_df(self, logfile_str):
+        self.df_dict.clear()
         self._logfile_str = logfile_str
-        ulog_dict = {}
         ulog = ULog(logfile_str)
         for elem in sorted(ulog.data_list, key=lambda d: d.name + str(d.multi_id)):
             topic_name = elem.name + "_" + str(elem.multi_id)
@@ -41,9 +41,8 @@ class GraphData():
             for name in column_names - {'timestamp'}:
                 df[name] = elem.data[name]
 
-            ulog_dict[topic_name] = df
+            self.df_dict[topic_name] = df
 
-        self.df_dict = ulog_dict
         self.changed_parameters = ulog.changed_parameters
         self.initial_parameters_dict = ulog.initial_parameters
         self.set_title()
