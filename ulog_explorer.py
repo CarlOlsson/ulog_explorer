@@ -1,7 +1,6 @@
 import sys
 from scipy import signal
 
-# from PyQt4 import QtGui, QtCore
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
 import argparse
