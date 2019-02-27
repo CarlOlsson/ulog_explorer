@@ -1,3 +1,5 @@
 when switching logfile and one topic is not present several topics are not plotted
 use pyqtgraph.exit() to exit
-investiagate why memore usage explodes sometimes when opening many logfiles after each other
+investigate memory leak when adding curve to plot
+fix issue with directory as argument
+remove pandas
