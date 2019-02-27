@@ -266,12 +266,16 @@ class GraphData():
             # self.df_dict[topic_str]['roll321*'] = roll
 
             self.df_dict[topic_str]['yaw312*'] = np.arctan2(-2.0 * (q1 * q2 - q0 * q3), q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3)
+            self.df_dict[topic_str]['roll312*'] = np.asin(2.0 * (q2*q3 + q0*q1))
+            self.df_dict[topic_str]['pitch312*'] = np.arctan2(-2.0 * (q1*q3 - q0*q2), q0*q0 - q1*q1 - q2*q2 + q3*q3)
 
             # self.df_dict[topic_str]['yaw321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw321*'])
             # self.df_dict[topic_str]['pitch321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['pitch321*'])
             # self.df_dict[topic_str]['roll321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['roll321*'])
 
             self.df_dict[topic_str]['yaw312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw312*'])
+            self.df_dict[topic_str]['roll312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['roll312*'])
+            self.df_dict[topic_str]['pitch312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['pitch312*'])
         except Exception as ex:
             pass
 
