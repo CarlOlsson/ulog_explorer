@@ -2,7 +2,6 @@ from pyulog import *
 import collections
 import pandas as pd
 import numpy as np
-# import transforms3d.euler as tfe
 
 
 class GraphData():
@@ -254,24 +253,9 @@ class GraphData():
             q2 = self.df_dict[topic_str]['q' + field_name_suffix + '[2]']
             q3 = self.df_dict[topic_str]['q' + field_name_suffix + '[3]']
 
-            # yaw, pitch, roll = np.array(
-            #     [
-            #         tfe.quat2euler([q0i, q1i, q2i, q3i], 'szyx')
-            #         for q0i, q1i, q2i, q3i in zip(q0, q1, q2, q3)
-            #     ]
-            # ).T
-
-            # self.df_dict[topic_str]['yaw321*'] = yaw
-            # self.df_dict[topic_str]['pitch321*'] = pitch
-            # self.df_dict[topic_str]['roll321*'] = roll
-
             self.df_dict[topic_str]['yaw312*'] = np.arctan2(-2.0 * (q1 * q2 - q0 * q3), q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3)
             self.df_dict[topic_str]['roll312*'] = np.arcsin(2.0 * (q2 * q3 + q0 * q1))
             self.df_dict[topic_str]['pitch312*'] = np.arctan2(-2.0 * (q1 * q3 - q0 * q2), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3)
-
-            # self.df_dict[topic_str]['yaw321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw321*'])
-            # self.df_dict[topic_str]['pitch321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['pitch321*'])
-            # self.df_dict[topic_str]['roll321* [deg]'] = np.rad2deg(self.df_dict[topic_str]['roll321*'])
 
             self.df_dict[topic_str]['yaw312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw312*'])
             self.df_dict[topic_str]['roll312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['roll312*'])
