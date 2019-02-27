@@ -411,7 +411,7 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def callback_toggle_marker_line(self):
-        if self.graph[1].hasFocus():
+        if self.graph[1].hasFocus() and self.backend.secondary_graph_mode == 'secondary_logfile':
             graph_id = 1
         else:
             graph_id = 0
