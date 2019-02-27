@@ -758,7 +758,11 @@ class Window(QtGui.QMainWindow):
             self.backend.auto_range = True
 
         # Update the window title
-        # self.setWindowTitle('ulog_explorer')
+        title = 'ulog_explorer: log0-> ' + self.backend.graph_data[0].path_to_logfile
+        if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+            title = title + ' log1-> ' + self.backend.graph_data[1].path_to_logfile
+
+        self.setWindowTitle(title)
 
         # Display title
         if self.backend.show_title:
