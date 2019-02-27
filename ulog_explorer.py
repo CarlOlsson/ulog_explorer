@@ -185,9 +185,9 @@ class Window(QtGui.QMainWindow):
         self.split_vertical_0.addWidget(self.tree_frame)
 
         self.split_graph_horizontal = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.split_graph_horizontal.addWidget(self.secondary_graph_frame)
         self.split_graph_horizontal.addWidget(self.main_graph_frame)
-        self.split_graph_horizontal.setSizes([0, 1])
+        self.split_graph_horizontal.addWidget(self.secondary_graph_frame)
+        self.split_graph_horizontal.setSizes([1, 0])
 
         self.split_vertical_1 = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.split_vertical_1.addWidget(self.split_graph_horizontal)
@@ -357,7 +357,7 @@ class Window(QtGui.QMainWindow):
         self.unlink_graph_range()
         if self.split_screen_active():
             if self.backend.secondary_graph_mode == '2D':
-                self.split_graph_horizontal.setSizes([0, 1])
+                self.split_graph_horizontal.setSizes([1, 0])
             else:
                 self.backend.secondary_graph_mode = '2D'
         else:
@@ -369,13 +369,13 @@ class Window(QtGui.QMainWindow):
 
     def split_screen_active(self):
         rect = self.split_graph_horizontal.sizes()
-        return rect[0] > 0
+        return rect[1] > 0
 
     def toggle_split_screen(self):
         if not self.split_screen_active():
             self.split_graph_horizontal.setSizes([1, 1])
         else:
-            self.split_graph_horizontal.setSizes([0, 1])
+            self.split_graph_horizontal.setSizes([1, 0])
 
     def callback_toggle_rescale_curves(self):
         self.backend.rescale_curves = not self.backend.rescale_curves
