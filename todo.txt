@@ -2,4 +2,5 @@ when switching logfile and one topic is not present several topics are not plott
 use pyqtgraph.exit() to exit
 investigate memory leak when adding curve to plot
 fix issue with directory as argument
-remove pandas
+remove pandas? (maybe not. Opening a 250 Mb file takes 7.5s with only ULog and 8.5s with converting to df)
+add support for secondary logfile as second command argument
