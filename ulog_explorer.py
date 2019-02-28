@@ -95,7 +95,7 @@ class Window(QtGui.QMainWindow):
 
         # Populate the graph context menu
         open_logfile_action = QtGui.QAction('open main logfile (O)', self)
-        open_logfile_action.triggered.connect(self.callback_open_logfile)
+        open_logfile_action.triggered.connect(lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
         self.graph[0].scene().contextMenu.append(open_logfile_action)
 
         for graph_id in range(2):
