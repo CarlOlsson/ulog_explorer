@@ -44,8 +44,13 @@ class GraphData():
 
         self.changed_parameters = ulog.changed_parameters
         self.initial_parameters_dict = ulog.initial_parameters
-        # self.msg_info_dict = ulog.msg_info_dict
-        # self.msg_info_multiple_dict = msg_info_multiple_dict
+        self.logged_messages = ulog.logged_messages
+        self.start_timestamp = ulog.start_timestamp
+        self.last_timestamp = ulog.last_timestamp
+        self.dropouts = ulog.dropouts
+        self.msg_info_dict = ulog.msg_info_dict
+        self.msg_info_multiple_dict = ulog.msg_info_multiple_dict
+        self.data_list = ulog.data_list
         self.set_title()
 
     def set_title(self):

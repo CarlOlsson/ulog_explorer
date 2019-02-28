@@ -477,11 +477,63 @@ class Window(QtGui.QMainWindow):
 
     def callback_ulog_info(self, graph_id):
         print("########### ulog_info: " + self.backend.graph_data[graph_id].path_to_logfile + " ###########")
-        subprocess.run(["ulog_info", self.backend.graph_data[graph_id].path_to_logfile])
+        # From pyulog.messages
+        verbose = False
+        m1, s1 = divmod(int(self.backend.graph_data[graph_id].start_timestamp / 1e6), 60)
+        h1, m1 = divmod(m1, 60)
+        m2, s2 = divmod(int((self.backend.graph_data[graph_id].last_timestamp - self.backend.graph_data[graph_id].start_timestamp) / 1e6), 60)
+        h2, m2 = divmod(m2, 60)
+        print("Logging start time: {:d}:{:02d}:{:02d}, duration: {:d}:{:02d}:{:02d}".format(
+            h1, m1, s1, h2, m2, s2))
+
+        dropout_durations = [dropout.duration for dropout in self.backend.graph_data[graph_id].dropouts]
+        if len(dropout_durations) == 0:
+            print("No Dropouts")
+        else:
+            print("Dropouts: count: {:}, total duration: {:.1f} s, max: {:} ms, mean: {:} ms"
+                  .format(len(dropout_durations), sum(dropout_durations) / 1000.,
+                          max(dropout_durations),
+                          int(sum(dropout_durations) / len(dropout_durations))))
+
+        # version = self.backend.graph_data[graph_id].get_version_info_str()
+        # if not version is None:
+        #     print('SW Version: {}'.format(version))
+
+        print("Info Messages:")
+        for k in sorted(self.backend.graph_data[graph_id].msg_info_dict):
+            if not k.startswith('perf_') or verbose:
+                print(" {0}: {1}".format(k, self.backend.graph_data[graph_id].msg_info_dict[k]))
+
+        if len(self.backend.graph_data[graph_id].msg_info_multiple_dict) > 0:
+            if verbose:
+                print("Info Multiple Messages:")
+                for k in sorted(self.backend.graph_data[graph_id].msg_info_multiple_dict):
+                    print(" {0}: {1}".format(k, self.backend.graph_data[graph_id].msg_info_multiple_dict[k]))
+            else:
+                print("Info Multiple Messages: {}".format(
+                    ", ".join(["[{}: {}]".format(k, len(self.backend.graph_data[graph_id].msg_info_multiple_dict[k])) for k in
+                               sorted(self.backend.graph_data[graph_id].msg_info_multiple_dict)])))
+
+        print("")
+        print("{:<41} {:7}, {:10}".format("Name (multi id, message size in bytes)",
+                                          "number of data points", "total bytes"))
+
+        data_list_sorted = sorted(self.backend.graph_data[graph_id].data_list, key=lambda d: d.name + str(d.multi_id))
+        for d in data_list_sorted:
+            message_size = sum([ULog.get_field_size(f.type_str) for f in d.field_data])
+            num_data_points = len(d.data['timestamp'])
+            name_id = "{:} ({:}, {:})".format(d.name, d.multi_id, message_size)
+            print(" {:<40} {:7d} {:10d}".format(name_id, num_data_points,
+                                                message_size * num_data_points))
 
     def callback_ulog_messages(self, graph_id):
         print("########### ulog_messages: " + self.backend.graph_data[graph_id].path_to_logfile + " ###########")
-        subprocess.run(["ulog_messages", self.backend.graph_data[graph_id].path_to_logfile])
+        # From pyulog.messages
+        for m in self.backend.graph_data[graph_id].logged_messages:
+            m1, s1 = divmod(int(m.timestamp / 1e6), 60)
+            h1, m1 = divmod(m1, 60)
+            print("{:d}:{:02d}:{:02d} {:}: {:}".format(
+                h1, m1, s1, m.log_level_str(), m.message))
 
     def fronted_cleanup(self):
         self.graph[0].clearPlots()
