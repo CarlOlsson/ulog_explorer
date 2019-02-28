@@ -100,7 +100,6 @@ class Window(QtGui.QMainWindow):
 
         for graph_id in range(2):
             open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self)
-            open_secondary_logfile_action.setShortcut("Ctrl+U")
             open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
             self.graph[graph_id].scene().contextMenu.append(open_secondary_logfile_action)
 
