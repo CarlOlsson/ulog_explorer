@@ -284,3 +284,63 @@ class GraphData():
         back_transition_lines = self.df_dict['vehicle_status_0'].index[idx].tolist()
         back_transition_lines.pop(0)
         self.back_transition_lines = back_transition_lines
+
+    def ulog_info(self):
+        print("########### ulog_info: " + self.path_to_logfile + " ###########")
+        # From pyulog.messages
+        verbose = False
+        m1, s1 = divmod(int(self.start_timestamp / 1e6), 60)
+        h1, m1 = divmod(m1, 60)
+        m2, s2 = divmod(int((self.last_timestamp - self.start_timestamp) / 1e6), 60)
+        h2, m2 = divmod(m2, 60)
+        print("Logging start time: {:d}:{:02d}:{:02d}, duration: {:d}:{:02d}:{:02d}".format(
+            h1, m1, s1, h2, m2, s2))
+
+        dropout_durations = [dropout.duration for dropout in self.dropouts]
+        if len(dropout_durations) == 0:
+            print("No Dropouts")
+        else:
+            print("Dropouts: count: {:}, total duration: {:.1f} s, max: {:} ms, mean: {:} ms"
+                  .format(len(dropout_durations), sum(dropout_durations) / 1000.,
+                          max(dropout_durations),
+                          int(sum(dropout_durations) / len(dropout_durations))))
+
+        # version = self.get_version_info_str()
+        # if not version is None:
+        #     print('SW Version: {}'.format(version))
+
+        print("Info Messages:")
+        for k in sorted(self.msg_info_dict):
+            if not k.startswith('perf_') or verbose:
+                print(" {0}: {1}".format(k, self.msg_info_dict[k]))
+
+        if len(self.msg_info_multiple_dict) > 0:
+            if verbose:
+                print("Info Multiple Messages:")
+                for k in sorted(self.msg_info_multiple_dict):
+                    print(" {0}: {1}".format(k, self.msg_info_multiple_dict[k]))
+            else:
+                print("Info Multiple Messages: {}".format(
+                    ", ".join(["[{}: {}]".format(k, len(self.msg_info_multiple_dict[k])) for k in
+                               sorted(self.msg_info_multiple_dict)])))
+
+        print("")
+        print("{:<41} {:7}, {:10}".format("Name (multi id, message size in bytes)",
+                                          "number of data points", "total bytes"))
+
+        data_list_sorted = sorted(self.data_list, key=lambda d: d.name + str(d.multi_id))
+        for d in data_list_sorted:
+            message_size = sum([ULog.get_field_size(f.type_str) for f in d.field_data])
+            num_data_points = len(d.data['timestamp'])
+            name_id = "{:} ({:}, {:})".format(d.name, d.multi_id, message_size)
+            print(" {:<40} {:7d} {:10d}".format(name_id, num_data_points,
+                                                message_size * num_data_points))
+
+    def ulog_messages(self):
+        print("########### ulog_messages: " + self.path_to_logfile + " ###########")
+        # From pyulog.messages
+        for m in self.logged_messages:
+            m1, s1 = divmod(int(m.timestamp / 1e6), 60)
+            h1, m1 = divmod(m1, 60)
+            print("{:d}:{:02d}:{:02d} {:}: {:}".format(
+                h1, m1, s1, m.log_level_str(), m.message))
