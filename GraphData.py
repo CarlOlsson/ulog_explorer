@@ -125,9 +125,10 @@ class GraphData():
             pass
 
         # Add yaw, pitch, roll
-        self.add_yaw_pitch_roll('vehicle_attitude_0')
-        self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0')
-        self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', '_d')
+        self.add_yaw_pitch_roll('vehicle_attitude_0', 'q')
+        self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0', 'q')
+        self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', 'q_d')
+        # self.add_yaw_pitch_roll('estimator_status_0', 'states')
 
         # Add lat_m, lon_m to vehicle_gps_position
         try:
@@ -255,10 +256,10 @@ class GraphData():
 
     def add_yaw_pitch_roll(self, topic_str, field_name_suffix=''):
         try:
-            q0 = self.df_dict[topic_str]['q' + field_name_suffix + '[0]']
-            q1 = self.df_dict[topic_str]['q' + field_name_suffix + '[1]']
-            q2 = self.df_dict[topic_str]['q' + field_name_suffix + '[2]']
-            q3 = self.df_dict[topic_str]['q' + field_name_suffix + '[3]']
+            q0 = self.df_dict[topic_str][field_name_suffix + '[0]']
+            q1 = self.df_dict[topic_str][field_name_suffix + '[1]']
+            q2 = self.df_dict[topic_str][field_name_suffix + '[2]']
+            q3 = self.df_dict[topic_str][field_name_suffix + '[3]']
 
             self.df_dict[topic_str]['yaw312*'] = np.arctan2(-2.0 * (q1 * q2 - q0 * q3), q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3)
             self.df_dict[topic_str]['roll312*'] = np.arcsin(2.0 * (q2 * q3 + q0 * q1))
