@@ -68,7 +68,6 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.setHeaderHidden(True)
         self.topic_tree_widget.setExpandsOnDoubleClick(False)
         self.topic_tree_widget.itemClicked.connect(self.callback_topic_tree_clicked)
-        self.topic_tree_widget.itemDoubleClicked.connect(self.callback_topic_tree_doubleClicked)
         self.topic_tree_widget.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         QtGui.QShortcut(QtCore.Qt.Key_Return, self.topic_tree_widget, context=QtCore.Qt.WidgetShortcut, activated=self.callback_tree_enter)
 
@@ -607,9 +606,6 @@ class Window(QtGui.QMainWindow):
                 self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() + 1)
                 self.update_marker_line_status()
             return
-
-    def callback_topic_tree_doubleClicked(self):
-        print("dont double click!")
 
     def callback_selected_fields_list_clicked(self, item):
         # Remove the selected field from the tree
