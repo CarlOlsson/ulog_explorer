@@ -7,6 +7,7 @@ Postprocessing tool for uLog files inspired by `pyFlightAnalysis <https://github
 Under development, to try it out, clone the repo and run python3 ulog_analysis.py.
 
 Instructions
+
 * Right click on the plot to access most functionality
 * Add your uLog file as an argument when launching ulog_explorer
 * Press C to clear the plot
