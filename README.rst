@@ -2,7 +2,7 @@ ulog_explorer
 ================
 
 
-Postprocessing tool for uLog files inspired by `pyFlightAnalysis <https://github.com/Marxlp/pyFlightAnalysis>`__, flight_review <https://github.com/PX4/flight_review/>`__ and matulog <https://github.com/CarlOlsson/matulog>`__.
+Postprocessing tool for uLog files inspired by `pyFlightAnalysis <https://github.com/Marxlp/pyFlightAnalysis>`__, `flight_review <https://github.com/PX4/flight_review/>`__ and `matulog <https://github.com/CarlOlsson/matulog>`__.
 
 Under development, to try it out, clone the repo and run python3 ulog_analysis.py.
 
