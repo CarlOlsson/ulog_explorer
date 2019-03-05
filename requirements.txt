@@ -1,0 +1,6 @@
+pyulog==0.6.0
+pyqtgraph==0.10.0
+pandas==0.24.1
+numpy==1.11.0
+PyQt4==4.11.4
+scipy==1.2.1
