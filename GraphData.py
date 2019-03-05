@@ -103,6 +103,8 @@ class GraphData():
         try:
             topic_str = 'vehicle_gps_position_0'
             self.df_dict[topic_str]['vel_ne_m_s*'] = np.sqrt(self.df_dict[topic_str]['vel_n_m_s']**2 + self.df_dict[topic_str]['vel_e_m_s']**2)
+            self.df_dict[topic_str]['gpsCOG*'] = np.arctan2(self.df_dict[topic_str]['vel_e_m_s'], self.df_dict[topic_str]['vel_n_m_s'])
+            self.df_dict[topic_str]['gpsCOG* [deg]'] = np.rad2deg(self.df_dict[topic_str]['gpsCOG*'])
         except Exception as ex:
             pass
 
@@ -110,6 +112,8 @@ class GraphData():
         try:
             topic_str = 'vehicle_gps_position_1'
             self.df_dict[topic_str]['vel_ne_m_s*'] = np.sqrt(self.df_dict[topic_str]['vel_n_m_s']**2 + self.df_dict[topic_str]['vel_e_m_s']**2)
+            self.df_dict[topic_str]['gpsCOG*'] = np.arctan2(self.df_dict[topic_str]['vel_e_m_s'], self.df_dict[topic_str]['vel_n_m_s'])
+            self.df_dict[topic_str]['gpsCOG* [deg]'] = np.rad2deg(self.df_dict[topic_str]['gpsCOG*'])
         except Exception as ex:
             pass
 
@@ -121,6 +125,8 @@ class GraphData():
             self.df_dict[topic_str]['mag_strength_from_states*'] = (self.df_dict[topic_str]['states[16]'] ** 2 + self.df_dict[topic_str]['states[17]'] ** 2 + self.df_dict[topic_str]['states[18]'] ** 2) ** 0.5
             self.df_dict[topic_str]['mag_inclination_from_states*'] = np.arcsin(self.df_dict[topic_str]['states[18]'] / np.maximum(self.df_dict[topic_str]['mag_strength_from_states*'], np.finfo(np.float32).eps))
             self.df_dict[topic_str]['mag_inclination_from_states* [deg]'] = np.rad2deg(self.df_dict[topic_str]['mag_inclination_from_states*'])
+            self.df_dict[topic_str]['ekfGOG*'] = np.arctan2(self.df_dict[topic_str]['states[5]'], self.df_dict[topic_str]['states[4]'])
+            self.df_dict[topic_str]['ekfGOG* [deg]'] = np.rad2deg(self.df_dict[topic_str]['ekfGOG*'])
         except Exception as ex:
             pass
 
@@ -128,7 +134,7 @@ class GraphData():
         self.add_yaw_pitch_roll('vehicle_attitude_0', 'q')
         self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0', 'q')
         self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', 'q_d')
-        # self.add_yaw_pitch_roll('estimator_status_0', 'states')
+        self.add_yaw_pitch_roll('estimator_status_0', 'states')
 
         # Add lat_m, lon_m to vehicle_gps_position
         try:

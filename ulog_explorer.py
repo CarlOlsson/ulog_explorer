@@ -334,6 +334,7 @@ class Window(QtGui.QMainWindow):
             current_topic = QtGui.QTreeWidgetItem(self.topic_tree_widget, [topic_str])
             for field in sorted(list(fields_df)):
                 current_field = QtGui.QTreeWidgetItem(current_topic, [field])
+                # current_field.setToolTip(0, field) # TODO: add field description
 
     def callback_open_secondary_logfile(self):
         if self.backend.graph_data[1].path_to_logfile is '':

@@ -12,6 +12,8 @@ Instructions
 * Add your uLog file as an argument when launching ulog_explorer
 * Press C to clear the plot
 * Press V to auto range the visible range of the graph
+* Press B to display bold curves
+* Press M to display a marker at every data sample
 * Press O to open a new logfile
 * Press U to open a secondary logfile in a split screen environment
 * Press K to link the x and y axes of the plots
@@ -25,3 +27,7 @@ Instructions
 * Press F to move focus to the topic search box
 * Press Down Arrow, Enter or Tab to move focus from topic search box to the topic tree
 
+Additional notes
+
+* A triangle is displayed on the curve if a logged value is a nan
+* If the topic field ends with "flags" the individual bits will be displayed on the marker line
