@@ -20,6 +20,7 @@ class Window(QtGui.QMainWindow):
         # Parse arguments
         parser = argparse.ArgumentParser(description='GUI used to analyse uLog files')
         parser.add_argument("input_path", nargs='?', help='Path to directory or .ulg file to open', type=str, default=expanduser('~'))
+        parser.add_argument("input_path_seondary_logfile", nargs='?', help='Path to secondary uLog file to open in split screen view', type=str)
         args = parser.parse_args()
 
         # Initialize the GUI backend
@@ -239,8 +240,11 @@ class Window(QtGui.QMainWindow):
 
         pg.setConfigOptions(antialias=True)
 
-        # Load logfile from argument or file dialog
+        # Load main logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
+        # Try to open the secondary logfile is a second argument is given
+        if args.input_path_seondary_logfile is not None:
+            self.callback_open_secondary_logfile(args.input_path_seondary_logfile, True)
 
     def callback_print_ROI_info(self):
         if self.backend.show_ROI:
@@ -344,11 +348,13 @@ class Window(QtGui.QMainWindow):
                 current_field = QtGui.QTreeWidgetItem(current_topic, [field])
                 # current_field.setToolTip(0, field) # TODO: add field description
 
-    def callback_open_secondary_logfile(self, input_path=''):
-        if self.backend.graph_data[1].path_to_logfile is '':
-            input_path = os.path.dirname(self.backend.graph_data[0].path_to_logfile)
-        elif input_path is '':
-            input_path = os.path.dirname(self.backend.graph_data[1].path_to_logfile)
+    def callback_open_secondary_logfile(self, input_path='', force=False):
+        # This is a hack for now
+        if not force:
+            if self.backend.graph_data[1].path_to_logfile is '':
+                input_path = os.path.dirname(self.backend.graph_data[0].path_to_logfile)
+            elif input_path is '':
+                input_path = os.path.dirname(self.backend.graph_data[1].path_to_logfile)
 
         if self.callback_open_logfile(input_path, 1):
             self.backend.secondary_graph_mode = 'secondary_logfile'
