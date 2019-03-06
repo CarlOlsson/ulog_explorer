@@ -93,15 +93,23 @@ class Window(QtGui.QMainWindow):
         self.graph[0].keyPressEvent = self.keyPressed_main_graph
 
         # Populate the graph context menu
+        open_main_logfile_action_0 = QtGui.QAction('open main logfile (O)', self)
+        open_main_logfile_action_0.triggered.connect(lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
+        self.graph[0].scene().contextMenu.append(open_main_logfile_action_0)
+
+        open_main_logfile_action_1 = QtGui.QAction('open main logfile (O)', self)
+        open_main_logfile_action_1.triggered.connect(lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[1].path_to_logfile)))
+        self.graph[1].scene().contextMenu.append(open_main_logfile_action_1)
+
+        open_secondary_logfile_action_0 = QtGui.QAction('open secondary logfile (U)', self)
+        open_secondary_logfile_action_0.triggered.connect(lambda: self.callback_open_secondary_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
+        self.graph[0].scene().contextMenu.append(open_secondary_logfile_action_0)
+
+        open_secondary_logfile_action_1 = QtGui.QAction('open secondary logfile (U)', self)
+        open_secondary_logfile_action_1.triggered.connect(lambda: self.callback_open_secondary_logfile(os.path.dirname(self.backend.graph_data[1].path_to_logfile)))
+        self.graph[1].scene().contextMenu.append(open_secondary_logfile_action_1)
+
         for graph_id in range(2):
-            open_logfile_action = QtGui.QAction('open main logfile (O)', self)
-            open_logfile_action.triggered.connect(lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[graph_id].path_to_logfile)))
-            self.graph[graph_id].scene().contextMenu.append(open_logfile_action)
-
-            open_secondary_logfile_action = QtGui.QAction('open secondary logfile (U)', self)
-            open_secondary_logfile_action.triggered.connect(self.callback_open_secondary_logfile)
-            self.graph[graph_id].scene().contextMenu.append(open_secondary_logfile_action)
-
             ulog_info_action = QtGui.QAction('print ulog info', self)
             ulog_info_action.triggered.connect(partial(self.callback_ulog_info, graph_id))
             self.graph[graph_id].scene().contextMenu.append(ulog_info_action)
@@ -193,21 +201,21 @@ class Window(QtGui.QMainWindow):
         self.split_horizontal_1.addWidget(self.split_vertical_1)
         self.split_horizontal_1.addWidget(self.split_vertical_0)
 
-        menu_bar = QtGui.QMenuBar()
-        file_menu = menu_bar.addMenu("&File")
-        file_menu.addAction(open_logfile_action)
-        file_menu.addAction(open_secondary_logfile_action)
+        # menu_bar = QtGui.QMenuBar()
+        # file_menu = menu_bar.addMenu("&File")
+        # file_menu.addAction(open_logfile_action)
+        # file_menu.addAction(open_secondary_logfile_action)
 
-        plot_menu = menu_bar.addMenu("&Plot")
-        plot_menu.addAction(toggle_marker_action)
-        plot_menu.addAction(toggle_bold_action)
-        plot_menu.addAction(toggle_title_action)
-        plot_menu.addAction(toggle_legend_action)
-        plot_menu.addAction(toggle_transition_lines_action)
-        plot_menu.addAction(ROI_action)
-        plot_menu.addAction(rescale_curves_action)
-        plot_menu.addAction(trajectory_graph_action)
-        plot_menu.addAction(link_graph_range_action)
+        # plot_menu = menu_bar.addMenu("&Plot")
+        # plot_menu.addAction(toggle_marker_action)
+        # plot_menu.addAction(toggle_bold_action)
+        # plot_menu.addAction(toggle_title_action)
+        # plot_menu.addAction(toggle_legend_action)
+        # plot_menu.addAction(toggle_transition_lines_action)
+        # plot_menu.addAction(ROI_action)
+        # plot_menu.addAction(rescale_curves_action)
+        # plot_menu.addAction(trajectory_graph_action)
+        # plot_menu.addAction(link_graph_range_action)
 
         self.main_layout.addWidget(self.split_horizontal_1)
         # self.main_layout.addWidget(menu_bar) # Commented out for now
@@ -336,10 +344,10 @@ class Window(QtGui.QMainWindow):
                 current_field = QtGui.QTreeWidgetItem(current_topic, [field])
                 # current_field.setToolTip(0, field) # TODO: add field description
 
-    def callback_open_secondary_logfile(self):
+    def callback_open_secondary_logfile(self, input_path=''):
         if self.backend.graph_data[1].path_to_logfile is '':
             input_path = os.path.dirname(self.backend.graph_data[0].path_to_logfile)
-        else:
+        elif input_path is '':
             input_path = os.path.dirname(self.backend.graph_data[1].path_to_logfile)
 
         if self.callback_open_logfile(input_path, 1):
