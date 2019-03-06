@@ -6,3 +6,4 @@ remove pandas? (maybe not. Opening a 250 Mb file takes 7.5s with only ULog and 8
 add support for secondary logfile as second command argument
 add a callback to print the parameter diff to console
 support drag and drop a logfile onto a graph
+add tabbed environment to keep plot

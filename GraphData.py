@@ -130,6 +130,16 @@ class GraphData():
         except Exception as ex:
             pass
 
+        # Add sqrt of innovation variance
+        try:
+            topic_str = 'ekf2_innovations_0'
+            self.df_dict[topic_str]['heading_innov_var^0.5'] = np.sqrt(self.df_dict[topic_str]['heading_innov_var'])
+            self.df_dict[topic_str]['mag_innov[0]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[0]'])
+            self.df_dict[topic_str]['mag_innov[1]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[1]'])
+            self.df_dict[topic_str]['mag_innov[2]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[2]'])
+        except Exception as ex:
+            pass
+
         # Add yaw, pitch, roll
         self.add_yaw_pitch_roll('vehicle_attitude_0', 'q')
         self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0', 'q')
