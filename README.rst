@@ -14,8 +14,8 @@ Instructions
 * Press V to auto range the visible range of the graph
 * Press B to display bold curves
 * Press M to display a marker at every data sample
-* Press O to open a new logfile
-* Press U to open a secondary logfile in a split screen environment
+* Press O to open a new logfile, directory starts at main logfile
+* Press U to open a secondary logfile in a split screen environment. Directory starts at secondary logfile if possible
 * Press K to link the x and y axes of the plots
 * Press Q to display a 2D trajectory analysis
 * Press D to display a marker line and the position on the trajectory if enabled
@@ -31,3 +31,4 @@ Additional notes
 
 * A triangle is displayed on the curve if a logged value is a nan
 * If the topic field ends with "flags" the individual bits will be displayed on the marker line
+* When right clicking on the graph and selecting open main/secondary logfile the directory starts at the selected logfile in the graph that was pressed
