@@ -83,10 +83,10 @@ class Window(QtGui.QMainWindow):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         try:
-            from PyQt4 import QtOpenGL
+            from PyQt5 import QtOpenGL
             pg.setConfigOptions(useOpenGL=True)
         except:
-            print("ERROR: Failed to include QtOpenGL from PyQT4, this results in reduced responsiveness. \n run: sudo apt-get install python3-pyqt4.qtopengl")
+            print("ERROR: Failed to include QtOpenGL from PyQT5, this results in reduced responsiveness. \n run: sudo apt-get install python3-pyqt5.qtopengl")
 
         self.graph = [pg.PlotWidget() for _ in [0, 1]]
         self.graph[0].showGrid(True, True, 0.5)
