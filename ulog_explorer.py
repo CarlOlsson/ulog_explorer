@@ -276,6 +276,21 @@ class Window(QtGui.QMainWindow):
 
     def update_marker_line_status(self, graph_id=0):
         self.backend.graph_data[graph_id].marker_line_pos = self.backend.graph_data[graph_id].marker_line_obj.value()
+        self.update_marker_line_label(graph_id)
+
+        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
+            self.update_2d_arrow_pos()
+
+        if self.backend.link_xy_range and graph_id == 0 and self.backend.graph_data[1].marker_line_obj is not None and self.backend.secondary_graph_mode == 'secondary_logfile':
+            self.backend.graph_data[1].marker_line_pos = self.backend.graph_data[0].marker_line_pos
+            self.backend.graph_data[1].marker_line_obj.setValue(self.backend.graph_data[1].marker_line_pos)
+            self.update_marker_line_label(1)
+        elif self.backend.link_xy_range and graph_id == 1 and self.backend.graph_data[0].marker_line_obj is not None and self.backend.secondary_graph_mode == 'secondary_logfile':
+            self.backend.graph_data[0].marker_line_pos = self.backend.graph_data[1].marker_line_pos
+            self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_pos)
+            self.update_marker_line_label(0)
+
+    def update_marker_line_label(self, graph_id):
         # TODO: check -1 index here
         marker_line_label = ''
         marker_line_label = marker_line_label + 't = {:0.2f}'.format(self.backend.graph_data[graph_id].marker_line_pos)
@@ -293,8 +308,6 @@ class Window(QtGui.QMainWindow):
                 pass
 
         self.backend.graph_data[graph_id].marker_line_obj.label.textItem.setPlainText(marker_line_label)
-        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
-            self.update_2d_arrow_pos()
 
     def update_2d_arrow_pos(self):
         # Put arrow at estimated position if it exists, otherwise at the GPS position
