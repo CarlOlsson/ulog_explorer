@@ -4,7 +4,7 @@ from GraphData import *
 
 
 class GUIBackend():
-    def __init__(self):
+    def __init__(self, link_xy_range=False):
         # List of curve class elements currently displayed
         self.curve_list = []
         # The symbol used for each datapoint when plotting
@@ -26,7 +26,7 @@ class GUIBackend():
         # Currently display mode of the secondary graph
         self.secondary_graph_mode = '2D'
         # True if the visible range should be linked together for the main and secondary graphs
-        self.link_xy_range = False
+        self.link_xy_range = link_xy_range
         # True if the parameter changes are currently displayed
         self.show_changed_parameters = False
 

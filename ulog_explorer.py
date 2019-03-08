@@ -21,10 +21,11 @@ class Window(QtGui.QMainWindow):
         parser = argparse.ArgumentParser(description='GUI used to analyse uLog files')
         parser.add_argument("input_path", nargs='?', help='Path to directory or .ulg file to open', type=str, default=expanduser('~'))
         parser.add_argument("input_path_seondary_logfile", nargs='?', help='Path to secondary uLog file to open in split screen view', type=str)
+        parser.add_argument('-k', '--link_xy_range', action='store_true', help='Link axes of main and secondary graph')
         args = parser.parse_args()
 
         # Initialize the GUI backend
-        self.backend = GUIBackend()
+        self.backend = GUIBackend(args.link_xy_range)
 
         self.main_widget = QtGui.QWidget(self)
         self.main_layout = QtGui.QHBoxLayout()
