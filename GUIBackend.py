@@ -18,7 +18,7 @@ class GUIBackend():
         # True if the title is currently displayed
         self.show_title = True
         # True if the transition lines are currently displayed
-        self.show_transition_lines = False
+        self.show_transition_lines = True
         # True if the ROI is currently displayed
         self.show_ROI = False
         # True if the displayed curves are rescaled to [0,1]
