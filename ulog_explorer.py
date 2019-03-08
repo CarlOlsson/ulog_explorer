@@ -478,12 +478,7 @@ class Window(QtGui.QMainWindow):
     def callback_toggle_link_graph_range(self):
         if self.backend.secondary_graph_mode == 'secondary_logfile':
             self.backend.link_xy_range = not self.backend.link_xy_range
-
-            if self.backend.link_xy_range:
-                self.graph[1].getViewBox().setXLink(self.graph[0])
-                self.graph[1].getViewBox().setYLink(self.graph[0])
-            else:
-                self.unlink_graph_range()
+            self.update_frontend()
 
     def unlink_graph_range(self):
         self.graph[1].getViewBox().setXLink(None)
@@ -508,6 +503,7 @@ class Window(QtGui.QMainWindow):
         self.ROI_region.hide()
         self.graph[0].setTitle(None)
         self.graph[1].setTitle(None)
+        self.unlink_graph_range()
         # Remove the transition lines
         for graph_id in range(2):
             for elem in self.backend.graph_data[graph_id].ft_lines_obj:
@@ -778,6 +774,10 @@ class Window(QtGui.QMainWindow):
                 self.graph[1].setTitle(self.backend.graph_data[1].title)
             else:
                 self.graph[1].setTitle(self.backend.graph_data[0].title)
+
+        if self.backend.link_xy_range and self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+            self.graph[1].getViewBox().setXLink(self.graph[0])
+            self.graph[1].getViewBox().setYLink(self.graph[0])
 
         # Update 2D trajectory graph if enabled
         if self.backend.secondary_graph_mode == '2D':
