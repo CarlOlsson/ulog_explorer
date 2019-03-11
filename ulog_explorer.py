@@ -32,9 +32,7 @@ class Window(QtGui.QMainWindow):
         self.main_widget.setLayout(self.main_layout)
 
         self.setGeometry(50, 50, 1000, 800)  # (x_pos, y_pos, width, height)
-        # self.showMaximized()
-        self.setMinimumWidth(600)
-        self.setMinimumHeight(500)
+        self.showMaximized()
 
         # List of selected topics
         self.selected_fields_frame = QtGui.QFrame(self)
@@ -160,6 +158,7 @@ class Window(QtGui.QMainWindow):
             link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
             self.graph[graph_id].scene().contextMenu.append(link_graph_range_action)
 
+        # Add global shortcuts
         QtGui.QShortcut(QtGui.QKeySequence("F"), self, self.set_focus_to_filter)
         QtGui.QShortcut(QtGui.QKeySequence("T"), self, self.set_focus_to_tree)
         QtGui.QShortcut(QtGui.QKeySequence("C"), self, self.callback_clear_plot)
@@ -203,24 +202,7 @@ class Window(QtGui.QMainWindow):
         self.split_horizontal_1.addWidget(self.split_vertical_1)
         self.split_horizontal_1.addWidget(self.split_vertical_0)
 
-        # menu_bar = QtGui.QMenuBar()
-        # file_menu = menu_bar.addMenu("&File")
-        # file_menu.addAction(open_logfile_action)
-        # file_menu.addAction(open_secondary_logfile_action)
-
-        # plot_menu = menu_bar.addMenu("&Plot")
-        # plot_menu.addAction(toggle_marker_action)
-        # plot_menu.addAction(toggle_bold_action)
-        # plot_menu.addAction(toggle_title_action)
-        # plot_menu.addAction(toggle_legend_action)
-        # plot_menu.addAction(toggle_transition_lines_action)
-        # plot_menu.addAction(ROI_action)
-        # plot_menu.addAction(rescale_curves_action)
-        # plot_menu.addAction(trajectory_graph_action)
-        # plot_menu.addAction(link_graph_range_action)
-
         self.main_layout.addWidget(self.split_horizontal_1)
-        # self.main_layout.addWidget(menu_bar) # Commented out for now
 
         self.setCentralWidget(self.main_widget)
 
