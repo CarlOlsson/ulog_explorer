@@ -305,7 +305,7 @@ class GraphData():
 
     def ulog_info(self):
         print("########### ulog_info: " + self.path_to_logfile + " ###########")
-        # From pyulog.messages
+        # From pyulog.info
         verbose = False
         m1, s1 = divmod(int(self.start_timestamp / 1e6), 60)
         h1, m1 = divmod(m1, 60)
