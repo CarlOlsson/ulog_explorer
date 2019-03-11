@@ -144,7 +144,7 @@ class Window(QtGui.QMainWindow):
             toggle_bold_action.triggered.connect(self.callback_toggle_bold)
             self.graph[graph_id].scene().contextMenu.append(toggle_bold_action)
 
-            toggle_title_action = QtGui.QAction('show/hide title (T)', self)
+            toggle_title_action = QtGui.QAction('show/hide title', self)
             toggle_title_action.triggered.connect(self.callback_toggle_title)
             self.graph[graph_id].scene().contextMenu.append(toggle_title_action)
 
@@ -161,12 +161,12 @@ class Window(QtGui.QMainWindow):
             self.graph[graph_id].scene().contextMenu.append(link_graph_range_action)
 
         QtGui.QShortcut(QtGui.QKeySequence("F"), self, self.set_focus_to_filter)
+        QtGui.QShortcut(QtGui.QKeySequence("T"), self, self.set_focus_to_tree)
         QtGui.QShortcut(QtGui.QKeySequence("C"), self, self.callback_clear_plot)
         QtGui.QShortcut(QtGui.QKeySequence("L"), self, self.callback_toggle_legend)
         QtGui.QShortcut(QtGui.QKeySequence("Q"), self, self.callback_toggle_2D_trajectory_graph)
         QtGui.QShortcut(QtGui.QKeySequence("M"), self, self.callback_toggle_marker)
         QtGui.QShortcut(QtGui.QKeySequence("B"), self, self.callback_toggle_bold)
-        QtGui.QShortcut(QtGui.QKeySequence("T"), self, self.callback_toggle_title)
         QtGui.QShortcut(QtGui.QKeySequence("I"), self, self.callback_toggle_transition_lines)
         QtGui.QShortcut(QtGui.QKeySequence("U"), self, self.callback_open_secondary_logfile)
         QtGui.QShortcut(QtGui.QKeySequence("A"), self, self.callback_toggle_ROI)
@@ -264,6 +264,9 @@ class Window(QtGui.QMainWindow):
         self.filter_box.clear()
         self.filter_box.setFocus()
         self.topic_tree_widget.collapseAll()
+
+    def set_focus_to_tree(self):
+        self.topic_tree_widget.setFocus()
 
     def callback_filter_box(self, filter_str):
         # Hide all topics
