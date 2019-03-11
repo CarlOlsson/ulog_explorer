@@ -118,6 +118,10 @@ class Window(QtGui.QMainWindow):
             ulog_messages_action.triggered.connect(partial(self.callback_ulog_messages, graph_id))
             self.graph[graph_id].scene().contextMenu.append(ulog_messages_action)
 
+            ulog_params_action = QtGui.QAction('print ulog params', self)
+            ulog_params_action.triggered.connect(partial(self.callback_ulog_params, graph_id))
+            self.graph[graph_id].scene().contextMenu.append(ulog_params_action)
+
             rescale_curves_action = QtGui.QAction('toggle rescaled curves (R)', self)
             rescale_curves_action.triggered.connect(self.callback_toggle_rescale_curves)
             self.graph[graph_id].scene().contextMenu.append(rescale_curves_action)
@@ -493,6 +497,9 @@ class Window(QtGui.QMainWindow):
 
     def callback_ulog_messages(self, graph_id):
         self.backend.graph_data[graph_id].ulog_messages()
+
+    def callback_ulog_params(self, graph_id):
+        print("ulog_params " + self.backend.graph_data[graph_id].path_to_logfile + " | grep ")
 
     def fronted_cleanup(self):
         self.graph[0].clearPlots()
