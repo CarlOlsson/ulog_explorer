@@ -4,13 +4,14 @@ from GraphData import *
 
 
 class GUIBackend():
+
     def __init__(self, link_xy_range=False):
         # List of curve class elements currently displayed
         self.curve_list = []
         # The symbol used for each datapoint when plotting
         self.symbol = None
-        # The line_width of the curves in the plot
-        self.line_width = 1
+        # True if the curves are currently displayed as bold
+        self.bold_curves = False
         # True if the legend is currently displayed
         self.show_legend = False
         # True if auto range should be done next frontend update
@@ -45,6 +46,14 @@ class GUIBackend():
         self.color_dict = collections.OrderedDict(color_tuples)
 
         self.graph_data = [GraphData() for _ in [0, 1]]
+
+    @property
+    def line_width(self):
+        line_width = 1
+        if (self.bold_curves):
+            line_width = 3
+
+        return line_width
 
     def load_ulog_to_graph_data(self, logfile_str, graph_id=0):
         self.graph_data[graph_id].ulog_to_df(logfile_str)

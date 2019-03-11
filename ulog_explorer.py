@@ -138,9 +138,9 @@ class Window(QtGui.QMainWindow):
             toggle_marker_line_action.triggered.connect(self.callback_toggle_marker_line)
             self.graph[graph_id].scene().contextMenu.append(toggle_marker_line_action)
 
-            toggle_bold_action = QtGui.QAction('toggle bold curves (B)', self)
-            toggle_bold_action.triggered.connect(self.callback_toggle_bold)
-            self.graph[graph_id].scene().contextMenu.append(toggle_bold_action)
+            toggle_bold_curves_action = QtGui.QAction('toggle bold curves (B)', self)
+            toggle_bold_curves_action.triggered.connect(self.callback_toggle_bold_curves)
+            self.graph[graph_id].scene().contextMenu.append(toggle_bold_curves_action)
 
             toggle_title_action = QtGui.QAction('show/hide title', self)
             toggle_title_action.triggered.connect(self.callback_toggle_title)
@@ -165,7 +165,7 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("L"), self, self.callback_toggle_legend)
         QtGui.QShortcut(QtGui.QKeySequence("Q"), self, self.callback_toggle_2D_trajectory_graph)
         QtGui.QShortcut(QtGui.QKeySequence("M"), self, self.callback_toggle_marker)
-        QtGui.QShortcut(QtGui.QKeySequence("B"), self, self.callback_toggle_bold)
+        QtGui.QShortcut(QtGui.QKeySequence("B"), self, self.callback_toggle_bold_curves)
         QtGui.QShortcut(QtGui.QKeySequence("I"), self, self.callback_toggle_transition_lines)
         QtGui.QShortcut(QtGui.QKeySequence("U"), self, self.callback_open_secondary_logfile)
         QtGui.QShortcut(QtGui.QKeySequence("A"), self, self.callback_toggle_ROI)
@@ -405,12 +405,8 @@ class Window(QtGui.QMainWindow):
 
         self.update_frontend()
 
-    def callback_toggle_bold(self):
-        if self.backend.line_width == 1:
-            self.backend.line_width = 3
-        else:
-            self.backend.line_width = 1
-
+    def callback_toggle_bold_curves(self):
+        self.backend.bold_curves = not self.backend.bold_curves
         self.update_frontend()
 
     def callback_toggle_title(self):
