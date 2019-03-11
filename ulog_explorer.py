@@ -215,12 +215,6 @@ class Window(QtGui.QMainWindow):
         self.ROI_region.hide()
         self.graph[0].addItem(self.ROI_region, ignoreBounds=True)
 
-        # Create arrow for the vehicle position in the trajectory analysis
-        self.arrow = pg.ArrowItem(Angle=0, tipAngle=30, baseAngle=20, headLen=40, tailLen=None, brush='g')
-        self.arrow.setPos(0, 0)
-        self.arrow.hide()
-        self.graph[1].addItem(self.arrow)
-
         # Initiate the legend
         self.backend.graph_data[0].legend_obj = self.graph[0].addLegend()
         self.backend.graph_data[1].legend_obj = self.graph[1].addLegend()
@@ -273,6 +267,11 @@ class Window(QtGui.QMainWindow):
 
         if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
             self.update_2d_arrow_pos()
+        else:
+            try:
+                self.graph[1].removeItem(self.backend.arrow_obj)
+            except:
+                pass
 
         if self.backend.link_xy_range and graph_id == 0 and self.backend.graph_data[1].marker_line_obj is not None and self.backend.secondary_graph_mode == 'secondary_logfile':
             self.backend.graph_data[1].marker_line_pos = self.backend.graph_data[0].marker_line_pos
@@ -318,9 +317,19 @@ class Window(QtGui.QMainWindow):
         idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
         pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
         pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
-        # idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
-        # yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['yaw321* [deg]'].values[idx_vehicle_attitude]
-        self.arrow.setPos(pos_y, pos_x)
+        idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
+        yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['q_yaw312* [deg]'].values[idx_vehicle_attitude]
+
+        try:
+            self.graph[1].removeItem(self.backend.arrow_obj)
+        except:
+            pass
+
+        self.backend.arrow_obj = None
+        self.backend.arrow_obj = pg.ArrowItem(angle=yaw + 90, tipAngle=30, baseAngle=20, headLen=40, tailLen=None, brush='g')
+        self.backend.arrow_obj.setPos(pos_y, pos_x)
+        self.backend.arrow_obj.show()
+        self.graph[1].addItem(self.backend.arrow_obj)
 
     def callback_open_logfile(self, input_path=expanduser('~'), graph_id=0):
         if Path(input_path).is_file() and Path(input_path).suffix == ".ulg":
@@ -510,7 +519,6 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.clearSelection()
         self.backend.graph_data[0].legend_obj.close()
         self.backend.graph_data[1].legend_obj.close()
-        self.arrow.hide()
         self.ROI_region.hide()
         self.graph[0].setTitle(None)
         self.graph[1].setTitle(None)
@@ -793,8 +801,6 @@ class Window(QtGui.QMainWindow):
         # Update 2D trajectory graph if enabled
         if self.backend.secondary_graph_mode == '2D':
             self.graph[1].setAspectLocked(lock=True, ratio=1)
-            if self.backend.graph_data[0].show_marker_line:
-                self.arrow.show()
             # Plot estimated position
             try:
                 north_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['x'].values

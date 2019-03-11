@@ -31,6 +31,8 @@ class GUIBackend():
         # True if the parameter changes are currently displayed
         self.show_changed_parameters = False
 
+        self.arrow_obj = None
+
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),
                         ("C1", [False, [255, 127, 14]]),
