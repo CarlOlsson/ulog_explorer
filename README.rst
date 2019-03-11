@@ -29,6 +29,7 @@ Instructions
 * Press A to display a ROI and N to print the mean and diff to the command line
 * Press R to rescale all curves to [0,1]
 * Press F to move focus to the topic search box
+* Press T to move focus to the topic tree
 * Press Down Arrow, Enter or Tab to move focus from topic search box to the topic tree
 
 Additional notes
