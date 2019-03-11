@@ -8,8 +8,8 @@ class GUIBackend():
     def __init__(self, link_xy_range=False):
         # List of curve class elements currently displayed
         self.curve_list = []
-        # The symbol used for each datapoint when plotting
-        self.symbol = None
+        # True if every datapoint should be indicated in the plot
+        self.show_curve_markers = False
         # True if the curves are currently displayed as bold
         self.bold_curves = False
         # True if the legend is currently displayed
@@ -48,9 +48,17 @@ class GUIBackend():
         self.graph_data = [GraphData() for _ in [0, 1]]
 
     @property
+    def symbol(self):
+        symbol = None
+        if self.show_curve_markers:
+            symbol = 'o'
+
+        return symbol
+
+    @property
     def line_width(self):
         line_width = 1
-        if (self.bold_curves):
+        if self.bold_curves:
             line_width = 3
 
         return line_width

@@ -398,11 +398,7 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def callback_toggle_marker(self):
-        if self.backend.symbol == None:
-            self.backend.symbol = 'o'
-        else:
-            self.backend.symbol = None
-
+        self.backend.show_curve_markers = not self.backend.show_curve_markers
         self.update_frontend()
 
     def callback_toggle_bold_curves(self):
