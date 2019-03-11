@@ -51,9 +51,9 @@ class GraphData():
         self.msg_info_dict = ulog.msg_info_dict
         self.msg_info_multiple_dict = ulog.msg_info_multiple_dict
         self.data_list = ulog.data_list
-        self.set_title()
+        self._set_title()
 
-    def set_title(self):
+    def _set_title(self):
         self.title = self._logfile_str
         if 'AIRCRAFT_ID' in self.initial_parameters_dict:
             self.title = self.title + " ({0})".format(int(self.initial_parameters_dict['AIRCRAFT_ID']))
@@ -141,32 +141,32 @@ class GraphData():
             pass
 
         # Add yaw, pitch, roll
-        self.add_yaw_pitch_roll('vehicle_attitude_0', 'q')
-        self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0', 'q')
-        self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', 'q_d')
-        self.add_yaw_pitch_roll('estimator_status_0', 'q')
-        self.add_yaw_pitch_roll('estimator_status_0', 'states')
+        self._add_yaw_pitch_roll('vehicle_attitude_0', 'q')
+        self._add_yaw_pitch_roll('vehicle_attitude_groundtruth_0', 'q')
+        self._add_yaw_pitch_roll('vehicle_attitude_setpoint_0', 'q_d')
+        self._add_yaw_pitch_roll('estimator_status_0', 'q')
+        self._add_yaw_pitch_roll('estimator_status_0', 'states')
 
         # Add lat_m, lon_m to vehicle_gps_position
         try:
-            self.add_lat_lon_m('vehicle_gps_position_0', 'lat', 'lon', 1e7)
+            self._add_lat_lon_m('vehicle_gps_position_0', 'lat', 'lon', 1e7)
         except Exception as ex:
             pass
 
         try:
-            self.add_lat_lon_m('vehicle_gps_position_1', 'lat', 'lon', 1e7)
+            self._add_lat_lon_m('vehicle_gps_position_1', 'lat', 'lon', 1e7)
         except Exception as ex:
             pass
 
         # Add lat_m, lon_m to vehicle_global_position
         try:
-            self.add_lat_lon_m('vehicle_global_position_0', 'lat', 'lon')
+            self._add_lat_lon_m('vehicle_global_position_0', 'lat', 'lon')
         except Exception as ex:
             pass
 
         # Add lat_m, lon_m to position_setpoint_triplet_0
         try:
-            self.add_lat_lon_m('position_setpoint_triplet_0', 'current.lat', 'current.lon')
+            self._add_lat_lon_m('position_setpoint_triplet_0', 'current.lat', 'current.lon')
         except Exception as ex:
             pass
 
@@ -221,7 +221,7 @@ class GraphData():
         except Exception as ex:
             pass
 
-    def add_lat_lon_m(self, topic_str, lat_str, lon_str, div=1):
+    def _add_lat_lon_m(self, topic_str, lat_str, lon_str, div=1):
         lat = np.deg2rad(self.df_dict[topic_str][lat_str].values / div)
         lon = np.deg2rad(self.df_dict[topic_str][lon_str].values / div)
 
@@ -238,12 +238,12 @@ class GraphData():
         except:
             pass
 
-        lat_m, lon_m = self.map_projection(lat, lon, anchor_lat, anchor_lon)
+        lat_m, lon_m = self._map_projection(lat, lon, anchor_lat, anchor_lon)
         self.df_dict[topic_str][lat_str + '_m*'] = lat_m
         self.df_dict[topic_str][lon_str + '_m*'] = lon_m
 
     # Function from flight_review (https://github.com/PX4/flight_review/)
-    def map_projection(self, lat, lon, anchor_lat, anchor_lon):
+    def _map_projection(self, lat, lon, anchor_lat, anchor_lon):
         """ convert lat, lon in [rad] to x, y in [m] with an anchor position """
         sin_lat = np.sin(lat)
         cos_lat = np.cos(lat)
@@ -271,7 +271,7 @@ class GraphData():
 
         return x, y
 
-    def add_yaw_pitch_roll(self, topic_str, field_name_suffix=''):
+    def _add_yaw_pitch_roll(self, topic_str, field_name_suffix=''):
         try:
             q0 = self.df_dict[topic_str][field_name_suffix + '[0]']
             q1 = self.df_dict[topic_str][field_name_suffix + '[1]']
