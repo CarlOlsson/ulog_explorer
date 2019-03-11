@@ -437,14 +437,23 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def callback_toggle_marker_line(self):
-        if self.graph[1].hasFocus() and self.backend.secondary_graph_mode == 'secondary_logfile':
-            graph_id = 1
-        else:
-            graph_id = 0
+        if self.backend.secondary_graph_mode == 'secondary_logfile' and self.backend.link_xy_range:
+            for elem in self.backend.graph_data:
+                elem.show_marker_line = not elem.show_marker_line
+                self.update_frontend()
 
-        self.backend.graph_data[graph_id].show_marker_line = not self.backend.graph_data[graph_id].show_marker_line
-        self.update_frontend()
-        self.set_marker_line_in_middle(graph_id)
+            self.set_marker_line_in_middle(0)
+            self.set_marker_line_in_middle(1)
+
+        else:
+            if self.graph[1].hasFocus() and self.backend.secondary_graph_mode == 'secondary_logfile':
+                graph_id = 1
+            else:
+                graph_id = 0
+
+            self.backend.graph_data[graph_id].show_marker_line = not self.backend.graph_data[graph_id].show_marker_line
+            self.update_frontend()
+            self.set_marker_line_in_middle(graph_id)
 
     def plot_parameter_changes(self, graph_id=0):
         last_timestamp = 0

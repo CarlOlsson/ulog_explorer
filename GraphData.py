@@ -134,9 +134,9 @@ class GraphData():
         try:
             topic_str = 'ekf2_innovations_0'
             self.df_dict[topic_str]['heading_innov_var^0.5'] = np.sqrt(self.df_dict[topic_str]['heading_innov_var'])
-            self.df_dict[topic_str]['mag_innov[0]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[0]'])
-            self.df_dict[topic_str]['mag_innov[1]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[1]'])
-            self.df_dict[topic_str]['mag_innov[2]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[2]'])
+            self.df_dict[topic_str]['mag_innov_var[0]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[0]'])
+            self.df_dict[topic_str]['mag_innov_var[1]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[1]'])
+            self.df_dict[topic_str]['mag_innov_var[2]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[2]'])
         except Exception as ex:
             pass
 
@@ -144,6 +144,7 @@ class GraphData():
         self.add_yaw_pitch_roll('vehicle_attitude_0', 'q')
         self.add_yaw_pitch_roll('vehicle_attitude_groundtruth_0', 'q')
         self.add_yaw_pitch_roll('vehicle_attitude_setpoint_0', 'q_d')
+        self.add_yaw_pitch_roll('estimator_status_0', 'q')
         self.add_yaw_pitch_roll('estimator_status_0', 'states')
 
         # Add lat_m, lon_m to vehicle_gps_position
@@ -277,13 +278,13 @@ class GraphData():
             q2 = self.df_dict[topic_str][field_name_suffix + '[2]']
             q3 = self.df_dict[topic_str][field_name_suffix + '[3]']
 
-            self.df_dict[topic_str]['yaw312*'] = np.arctan2(-2.0 * (q1 * q2 - q0 * q3), q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3)
-            self.df_dict[topic_str]['roll312*'] = np.arcsin(2.0 * (q2 * q3 + q0 * q1))
-            self.df_dict[topic_str]['pitch312*'] = np.arctan2(-2.0 * (q1 * q3 - q0 * q2), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3)
+            self.df_dict[topic_str][field_name_suffix + '_' + 'yaw312*'] = np.arctan2(-2.0 * (q1 * q2 - q0 * q3), q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3)
+            self.df_dict[topic_str][field_name_suffix + '_' + 'roll312*'] = np.arcsin(2.0 * (q2 * q3 + q0 * q1))
+            self.df_dict[topic_str][field_name_suffix + '_' + 'pitch312*'] = np.arctan2(-2.0 * (q1 * q3 - q0 * q2), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3)
 
-            self.df_dict[topic_str]['yaw312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['yaw312*'])
-            self.df_dict[topic_str]['roll312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['roll312*'])
-            self.df_dict[topic_str]['pitch312* [deg]'] = np.rad2deg(self.df_dict[topic_str]['pitch312*'])
+            self.df_dict[topic_str][field_name_suffix + '_' + 'yaw312* [deg]'] = np.rad2deg(self.df_dict[topic_str][field_name_suffix + '_' + 'yaw312*'])
+            self.df_dict[topic_str][field_name_suffix + '_' + 'roll312* [deg]'] = np.rad2deg(self.df_dict[topic_str][field_name_suffix + '_' + 'roll312*'])
+            self.df_dict[topic_str][field_name_suffix + '_' + 'pitch312* [deg]'] = np.rad2deg(self.df_dict[topic_str][field_name_suffix + '_' + 'pitch312*'])
         except Exception as ex:
             pass
 
