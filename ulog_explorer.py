@@ -406,10 +406,10 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def callback_toggle_bold(self):
-        if self.backend.linewidth == 1:
-            self.backend.linewidth = 3
+        if self.backend.line_width == 1:
+            self.backend.line_width = 3
         else:
-            self.backend.linewidth = 1
+            self.backend.line_width = 1
 
         self.update_frontend()
 
@@ -677,7 +677,7 @@ class Window(QtGui.QMainWindow):
         if self.backend.rescale_curves and max_y_diff > 0:
             y_value = (y_value - np.min(y_value)) / max_y_diff
 
-        pen = pg.mkPen(width=self.backend.linewidth, color=color_brush)
+        pen = pg.mkPen(width=self.backend.line_width, color=color_brush)
         curve = self.graph[graph_id].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
 
         # Add a marker if any of the samples are nan
@@ -800,7 +800,7 @@ class Window(QtGui.QMainWindow):
             try:
                 north_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['x'].values
                 east_estimated = self.backend.graph_data[0].df_dict['vehicle_local_position_0']['y'].values
-                pen = pg.mkPen(width=self.backend.linewidth, color='b')
+                pen = pg.mkPen(width=self.backend.line_width, color='b')
                 curve = self.graph[1].plot(east_estimated, north_estimated, name='vehicle_local_position_0', pen=pen)
             except:
                 pass
@@ -809,7 +809,7 @@ class Window(QtGui.QMainWindow):
             try:
                 north_measured = self.backend.graph_data[0].df_dict['vehicle_gps_position_0']['lat_m*'].values
                 east_gps_measured = self.backend.graph_data[0].df_dict['vehicle_gps_position_0']['lon_m*'].values
-                pen = pg.mkPen(width=self.backend.linewidth, color='r')
+                pen = pg.mkPen(width=self.backend.line_width, color='r')
                 curve = self.graph[1].plot(east_gps_measured, north_measured, name='vehicle_gps_position_0', pen=pen)
             except:
                 pass
@@ -818,7 +818,7 @@ class Window(QtGui.QMainWindow):
             try:
                 north_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lat_m*'].values
                 east_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lon_m*'].values
-                pen = pg.mkPen(width=self.backend.linewidth, color='g')
+                pen = pg.mkPen(width=self.backend.line_width, color='g')
                 curve = self.graph[1].plot(east_setpoint, north_setpoint, name='position_setpoint_triplet_0', pen=pen, symbol='o')
             except:
                 pass

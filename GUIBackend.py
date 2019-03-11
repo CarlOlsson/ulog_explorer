@@ -9,8 +9,8 @@ class GUIBackend():
         self.curve_list = []
         # The symbol used for each datapoint when plotting
         self.symbol = None
-        # The linewidth of the curves in the plot
-        self.linewidth = 1
+        # The line_width of the curves in the plot
+        self.line_width = 1
         # True if the legend is currently displayed
         self.show_legend = False
         # True if auto range should be done next frontend update
