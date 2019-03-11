@@ -277,6 +277,10 @@ class Window(QtGui.QMainWindow):
         for elem in top_level_items_to_show:
             elem.setHidden(False)
 
+        # Expand if only one topic match the filter
+        if len(top_level_items_to_show) == 1:
+            top_level_items_to_show[0].setExpanded(True)
+
     def update_marker_line_status(self, graph_id=0):
         self.backend.graph_data[graph_id].marker_line_pos = self.backend.graph_data[graph_id].marker_line_obj.value()
         self.update_marker_line_label(graph_id)
