@@ -8,3 +8,4 @@ add a callback to print the parameter diff to console
 support drag and drop a logfile onto a graph
 add tabbed environment to keep plot
 fix the hacky solution for rotating the arrow in the 2D graph
+fix bug: D -> U -> k -> D
