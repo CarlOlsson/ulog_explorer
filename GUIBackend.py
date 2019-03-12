@@ -88,13 +88,11 @@ class GUIBackend():
 
     # Removes the selected topic and field from the list of variables to plot
     def remove_selected_topic_and_field(self, selected_topic, selected_field):
-        index = 0
-        for elem in self.curve_list:
+        for idx, elem in enumerate(self.curve_list):
             if elem.selected_topic == selected_topic and elem.selected_field == selected_field:
-                self.curve_list.pop(index)
+                self.curve_list.pop(idx)
                 self.color_dict[elem.color_key][0] = False
-
-            index = index + 1
+                return
 
     def clear_curve_list(self):
         self.curve_list = []
