@@ -140,7 +140,7 @@ class GraphData():
         except Exception as ex:
             pass
 
-        # Add sqrt of innovation variance
+        # Add fields to ekf2_innovations
         try:
             topic_str = 'ekf2_innovations_0'
             self.df_dict[topic_str]['heading_innov_var^0.5'] = np.sqrt(self.df_dict[topic_str]['heading_innov_var'])
@@ -151,6 +151,7 @@ class GraphData():
             self.df_dict[topic_str]['vel_pos_innov_var[0]^0.5'] = np.sqrt(self.df_dict[topic_str]['vel_pos_innov_var[0]'])
             self.df_dict[topic_str]['vel_pos_innov_var[1]^0.5'] = np.sqrt(self.df_dict[topic_str]['vel_pos_innov_var[1]'])
             self.df_dict[topic_str]['vel_pos_innov_var[2]^0.5'] = np.sqrt(self.df_dict[topic_str]['vel_pos_innov_var[2]'])
+            self.df_dict[topic_str]['heading_innov* [deg]'] = np.rad2deg(self.df_dict[topic_str]['heading_innov'])
         except Exception as ex:
             pass
 
