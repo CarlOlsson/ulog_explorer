@@ -265,7 +265,7 @@ class Window(QtGui.QMainWindow):
         self.backend.graph_data[graph_id].marker_line_pos = self.backend.graph_data[graph_id].marker_line_obj.value()
         self.update_marker_line_label(graph_id)
 
-        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == '2D':
+        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == 'trajectory':
             self.update_2d_arrow_pos()
         else:
             try:
@@ -384,13 +384,13 @@ class Window(QtGui.QMainWindow):
     def callback_toggle_2D_trajectory_graph(self):
         self.unlink_graph_range()
         if self.split_screen_active():
-            if self.backend.secondary_graph_mode == '2D':
+            if self.backend.secondary_graph_mode == 'trajectory':
                 self.split_graph_horizontal.setSizes([1, 0])
             else:
-                self.backend.secondary_graph_mode = '2D'
+                self.backend.secondary_graph_mode = 'trajectory'
         else:
             self.split_graph_horizontal.setSizes([1, 1])
-            self.backend.secondary_graph_mode = '2D'
+            self.backend.secondary_graph_mode = 'trajectory'
 
         self.update_frontend()
         self.graph[1].autoRange()
@@ -398,6 +398,14 @@ class Window(QtGui.QMainWindow):
     def split_screen_active(self):
         rect = self.split_graph_horizontal.sizes()
         return rect[1] > 0
+
+    def split_screen_mode(self):
+        if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+            return 'secondary_logfile'
+        elif self.split_screen_active() and self.backend.secondary_graph_mode == 'trajectory':
+            return 'trajectory'
+        else:
+            return None
 
     def toggle_split_screen(self):
         if not self.split_screen_active():
@@ -721,7 +729,7 @@ class Window(QtGui.QMainWindow):
 
             self.add_curve(0, elem, color_brush)
 
-            if self.backend.secondary_graph_mode == 'secondary_logfile':
+            if self.split_screen_mode() == 'secondary_logfile':
                 try:
                     self.add_curve(1, elem, color_brush)
                 except:
@@ -730,7 +738,7 @@ class Window(QtGui.QMainWindow):
         # Display lines at start and stop of forward transition
         if self.backend.show_transition_lines:
             max_range = range(1)
-            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+            if self.split_screen_mode() == 'secondary_logfile':
                 max_range = range(2)
             for idx in max_range:
                 for elem in self.backend.graph_data[idx].forward_transition_lines:
@@ -748,7 +756,7 @@ class Window(QtGui.QMainWindow):
         # Display parameter changes
         if self.backend.show_changed_parameters:
             max_range = range(1)
-            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+            if self.split_screen_mode() == 'secondary_logfile':
                 max_range = range(2)
             for idx in max_range:
                 self.plot_parameter_changes(idx)
@@ -759,7 +767,7 @@ class Window(QtGui.QMainWindow):
             self.backend.graph_data[0].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 0))
             self.graph[0].addItem(self.backend.graph_data[0].marker_line_obj, ignoreBounds=True)
             self.update_marker_line_status(0)
-        if self.backend.graph_data[1].show_marker_line and self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+        if self.backend.graph_data[1].show_marker_line and self.split_screen_mode() == 'secondary_logfile':
             self.backend.graph_data[1].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[1].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
             self.backend.graph_data[1].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 1))
             self.graph[1].addItem(self.backend.graph_data[1].marker_line_obj, ignoreBounds=True)
@@ -772,7 +780,7 @@ class Window(QtGui.QMainWindow):
         # Autorange
         if len(self.backend.curve_list) > 0 and self.backend.auto_range:
             self.graph[0].autoRange()
-            if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+            if self.split_screen_mode() == 'secondary_logfile':
                 self.graph[1].autoRange()
             self.backend.auto_range = False
 
@@ -781,7 +789,7 @@ class Window(QtGui.QMainWindow):
 
         # Update the window title
         title = 'ulog_explorer: log0-> ' + self.backend.graph_data[0].path_to_logfile
-        if self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+        if self.split_screen_mode() == 'secondary_logfile':
             title = title + ' log1-> ' + self.backend.graph_data[1].path_to_logfile
 
         self.setWindowTitle(title)
@@ -794,12 +802,12 @@ class Window(QtGui.QMainWindow):
             else:
                 self.graph[1].setTitle(self.backend.graph_data[0].title)
 
-        if self.backend.link_xy_range and self.split_screen_active() and self.backend.secondary_graph_mode == 'secondary_logfile':
+        if self.backend.link_xy_range and self.split_screen_mode() == 'secondary_logfile':
             self.graph[1].getViewBox().setXLink(self.graph[0])
             self.graph[1].getViewBox().setYLink(self.graph[0])
 
         # Update 2D trajectory graph if enabled
-        if self.backend.secondary_graph_mode == '2D':
+        if self.backend.secondary_graph_mode == 'trajectory':
             self.graph[1].setAspectLocked(lock=True, ratio=1)
             # Plot estimated position
             try:
