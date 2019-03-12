@@ -344,7 +344,12 @@ class Window(QtGui.QMainWindow):
             return True
 
         else:
-            filename = QtGui.QFileDialog.getOpenFileName(self, 'Open Log File', input_path, 'Log Files (*.ulg)')
+            if graph_id == 0:
+                window_title = 'Open main logfile'
+            else:
+                window_title = 'Open secondary logfile'
+
+            filename = QtGui.QFileDialog.getOpenFileName(self, window_title, input_path, 'Log Files (*.ulg)')
             if isinstance(filename, tuple):
                 filename = filename[0]
             if filename:
