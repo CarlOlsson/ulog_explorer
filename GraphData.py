@@ -52,6 +52,8 @@ class GraphData():
         self.msg_info_multiple_dict = ulog.msg_info_multiple_dict
         self.data_list = ulog.data_list
         self._set_title()
+        self._get_transition_timestamps()
+        self._add_all_fields_to_df()
 
     def _set_title(self):
         self.title = self._logfile_str
@@ -59,7 +61,7 @@ class GraphData():
             self.title = self.title + " ({0})".format(int(self.initial_parameters_dict['AIRCRAFT_ID']))
 
     # Add fields to df_dict. * is added to the names to represent that it was calculated in postprocessing and not logged
-    def add_all_fields_to_df(self):
+    def _add_all_fields_to_df(self):
         # Add norm of magnetometer measurement to sensor_combined
         try:
             topic_str = 'sensor_combined_0'
@@ -288,7 +290,7 @@ class GraphData():
         except Exception as ex:
             pass
 
-    def get_transition_timestamps(self):
+    def _get_transition_timestamps(self):
         forward_transition_lines = self.df_dict['vehicle_status_0'].index[self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())['in_transition_to_fw']].tolist()
         forward_transition_lines.pop(0)
         self.forward_transition_lines = forward_transition_lines

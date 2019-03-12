@@ -67,8 +67,6 @@ class GUIBackend():
 
     def load_ulog_to_graph_data(self, logfile_str, graph_id=0):
         self.graph_data[graph_id].ulog_to_df(logfile_str)
-        self.graph_data[graph_id].add_all_fields_to_df()
-        self.graph_data[graph_id].get_transition_timestamps()
 
         # Returns true if the selected topic and field is already in the list
     def contains(self, selected_topic, selected_field):
