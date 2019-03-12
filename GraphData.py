@@ -147,6 +147,10 @@ class GraphData():
             self.df_dict[topic_str]['mag_innov_var[0]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[0]'])
             self.df_dict[topic_str]['mag_innov_var[1]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[1]'])
             self.df_dict[topic_str]['mag_innov_var[2]^0.5'] = np.sqrt(self.df_dict[topic_str]['mag_innov_var[2]'])
+            self.df_dict[topic_str]['beta_innov_var^0.5'] = np.sqrt(self.df_dict[topic_str]['beta_innov_var'])
+            self.df_dict[topic_str]['vel_pos_innov_var[0]^0.5'] = np.sqrt(self.df_dict[topic_str]['vel_pos_innov_var[0]'])
+            self.df_dict[topic_str]['vel_pos_innov_var[1]^0.5'] = np.sqrt(self.df_dict[topic_str]['vel_pos_innov_var[1]'])
+            self.df_dict[topic_str]['vel_pos_innov_var[2]^0.5'] = np.sqrt(self.df_dict[topic_str]['vel_pos_innov_var[2]'])
         except Exception as ex:
             pass
 
