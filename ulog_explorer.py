@@ -265,7 +265,7 @@ class Window(QtGui.QMainWindow):
         self.backend.graph_data[graph_id].marker_line_pos = self.backend.graph_data[graph_id].marker_line_obj.value()
         self.update_marker_line_label(graph_id)
 
-        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.backend.secondary_graph_mode == 'trajectory':
+        if graph_id == 0 and self.backend.graph_data[0].show_marker_line and self.split_screen_mode() == 'trajectory':
             self.update_2d_arrow_pos()
         else:
             try:
@@ -273,11 +273,11 @@ class Window(QtGui.QMainWindow):
             except:
                 pass
 
-        if self.backend.link_xy_range and graph_id == 0 and self.backend.graph_data[1].marker_line_obj is not None and self.backend.secondary_graph_mode == 'secondary_logfile':
+        if self.backend.link_xy_range and graph_id == 0 and self.backend.graph_data[1].marker_line_obj is not None and self.split_screen_mode() == 'secondary_logfile':
             self.backend.graph_data[1].marker_line_pos = self.backend.graph_data[0].marker_line_pos
             self.backend.graph_data[1].marker_line_obj.setValue(self.backend.graph_data[1].marker_line_pos)
             self.update_marker_line_label(1)
-        elif self.backend.link_xy_range and graph_id == 1 and self.backend.graph_data[0].marker_line_obj is not None and self.backend.secondary_graph_mode == 'secondary_logfile':
+        elif self.backend.link_xy_range and graph_id == 1 and self.backend.graph_data[0].marker_line_obj is not None and self.split_screen_mode() == 'secondary_logfile':
             self.backend.graph_data[0].marker_line_pos = self.backend.graph_data[1].marker_line_pos
             self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_pos)
             self.update_marker_line_label(0)
@@ -807,7 +807,7 @@ class Window(QtGui.QMainWindow):
             self.graph[1].getViewBox().setYLink(self.graph[0])
 
         # Update 2D trajectory graph if enabled
-        if self.backend.secondary_graph_mode == 'trajectory':
+        if self.split_screen_mode() == 'trajectory':
             self.graph[1].setAspectLocked(lock=True, ratio=1)
             # Plot estimated position
             try:
