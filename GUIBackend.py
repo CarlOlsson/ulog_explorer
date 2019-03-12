@@ -51,19 +51,17 @@ class GUIBackend():
 
     @property
     def symbol(self):
-        symbol = None
         if self.show_curve_markers:
-            symbol = 'o'
+            return 'o'
 
-        return symbol
+        return None
 
     @property
     def line_width(self):
-        line_width = 1
         if self.bold_curves:
-            line_width = 3
+            return 3
 
-        return line_width
+        return 1
 
     def load_ulog_to_graph_data(self, logfile_str, graph_id=0):
         self.graph_data[graph_id].ulog_to_df(logfile_str)
