@@ -18,13 +18,21 @@ class GraphData():
         self.back_transition_lines = []
         # True if the marker line is currently displayed
         self.show_marker_line = False
+        # List of objects used to display green lines at start and stop of forward transition
         self.ft_lines_obj = []
+        # List of objects used to display red lines at start and stop of backward transition
         self.bt_lines_obj = []
+        # List of objects used to display lines at parameter changes
         self.parameter_lines_obj = []
+        # Object used to display the graph legend
         self.legend_obj = None
+        # Object used to display the marker line
         self.marker_line_obj = None
+        # The position of the marker line
         self.marker_line_pos = 0
-        self.initial_parameters_dict = {}
+        # Dictionary of initial parameters
+        self.initial_parameters = {}
+        # Graph title
         self.title = ''
         self._logfile_str = ''
 
@@ -43,7 +51,7 @@ class GraphData():
             self.df_dict[topic_name] = df
 
         self.changed_parameters = ulog.changed_parameters
-        self.initial_parameters_dict = ulog.initial_parameters
+        self.initial_parameters = ulog.initial_parameters
         self.logged_messages = ulog.logged_messages
         self.start_timestamp = ulog.start_timestamp
         self.last_timestamp = ulog.last_timestamp
@@ -57,8 +65,8 @@ class GraphData():
 
     def _set_title(self):
         self.title = self._logfile_str
-        if 'AIRCRAFT_ID' in self.initial_parameters_dict:
-            self.title = self.title + " ({0})".format(int(self.initial_parameters_dict['AIRCRAFT_ID']))
+        if 'AIRCRAFT_ID' in self.initial_parameters:
+            self.title = self.title + " ({0})".format(int(self.initial_parameters['AIRCRAFT_ID']))
 
     # Add fields to df_dict. * is added to the names to represent that it was calculated in postprocessing and not logged
     def _add_all_fields_to_df(self):

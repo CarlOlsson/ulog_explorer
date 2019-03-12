@@ -30,7 +30,7 @@ class GUIBackend():
         self.link_xy_range = link_xy_range
         # True if the parameter changes are currently displayed
         self.show_changed_parameters = False
-
+        # The object used to display the arrow at the vehicle position in the 2D trajectory graph
         self.arrow_obj = None
 
         # Ordered dictionary of colors and if they are occupied or not
