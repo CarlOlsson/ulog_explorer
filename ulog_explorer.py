@@ -52,8 +52,6 @@ class Window(QtGui.QMainWindow):
         self.filter_box = QtGui.QLineEdit()
         self.filter_box.setPlaceholderText('filter by topic name (F)')
         self.filter_box.textChanged.connect(self.callback_filter_box)
-        QtGui.QShortcut(QtCore.Qt.Key_Return, self.filter_box, context=QtCore.Qt.WidgetShortcut, activated=self.callback_focus_on_topic_tree)
-        QtGui.QShortcut(QtCore.Qt.Key_Down, self.filter_box, context=QtCore.Qt.WidgetShortcut, activated=self.callback_focus_on_topic_tree)
         self.selected_fields_and_button_layout.addWidget(self.filter_box)
 
         # Create the frame for the data tree used to select topics to plot
@@ -69,7 +67,6 @@ class Window(QtGui.QMainWindow):
         self.topic_tree_widget.setExpandsOnDoubleClick(False)
         self.topic_tree_widget.itemClicked.connect(self.callback_topic_tree_clicked)
         self.topic_tree_widget.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
-        QtGui.QShortcut(QtCore.Qt.Key_Return, self.topic_tree_widget, context=QtCore.Qt.WidgetShortcut, activated=self.callback_tree_enter)
 
         self.main_graph_frame = QtGui.QFrame(self)
         self.main_graph_frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -91,6 +88,7 @@ class Window(QtGui.QMainWindow):
         self.graph[0].showGrid(True, True, 0.5)
         self.graph[1].showGrid(True, True, 0.5)
         self.graph[0].keyPressEvent = self.keyPressed_main_graph
+        self.graph[1].keyPressEvent = self.keyPressed_secondary_graph
 
         # Populate the graph context menu
         open_main_logfile_action_0 = QtGui.QAction('open main logfile (O)', self)
@@ -162,7 +160,11 @@ class Window(QtGui.QMainWindow):
             link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
             self.graph[graph_id].scene().contextMenu.append(link_graph_range_action)
 
-        # Add global shortcuts
+        ROI_action = QtGui.QAction('show/hide ROI (A)', self)
+        ROI_action.triggered.connect(self.callback_toggle_ROI)
+        self.graph[0].scene().contextMenu.append(ROI_action)
+
+        # Define global shortcuts
         QtGui.QShortcut(QtGui.QKeySequence("F"), self, self.set_focus_to_filter)
         QtGui.QShortcut(QtGui.QKeySequence("T"), self, self.set_focus_to_tree)
         QtGui.QShortcut(QtGui.QKeySequence("C"), self, self.callback_clear_plot)
@@ -181,9 +183,12 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("D"), self, self.callback_toggle_marker_line)
         QtGui.QShortcut(QtGui.QKeySequence("N"), self, self.callback_print_ROI_info)
 
-        ROI_action = QtGui.QAction('show/hide ROI (A)', self)
-        ROI_action.triggered.connect(self.callback_toggle_ROI)
-        self.graph[0].scene().contextMenu.append(ROI_action)
+        # Define shortcuts for when the filter box is in focus
+        QtGui.QShortcut(QtCore.Qt.Key_Return, self.filter_box, context=QtCore.Qt.WidgetShortcut, activated=self.callback_focus_on_topic_tree)
+        QtGui.QShortcut(QtCore.Qt.Key_Down, self.filter_box, context=QtCore.Qt.WidgetShortcut, activated=self.callback_focus_on_topic_tree)
+
+        # Define shortcuts for when the topic tree is in focus
+        QtGui.QShortcut(QtCore.Qt.Key_Return, self.topic_tree_widget, context=QtCore.Qt.WidgetShortcut, activated=self.callback_tree_enter)
 
         self.main_graph_layout.addWidget(self.graph[0])
         self.secondary_graph_layout.addWidget(self.graph[1])
@@ -223,7 +228,7 @@ class Window(QtGui.QMainWindow):
 
         # Load main logfile from argument or file dialog
         self.callback_open_logfile(args.input_path)
-        # Try to open the secondary logfile is a second argument is given
+        # Try to open the secondary logfile if a second argument is given
         if args.input_path_seondary_logfile is not None:
             self.callback_open_secondary_logfile(args.input_path_seondary_logfile, True)
 
@@ -362,7 +367,6 @@ class Window(QtGui.QMainWindow):
 
     def load_logfile_to_tree(self):
         self.topic_tree_widget.clear()
-        # for topic_str, fields_df in self.graph_data[0].df_dict.iteritems(): python2
         for topic_str, fields_df in sorted(self.backend.graph_data[0].df_dict.items()):
             current_topic = QtGui.QTreeWidgetItem(self.topic_tree_widget, [topic_str])
             for field in sorted(list(fields_df)):
@@ -637,18 +641,33 @@ class Window(QtGui.QMainWindow):
             return
 
         # Ctrl + Left_arrow: Move marker line to the left
-        elif event.key() == QtCore.Qt.Key_Left:
-            if self.backend.graph_data[0].show_marker_line:
-                self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() - 1)
-                self.update_marker_line_status()
+        elif event.key() == QtCore.Qt.Key_Left and self.backend.graph_data[0].show_marker_line:
+            self.move_marker_line(0, 'left')
             return
 
         # Ctrl + Right_arrow: Move marker line to the right
-        elif event.key() == QtCore.Qt.Key_Right:
-            if self.backend.graph_data[0].show_marker_line:
-                self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_obj.value() + 1)
-                self.update_marker_line_status()
+        elif event.key() == QtCore.Qt.Key_Right and self.backend.graph_data[0].show_marker_line:
+            self.move_marker_line(0, 'right')
             return
+
+    def keyPressed_secondary_graph(self, event):
+        # Ctrl + Left_arrow: Move marker line to the left
+        if event.key() == QtCore.Qt.Key_Left and self.backend.graph_data[1].show_marker_line:
+            self.move_marker_line(1, 'left')
+            return
+
+        # Ctrl + Right_arrow: Move marker line to the right
+        elif event.key() == QtCore.Qt.Key_Right and self.backend.graph_data[1].show_marker_line:
+            self.move_marker_line(1, 'right')
+            return
+
+    def move_marker_line(self, graph_id, direction):
+        if direction == 'left':
+            step = -1
+        else:
+            step = 1
+        self.backend.graph_data[graph_id].marker_line_obj.setValue(self.backend.graph_data[graph_id].marker_line_obj.value() + step)
+        self.update_marker_line_status(graph_id)
 
     def callback_selected_fields_list_clicked(self, item):
         # Remove the selected field from the tree
