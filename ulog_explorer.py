@@ -759,12 +759,15 @@ class Window(QtGui.QMainWindow):
                 except:
                     pass
 
-        # Display lines at start and stop of forward transition
-        if self.backend.show_transition_lines:
-            max_range = range(1)
-            if self.split_screen_mode() == 'secondary_logfile':
-                max_range = range(2)
-            for idx in max_range:
+        max_range = range(1)
+        if self.split_screen_mode() == 'secondary_logfile':
+            max_range = range(2)
+        for idx in max_range:
+            # Display parameter changes
+            if self.backend.show_changed_parameters:
+                self.plot_parameter_changes(idx)
+            # Display lines at start and stop of forward transition
+            if self.backend.show_transition_lines:
                 for elem in self.backend.graph_data[idx].forward_transition_lines:
                     vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='g'))
                     vLine.show()
@@ -776,14 +779,6 @@ class Window(QtGui.QMainWindow):
                     vLine.show()
                     self.backend.graph_data[idx].bt_lines_obj.append(vLine)
                     self.graph[idx].addItem(vLine, ignoreBounds=True)
-
-        # Display parameter changes
-        if self.backend.show_changed_parameters:
-            max_range = range(1)
-            if self.split_screen_mode() == 'secondary_logfile':
-                max_range = range(2)
-            for idx in max_range:
-                self.plot_parameter_changes(idx)
 
         # Display marker line
         if self.backend.graph_data[0].show_marker_line:
