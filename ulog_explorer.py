@@ -762,35 +762,29 @@ class Window(QtGui.QMainWindow):
         max_range = range(1)
         if self.split_screen_mode() == 'secondary_logfile':
             max_range = range(2)
-        for idx in max_range:
+        for graph_id in max_range:
             # Display parameter changes
             if self.backend.show_changed_parameters:
-                self.plot_parameter_changes(idx)
-            # Display lines at start and stop of forward transition
+                self.plot_parameter_changes(graph_id)
+            # Display marker line
+            if self.backend.graph_data[graph_id].show_marker_line:
+                self.backend.graph_data[graph_id].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[graph_id].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
+                self.backend.graph_data[graph_id].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, graph_id))
+                self.graph[graph_id].addItem(self.backend.graph_data[graph_id].marker_line_obj, ignoreBounds=True)
+                self.update_marker_line_status(graph_id)
+                # Display lines at start and stop of forward transition
             if self.backend.show_transition_lines:
-                for elem in self.backend.graph_data[idx].forward_transition_lines:
+                for elem in self.backend.graph_data[graph_id].forward_transition_lines:
                     vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='g'))
                     vLine.show()
-                    self.backend.graph_data[idx].ft_lines_obj.append(vLine)
-                    self.graph[idx].addItem(vLine, ignoreBounds=True)
+                    self.backend.graph_data[graph_id].ft_lines_obj.append(vLine)
+                    self.graph[graph_id].addItem(vLine, ignoreBounds=True)
 
-                for elem in self.backend.graph_data[idx].back_transition_lines:
+                for elem in self.backend.graph_data[graph_id].back_transition_lines:
                     vLine = pg.InfiniteLine(angle=90, movable=False, pos=elem, pen=pg.mkPen(color='r'))
                     vLine.show()
-                    self.backend.graph_data[idx].bt_lines_obj.append(vLine)
-                    self.graph[idx].addItem(vLine, ignoreBounds=True)
-
-        # Display marker line
-        if self.backend.graph_data[0].show_marker_line:
-            self.backend.graph_data[0].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[0].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
-            self.backend.graph_data[0].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 0))
-            self.graph[0].addItem(self.backend.graph_data[0].marker_line_obj, ignoreBounds=True)
-            self.update_marker_line_status(0)
-        if self.backend.graph_data[1].show_marker_line and self.split_screen_mode() == 'secondary_logfile':
-            self.backend.graph_data[1].marker_line_obj = pg.InfiniteLine(angle=90, movable=True, pos=self.backend.graph_data[1].marker_line_pos, pen=pg.mkPen(color='b'), label='', labelOpts={'position': 0.1, 'color': (0, 0, 0), 'fill': (200, 200, 200, 100), 'movable': True})
-            self.backend.graph_data[1].marker_line_obj.sigDragged.connect(partial(self.update_marker_line_status, 1))
-            self.graph[1].addItem(self.backend.graph_data[1].marker_line_obj, ignoreBounds=True)
-            self.update_marker_line_status(1)
+                    self.backend.graph_data[graph_id].bt_lines_obj.append(vLine)
+                    self.graph[graph_id].addItem(vLine, ignoreBounds=True)
 
             # Display ROI
         if self.backend.show_ROI:
