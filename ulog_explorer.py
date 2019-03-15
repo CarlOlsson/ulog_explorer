@@ -336,6 +336,19 @@ class Window(QtGui.QMainWindow):
         self.backend.arrow_obj.show()
         self.graph[1].addItem(self.backend.arrow_obj)
 
+        # Mark current mission setpoint
+        try:
+            self.graph[1].removeItem(self.backend.current_sp_marker_obj)
+        except:
+            pass
+        try:
+            idx_position_setpoint_triplet = np.argmax(self.backend.graph_data[0].df_dict['position_setpoint_triplet_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
+            north_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lat_m*'].values[idx_position_setpoint_triplet]
+            east_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lon_m*'].values[idx_position_setpoint_triplet]
+            self.backend.current_sp_marker_obj = self.graph[1].plot([None, east_setpoint], [None, north_setpoint], name='position_setpoint_marker', pen=None, symbol='o', symbolBrush='r')
+        except:
+            pass
+
     def callback_open_logfile(self, input_path=expanduser('~'), graph_id=0):
         if Path(input_path).is_file() and Path(input_path).suffix == ".ulg":
             self.backend.graph_data[graph_id].path_to_logfile = input_path

@@ -32,6 +32,8 @@ class GUIBackend():
         self.show_changed_parameters = False
         # The object used to display the arrow at the vehicle position in the 2D trajectory graph
         self.arrow_obj = None
+        # The object used to display the current pposition setpoint in the 2D trajectory graph
+        self.current_sp_marker_obj = None
 
         # Ordered dictionary of colors and if they are occupied or not
         color_tuples = [("C0", [False, [31, 119, 180]]),
