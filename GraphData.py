@@ -304,20 +304,23 @@ class GraphData():
             pass
 
     def _get_transition_timestamps(self):
-        if self.df_dict['vehicle_status_0']['in_transition_mode'].any():
-            forward_transition_lines = self.df_dict['vehicle_status_0'].index[self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())['in_transition_to_fw']].tolist()
-            forward_transition_lines.pop(0)
-            self.forward_transition_lines = forward_transition_lines
+        try:
+            if self.df_dict['vehicle_status_0']['in_transition_mode'].any():
+                forward_transition_lines = self.df_dict['vehicle_status_0'].index[self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())['in_transition_to_fw']].tolist()
+                forward_transition_lines.pop(0)
+                self.forward_transition_lines = forward_transition_lines
 
-            logical_series = self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())[['in_transition_mode']]
-            logical_series2 = self.df_dict['vehicle_status_0']['is_rotary_wing'] == True
+                logical_series = self.df_dict['vehicle_status_0'].ne(self.df_dict['vehicle_status_0'].shift())[['in_transition_mode']]
+                logical_series2 = self.df_dict['vehicle_status_0']['is_rotary_wing'] == True
 
-            df_comb = pd.concat([logical_series, logical_series2], axis=1)
+                df_comb = pd.concat([logical_series, logical_series2], axis=1)
 
-            idx = (df_comb['in_transition_mode']) & (df_comb['is_rotary_wing'])
-            back_transition_lines = self.df_dict['vehicle_status_0'].index[idx].tolist()
-            back_transition_lines.pop(0)
-            self.back_transition_lines = back_transition_lines
+                idx = (df_comb['in_transition_mode']) & (df_comb['is_rotary_wing'])
+                back_transition_lines = self.df_dict['vehicle_status_0'].index[idx].tolist()
+                back_transition_lines.pop(0)
+                self.back_transition_lines = back_transition_lines
+        except:
+            pass
 
     def ulog_info(self):
         print("########### ulog_info: " + self.path_to_logfile + " ###########")
