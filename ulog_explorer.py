@@ -695,6 +695,10 @@ class Window(QtGui.QMainWindow):
 
     def callback_focus_on_topic_tree(self):
         self.topic_tree_widget.setFocus()
+        for i in range(self.topic_tree_widget.topLevelItemCount()):
+            if not self.topic_tree_widget.topLevelItem(i).isHidden():
+                self.topic_tree_widget.setCurrentItem(self.topic_tree_widget.topLevelItem(i))
+                return
 
     def callback_tree_enter(self):
         selected_topic = self.topic_tree_widget.currentIndex().parent().data()
