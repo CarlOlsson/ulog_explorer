@@ -726,8 +726,11 @@ class Window(QtGui.QMainWindow):
         time = self.backend.graph_data[graph_id].df_dict[elem.selected_topic].index
         y_value = self.backend.graph_data[graph_id].df_dict[elem.selected_topic][elem.selected_field].values
         max_y_diff = np.max(y_value) - np.min(y_value)
-        if self.backend.rescale_curves and max_y_diff > 0:
-            y_value = (y_value - np.min(y_value)) / max_y_diff
+        if self.backend.rescale_curves:
+            if max_y_diff > 0:
+                y_value = (y_value - np.min(y_value)) / max_y_diff
+            else:
+                y_value = 0 * y_value
 
         pen = pg.mkPen(width=self.backend.line_width, color=color_brush)
         curve = self.graph[graph_id].plot(time, y_value, pen=pen, name=elem.selected_topic_and_field, symbol=self.backend.symbol, symbolBrush=color_brush, symbolPen=color_brush)
