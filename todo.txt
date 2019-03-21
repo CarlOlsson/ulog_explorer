@@ -9,3 +9,4 @@ support drag and drop a logfile onto a graph
 add tabbed environment to keep plot
 fix the hacky solution for rotating the arrow in the 2D graph
 fix bug: D -> U -> k -> D
+add support for zooming and panning from keyboard
