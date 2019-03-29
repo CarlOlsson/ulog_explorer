@@ -5,7 +5,7 @@ from GraphData import *
 
 class GUIBackend():
 
-    def __init__(self, link_xy_range=False):
+    def __init__(self, link_x_range=False, link_y_range=False):
         # List of curve class elements currently displayed
         self.curve_list = []
         # True if every datapoint should be indicated in the plot
@@ -26,8 +26,10 @@ class GUIBackend():
         self.rescale_curves = False
         # Currently display mode of the secondary graph
         self.secondary_graph_mode = '2D'
-        # True if the visible range should be linked together for the main and secondary graphs
-        self.link_xy_range = link_xy_range
+        # True if the visible range along the x axis should be linked together for the main and secondary graphs
+        self.link_x_range = link_x_range
+        # True if the visible range along the y axis should be linked together for the main and secondary graphs
+        self.link_y_range = link_y_range
         # True if the parameter changes are currently displayed
         self.show_changed_parameters = False
         # The object used to display the arrow at the vehicle position in the 2D trajectory graph

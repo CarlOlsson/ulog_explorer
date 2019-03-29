@@ -21,11 +21,23 @@ class Window(QtGui.QMainWindow):
         parser = argparse.ArgumentParser(description='GUI used to analyse uLog files')
         parser.add_argument("input_path", nargs='?', help='Path to directory or .ulg file to open', type=str, default=expanduser('~'))
         parser.add_argument("input_path_seondary_logfile", nargs='?', help='Path to secondary uLog file to open in split screen view', type=str)
-        parser.add_argument('-k', '--link_xy_range', action='store_true', help='Link axes of main and secondary graph')
+        parser.add_argument('-kx', '--link_x_range', action='store_true', help='Link x axes of main and secondary graph')
+        parser.add_argument('-ky', '--link_y_range', action='store_true', help='Link y axes of main and secondary graph')
+        parser.add_argument('-k', '--link_xy_range', action='store_true', help='Link x and y axes of main and secondary graph')
         args = parser.parse_args()
 
+        link_x = False
+        link_y = False
+        if args.link_xy_range:
+            link_x = True
+            link_y = True
+        if args.link_x_range:
+            link_x = True
+        if args.link_y_range:
+            link_y = True
+
         # Initialize the GUI backend
-        self.backend = GUIBackend(args.link_xy_range)
+        self.backend = GUIBackend(link_x, link_y)
 
         self.main_widget = QtGui.QWidget(self)
         self.main_layout = QtGui.QHBoxLayout()
@@ -157,7 +169,7 @@ class Window(QtGui.QMainWindow):
             self.graph[graph_id].scene().contextMenu.append(toggle_legend_action)
 
             link_graph_range_action = QtGui.QAction('link visible range (K)', self)
-            link_graph_range_action.triggered.connect(self.callback_toggle_link_graph_range)
+            link_graph_range_action.triggered.connect(self.callback_toggle_link_xy_graph_range)
             self.graph[graph_id].scene().contextMenu.append(link_graph_range_action)
 
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
@@ -176,7 +188,8 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("U"), self, self.callback_open_secondary_logfile)
         QtGui.QShortcut(QtGui.QKeySequence("A"), self, self.callback_toggle_ROI)
         QtGui.QShortcut(QtGui.QKeySequence("R"), self, self.callback_toggle_rescale_curves)
-        QtGui.QShortcut(QtGui.QKeySequence("K"), self, self.callback_toggle_link_graph_range)
+        QtGui.QShortcut(QtGui.QKeySequence("K"), self, self.callback_toggle_link_xy_graph_range)
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+K"), self, self.callback_toggle_link_y_graph_range)
         QtGui.QShortcut(QtGui.QKeySequence("P"), self, self.callback_toggle_changed_parameters)
         QtGui.QShortcut(QtGui.QKeySequence("V"), self, self.callback_auto_range)
         QtGui.QShortcut(QtGui.QKeySequence("O"), self, lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
@@ -278,11 +291,11 @@ class Window(QtGui.QMainWindow):
             except:
                 pass
 
-        if self.backend.link_xy_range and graph_id == 0 and self.backend.graph_data[1].marker_line_obj is not None and self.split_screen_mode() == 'secondary_logfile':
+        if self.backend.link_x_range and graph_id == 0 and self.backend.graph_data[1].marker_line_obj is not None and self.split_screen_mode() == 'secondary_logfile':
             self.backend.graph_data[1].marker_line_pos = self.backend.graph_data[0].marker_line_pos
             self.backend.graph_data[1].marker_line_obj.setValue(self.backend.graph_data[1].marker_line_pos)
             self.update_marker_line_label(1)
-        elif self.backend.link_xy_range and graph_id == 1 and self.backend.graph_data[0].marker_line_obj is not None and self.split_screen_mode() == 'secondary_logfile':
+        elif self.backend.link_x_range and graph_id == 1 and self.backend.graph_data[0].marker_line_obj is not None and self.split_screen_mode() == 'secondary_logfile':
             self.backend.graph_data[0].marker_line_pos = self.backend.graph_data[1].marker_line_pos
             self.backend.graph_data[0].marker_line_obj.setValue(self.backend.graph_data[0].marker_line_pos)
             self.update_marker_line_label(0)
@@ -461,7 +474,7 @@ class Window(QtGui.QMainWindow):
         self.update_frontend()
 
     def callback_toggle_marker_line(self):
-        if self.backend.secondary_graph_mode == 'secondary_logfile' and self.backend.link_xy_range:
+        if self.backend.secondary_graph_mode == 'secondary_logfile' and self.backend.link_x_range:
             for elem in self.backend.graph_data:
                 elem.show_marker_line = not elem.show_marker_line
                 self.update_frontend()
@@ -522,9 +535,20 @@ class Window(QtGui.QMainWindow):
         self.ROI_region.setRegion([left_quartile, right_quartile])
         self.update_frontend()
 
-    def callback_toggle_link_graph_range(self):
+    def callback_toggle_link_xy_graph_range(self):
         if self.backend.secondary_graph_mode == 'secondary_logfile':
-            self.backend.link_xy_range = not self.backend.link_xy_range
+            if not self.backend.link_x_range == self.backend.link_y_range:
+                self.backend.link_x_range = False
+                self.backend.link_y_range = False
+            else:
+                self.backend.link_x_range = not self.backend.link_x_range
+                self.backend.link_y_range = not self.backend.link_y_range
+            self.update_frontend()
+
+    def callback_toggle_link_y_graph_range(self):
+        if self.backend.secondary_graph_mode == 'secondary_logfile':
+            self.backend.link_x_range = False
+            self.backend.link_y_range = not self.backend.link_y_range
             self.update_frontend()
 
     def unlink_graph_range(self):
@@ -835,8 +859,9 @@ class Window(QtGui.QMainWindow):
             else:
                 self.graph[1].setTitle(self.backend.graph_data[0].title)
 
-        if self.backend.link_xy_range and self.split_screen_mode() == 'secondary_logfile':
+        if self.backend.link_x_range and self.split_screen_mode() == 'secondary_logfile':
             self.graph[1].getViewBox().setXLink(self.graph[0])
+        if self.backend.link_y_range and self.split_screen_mode() == 'secondary_logfile':
             self.graph[1].getViewBox().setYLink(self.graph[0])
 
         # Update 2D trajectory graph if enabled
