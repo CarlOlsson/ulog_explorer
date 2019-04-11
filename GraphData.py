@@ -161,6 +161,7 @@ class GraphData():
         self._add_yaw_pitch_roll('vehicle_attitude_setpoint_0', 'q_d')
         self._add_yaw_pitch_roll('estimator_status_0', 'q')
         self._add_yaw_pitch_roll('estimator_status_0', 'states')
+        self._add_yaw_pitch_roll('control_state_0', 'q')
 
         # Add lat_m, lon_m to vehicle_gps_position
         try:
