@@ -88,7 +88,7 @@ class GraphData():
         try:
             topic_str = 'wind_estimate_0'
             self.df_dict[topic_str]['windspeed_magnitude*'] = np.sqrt(self.df_dict[topic_str]['windspeed_north']**2 + self.df_dict[topic_str]['windspeed_east']**2)
-            self.df_dict[topic_str]['windspeed_direction*'] = np.arctan2(self.df_dict[topic_str]['variance_north'], self.df_dict[topic_str]['variance_east'])
+            self.df_dict[topic_str]['windspeed_direction*'] = np.arctan2(self.df_dict[topic_str]['windspeed_east'], self.df_dict[topic_str]['windspeed_north'])
             self.df_dict[topic_str]['windspeed_direction* [deg]'] = np.rad2deg(self.df_dict[topic_str]['windspeed_direction*'])
         except Exception as ex:
             pass
@@ -162,6 +162,14 @@ class GraphData():
         self._add_yaw_pitch_roll('estimator_status_0', 'q')
         self._add_yaw_pitch_roll('estimator_status_0', 'states')
         self._add_yaw_pitch_roll('control_state_0', 'q')
+
+        # Add total pitch setpoint to vehicle_attitude_setpoint_0
+        try:
+            topic_str = 'vehicle_attitude_setpoint_0'
+            self.df_dict[topic_str]['pitch_body [deg]'] = np.rad2deg(self.df_dict[topic_str]['pitch_body'])
+            self.df_dict[topic_str]['pitch_body + 8 [deg]'] = self.df_dict[topic_str]['pitch_body [deg]'] + 8
+        except Exception as ex:
+            pass
 
         # Add lat_m, lon_m to vehicle_gps_position
         try:
