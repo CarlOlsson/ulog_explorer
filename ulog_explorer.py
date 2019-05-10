@@ -340,8 +340,8 @@ class Window(QtGui.QMainWindow):
         idx_vehicle_position = np.argmax(self.backend.graph_data[0].df_dict[topic_str].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
         pos_x = self.backend.graph_data[0].df_dict[topic_str][x].values[idx_vehicle_position]
         pos_y = self.backend.graph_data[0].df_dict[topic_str][y].values[idx_vehicle_position]
-        idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['vehicle_attitude_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
-        yaw = self.backend.graph_data[0].df_dict['vehicle_attitude_0']['q_yaw312* [deg]'].values[idx_vehicle_attitude]
+        idx_vehicle_attitude = np.argmax(self.backend.graph_data[0].df_dict['control_state_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
+        yaw = self.backend.graph_data[0].df_dict['control_state_0']['q_yaw312* [deg]'].values[idx_vehicle_attitude]
 
         try:
             self.graph[1].removeItem(self.backend.arrow_obj)
@@ -355,17 +355,17 @@ class Window(QtGui.QMainWindow):
         self.graph[1].addItem(self.backend.arrow_obj)
 
         # Mark current mission setpoint
-        try:
-            self.graph[1].removeItem(self.backend.current_sp_marker_obj)
-        except:
-            pass
-        try:
-            idx_position_setpoint_triplet = np.argmax(self.backend.graph_data[0].df_dict['position_setpoint_triplet_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
-            north_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lat_m*'].values[idx_position_setpoint_triplet]
-            east_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lon_m*'].values[idx_position_setpoint_triplet]
-            self.backend.current_sp_marker_obj = self.graph[1].plot([None, east_setpoint], [None, north_setpoint], name='position_setpoint_marker', pen=None, symbol='o', symbolBrush='r')
-        except:
-            pass
+        # try:
+        #     self.graph[1].removeItem(self.backend.current_sp_marker_obj)
+        # except:
+        #     pass
+        # try:
+        #     idx_position_setpoint_triplet = np.argmax(self.backend.graph_data[0].df_dict['position_setpoint_triplet_0'].index > self.backend.graph_data[0].marker_line_obj.value()) - 1
+        #     north_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lat_m*'].values[idx_position_setpoint_triplet]
+        #     east_setpoint = self.backend.graph_data[0].df_dict['position_setpoint_triplet_0']['current.lon_m*'].values[idx_position_setpoint_triplet]
+        #     self.backend.current_sp_marker_obj = self.graph[1].plot([None, east_setpoint], [None, north_setpoint], name='position_setpoint_marker', pen=None, symbol='o', symbolBrush='r')
+        # except:
+        #     pass
 
     def callback_open_logfile(self, input_path=expanduser('~'), graph_id=0):
         if Path(input_path).is_file() and Path(input_path).suffix == ".ulg":
