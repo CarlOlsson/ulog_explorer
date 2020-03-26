@@ -172,10 +172,6 @@ class Window(QtGui.QMainWindow):
             link_graph_range_action.triggered.connect(self.callback_toggle_link_xy_graph_range)
             self.graph[graph_id].scene().contextMenu.append(link_graph_range_action)
 
-            open_in_WiE_action = QtGui.QAction('open logfile in WiE (W)', self)
-            open_in_WiE_action.triggered.connect(partial(self.callback_open_in_WiE, graph_id))
-            self.graph[graph_id].scene().contextMenu.append(open_in_WiE_action)
-
         ROI_action = QtGui.QAction('show/hide ROI (A)', self)
         ROI_action.triggered.connect(self.callback_toggle_ROI)
         self.graph[0].scene().contextMenu.append(ROI_action)
@@ -199,7 +195,6 @@ class Window(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("O"), self, lambda: self.callback_open_logfile(os.path.dirname(self.backend.graph_data[0].path_to_logfile)))
         QtGui.QShortcut(QtGui.QKeySequence("D"), self, self.callback_toggle_marker_line)
         QtGui.QShortcut(QtGui.QKeySequence("N"), self, self.callback_print_ROI_info)
-        QtGui.QShortcut(QtGui.QKeySequence("W"), self, self.callback_open_in_WiE)
 
         # Define shortcuts for when the filter box is in focus
         QtGui.QShortcut(QtCore.Qt.Key_Return, self.filter_box, context=QtCore.Qt.WidgetShortcut, activated=self.callback_focus_on_topic_tree)
@@ -539,11 +534,6 @@ class Window(QtGui.QMainWindow):
         # Set the ROI location
         self.ROI_region.setRegion([left_quartile, right_quartile])
         self.update_frontend()
-
-    def callback_open_in_WiE(self, graph_id=0):
-        # Adapt this to match your correct path
-        call_str = "python3 /home/carl/src/WingtraExplorer/wingtra_explorer.py " + self.backend.graph_data[graph_id].path_to_logfile + " &"
-        os.system(call_str)
 
     def callback_toggle_link_xy_graph_range(self):
         if self.backend.secondary_graph_mode == 'secondary_logfile':
